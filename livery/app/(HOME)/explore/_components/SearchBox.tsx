@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { CircleNotch, MagnifyingGlass, X } from "@phosphor-icons/react";
+import { LoaderCircle as CircleNotch, Search as MagnifyingGlass, X } from "lucide-react";
 import { Kbd } from "@/components/ui/kbd";
 
 // Filters the library as you type (debounced), and "/" focuses it.
@@ -39,7 +39,7 @@ export function SearchBox() {
   return (
     <div className="relative w-full sm:max-w-sm">
       <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-fg-subtle">
-        {pending ? <CircleNotch weight="bold" className="size-4 animate-[spin_0.9s_linear_infinite]" /> : <MagnifyingGlass weight="bold" className="size-4" />}
+        {pending ? <CircleNotch strokeWidth={2.25} className="size-4 animate-[spin_0.9s_linear_infinite]" /> : <MagnifyingGlass strokeWidth={2.25} className="size-4" />}
       </span>
       <input
         ref={input}
@@ -53,7 +53,7 @@ export function SearchBox() {
       <span className="absolute right-2.5 top-1/2 -translate-y-1/2">
         {value ? (
           <button type="button" onClick={() => setValue("")} aria-label="Clear search" className="flex size-6 items-center justify-center rounded-md text-fg-subtle hover:bg-surface-2 hover:text-fg">
-            <X weight="bold" className="size-3.5" />
+            <X strokeWidth={2.25} className="size-3.5" />
           </button>
         ) : (
           <Kbd>/</Kbd>

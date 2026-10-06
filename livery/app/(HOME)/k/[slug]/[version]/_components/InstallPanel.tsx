@@ -1,6 +1,6 @@
 "use client";
 
-import { DownloadSimple, Robot, Terminal } from "@phosphor-icons/react";
+import { Download as DownloadSimple, Bot as Robot, Terminal } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,13 +12,13 @@ export function InstallPanel({ prompt, zipUrl, tarUrl, skillName, sha256 }: { pr
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
           <TabsList>
             <TabsTrigger value="prompt">
-              <Terminal weight="bold" /> Claude Code
+              <Terminal strokeWidth={2.25} /> Claude Code
             </TabsTrigger>
             <TabsTrigger value="download">
-              <DownloadSimple weight="bold" /> Download
+              <DownloadSimple strokeWidth={2.25} /> Download
             </TabsTrigger>
             <TabsTrigger value="other">
-              <Robot weight="bold" /> Other agents
+              <Robot strokeWidth={2.25} /> Other agents
             </TabsTrigger>
           </TabsList>
         </div>
@@ -44,12 +44,12 @@ export function InstallPanel({ prompt, zipUrl, tarUrl, skillName, sha256 }: { pr
           <div className="mt-4 flex flex-wrap gap-2">
             <Button asChild>
               <a href={zipUrl} download>
-                <DownloadSimple weight="bold" /> kit.zip
+                <DownloadSimple strokeWidth={2.25} /> kit.zip
               </a>
             </Button>
             <Button asChild variant="secondary">
               <a href={tarUrl} download>
-                <DownloadSimple weight="bold" /> kit.tar.gz
+                <DownloadSimple strokeWidth={2.25} /> kit.tar.gz
               </a>
             </Button>
           </div>

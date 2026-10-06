@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check } from "@phosphor-icons/react";
+import { Check } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
 import { Input } from "@/components/ui/input";
 import { LEVELS } from "@/lib/generate/levels";
@@ -27,7 +27,7 @@ function Toggle({ on, onClick, children }: { on: boolean; onClick: () => void; c
       )}
     >
       <span className={cn("flex size-4 items-center justify-center rounded-[5px] border transition-colors", on ? "border-accent bg-accent text-on-accent" : "border-border-strong")}>
-        {on && <Check weight="bold" className="size-2.5" />}
+        {on && <Check strokeWidth={2.25} className="size-2.5" />}
       </span>
       {children}
     </button>

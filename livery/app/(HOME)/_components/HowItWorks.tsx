@@ -1,4 +1,4 @@
-import { Check } from "@phosphor-icons/react/ssr";
+import { Check } from "lucide-react";
 import { SITE } from "@/constants/constants";
 import { AskPreview } from "./AskPreview";
 
@@ -96,7 +96,7 @@ function InstallPreview() {
           {line.prompt ? (
             <span className="text-fg-subtle">$</span>
           ) : (
-            <Check className="size-3 shrink-0 text-accent" weight="bold" />
+            <Check className="size-3 shrink-0 text-accent" strokeWidth={2.25} />
           )}
           <span className={line.prompt ? "truncate text-fg" : "truncate text-fg-muted"}>{line.text}</span>
         </div>

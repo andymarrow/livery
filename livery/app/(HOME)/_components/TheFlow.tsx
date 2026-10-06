@@ -1,4 +1,4 @@
-import { GitCommit, Robot, SealCheck, User } from "@phosphor-icons/react/ssr";
+import { GitCommitHorizontal as GitCommit, Bot as Robot, BadgeCheck as SealCheck, User } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,7 @@ function Message({ from, children, delay = 0 }: { from: "agent" | "you"; childre
           agent ? "border-border bg-surface text-fg" : "border-transparent bg-fg text-bg",
         )}
       >
-        {agent ? <Robot weight="duotone" className="size-4" /> : <User weight="bold" className="size-3.5" />}
+        {agent ? <Robot className="size-4" /> : <User strokeWidth={2.25} className="size-3.5" />}
       </span>
       <div className={cn("min-w-0 max-w-[34rem]", agent ? "flex-1" : "text-right")}>
         <p className="mb-1.5 text-[11.5px] font-medium text-fg-subtle">{agent ? "Your agent" : "You"}</p>
@@ -103,14 +103,14 @@ export function TheFlow() {
                 ["4e8d0f2", "components"],
               ].map(([hash, area]) => (
                 <p key={hash} className="flex items-center gap-2 truncate">
-                  <GitCommit weight="bold" className="size-3.5 shrink-0 text-accent" />
+                  <GitCommit strokeWidth={2.25} className="size-3.5 shrink-0 text-accent" />
                   <span className="text-fg-subtle">{hash}</span>
                   <span className="truncate text-fg">livery(example.com v1): {area}</span>
                 </p>
               ))}
             </div>
             <p className="mt-3 flex items-center gap-2 text-fg-muted">
-              <SealCheck weight="duotone" className="size-4 shrink-0 text-accent" />
+              <SealCheck className="size-4 shrink-0 text-accent" />
               Contrast checked in both themes. To undo one area: git revert &lt;hash&gt;.
             </p>
           </Message>

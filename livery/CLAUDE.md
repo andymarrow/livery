@@ -61,6 +61,7 @@ Inspiration: rize.roggy.site, goatrank.lol, and the owner's reference screenshot
 ## Look and feel
 
 - **Light and dark themes, always.** Every component must look right in both. Use CSS variable design tokens, not hardcoded colors.
+- **Soft skin, never pure white or pure black.** Light theme is soft paper (`#efeee8`) with lifted cards (`#f8f7f3`); dark theme is charcoal (`#161718`) with `#1d1e20` cards.
 - **Accent color: Teal.** One accent, used with restraint: primary buttons, active nav state, key numbers, progress, links. Neutrals do the rest.
 - **Clean, modern, simple, with space to breathe.** Generous padding and whitespace, clear hierarchy, few elements per section. Calm warm/neutral surfaces in light, near-black surfaces in dark.
 - **Flat and grounded.** Use hairline borders, rounded cards, and subtle surface contrast to separate things.
@@ -69,8 +70,8 @@ Inspiration: rize.roggy.site, goatrank.lol, and the owner's reference screenshot
 
 ## Icons
 
-- **Phosphor** (`@phosphor-icons/react`) is the only icon set. Server components import from `@phosphor-icons/react/ssr`, client components from `@phosphor-icons/react`.
-- `regular` weight by default, `bold` inside small buttons and badges, `duotone` (in the accent colour) for feature icons. Size icons with CSS (`size-4`), not props.
+- **Lucide** (`lucide-react`) is the only icon set, kept smooth: the base CSS lightens the default stroke to 1.75.
+- Use `strokeWidth={2.25}` only for tiny icons inside small buttons and badges. Size icons with CSS (`size-4`), not props. No filled or two-tone icons.
 
 ## Layout safety
 

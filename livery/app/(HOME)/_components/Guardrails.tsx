@@ -1,4 +1,4 @@
-import { Fingerprint, HandPalm, LockKey, ShieldCheck } from "@phosphor-icons/react/ssr";
+import { Fingerprint, Hand as HandPalm, LockKeyhole as LockKey, ShieldCheck } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 
@@ -34,7 +34,7 @@ export function Guardrails() {
           {ITEMS.map(({ Icon, title, body }, index) => (
             <Reveal key={title} delay={index * 60} className="bg-surface p-6 sm:p-8">
               <span className="flex size-10 items-center justify-center rounded-xl bg-accent-soft text-accent-soft-fg">
-                <Icon weight="duotone" className="size-5" />
+                <Icon className="size-5" />
               </span>
               <h3 className="mt-5 text-lg font-semibold tracking-tight">{title}</h3>
               <p className="mt-2 max-w-md text-sm leading-relaxed text-fg-muted">{body}</p>

@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, KeyReturn } from "@phosphor-icons/react";
+import { ArrowRight, CornerDownLeft as KeyReturn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/CopyButton";
 import { SITE } from "@/constants/constants";
@@ -137,7 +137,7 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
             />
             <Button type="submit" size="lg" className="group/build h-12 w-full rounded-[14px] sm:h-14 sm:w-auto sm:px-6">
               Build kit
-              <ArrowRight weight="bold" className="transition-transform duration-200 ease-out-soft group-hover/build:translate-x-0.5" />
+              <ArrowRight strokeWidth={2.25} className="transition-transform duration-200 ease-out-soft group-hover/build:translate-x-0.5" />
             </Button>
           </div>
         </div>

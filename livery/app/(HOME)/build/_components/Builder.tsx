@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, CircleNotch, HourglassMedium, WarningCircle } from "@phosphor-icons/react";
+import { ArrowLeft, Check, LoaderCircle as CircleNotch, Hourglass as HourglassMedium, CircleAlert as WarningCircle } from "lucide-react";
 import Link from "next/link";
 import type { BuildEvent } from "@/app/api/build/route";
 import type { BuildStage, ReadFailureReason } from "@/lib/extract/types";
@@ -99,13 +99,13 @@ export function Builder({ url, host }: { url: string; host: string }) {
   if (state.phase === "failed") {
     const copy = failureCopy(state.reason, host);
     return (
-      <Outcome icon={<WarningCircle weight="duotone" className="size-6" />} title={copy.title} body={copy.body} next={copy.next} code={state.reason} owners={state.reason === "bot_protection" || state.reason === "robots_disallowed"} />
+      <Outcome icon={<WarningCircle className="size-6" />} title={copy.title} body={copy.body} next={copy.next} code={state.reason} owners={state.reason === "bot_protection" || state.reason === "robots_disallowed"} />
     );
   }
   if (state.phase === "rate_limited") {
     return (
       <Outcome
-        icon={<HourglassMedium weight="duotone" className="size-6" />}
+        icon={<HourglassMedium className="size-6" />}
         title="You've built a lot of kits today"
         body="New builds are limited per visitor, because each one renders a site and calls a model. Kits already in the library are always free."
         next={`You can build again after ${new Date(state.resetAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.`}
@@ -113,7 +113,7 @@ export function Builder({ url, host }: { url: string; host: string }) {
     );
   }
   if (state.phase === "error") {
-    return <Outcome icon={<WarningCircle weight="duotone" className="size-6" />} title="Something went wrong" body={state.message} next="Nothing was published. You can try again." retry />;
+    return <Outcome icon={<WarningCircle className="size-6" />} title="Something went wrong" body={state.message} next="Nothing was published. You can try again." retry />;
   }
 
   const activeIndex = state.phase === "running" && state.stage ? STAGES.findIndex((s) => s.id === state.stage) : state.phase === "waiting" ? -1 : 0;
@@ -138,7 +138,7 @@ export function Builder({ url, host }: { url: string; host: string }) {
                   done ? "border-accent bg-accent text-on-accent" : active ? "border-accent text-accent" : "border-border text-fg-subtle",
                 )}
               >
-                {done ? <Check weight="bold" className="size-3.5" /> : active ? <CircleNotch weight="bold" className="size-3.5 animate-[spin_0.9s_linear_infinite]" /> : <span className="size-1.5 rounded-full bg-current" />}
+                {done ? <Check strokeWidth={2.25} className="size-3.5" /> : active ? <CircleNotch strokeWidth={2.25} className="size-3.5 animate-[spin_0.9s_linear_infinite]" /> : <span className="size-1.5 rounded-full bg-current" />}
               </span>
               <span className="min-w-0 flex-1">
                 <span className={cn("block text-[14.5px] font-medium transition-colors", done || active ? "text-fg" : "text-fg-subtle")}>{stage.label}</span>
@@ -151,7 +151,7 @@ export function Builder({ url, host }: { url: string; host: string }) {
 
       <div className="mt-5 flex items-center justify-between text-[13px] text-fg-subtle">
         <Link href="/" className="inline-flex items-center gap-1.5 transition-colors hover:text-fg">
-          <ArrowLeft weight="bold" className="size-3.5" /> Back
+          <ArrowLeft strokeWidth={2.25} className="size-3.5" /> Back
         </Link>
         <span>
           Elapsed <Elapsed since={started} />
@@ -172,7 +172,7 @@ function Outcome({ icon, title, body, next, code, owners, retry }: { icon: React
         {retry && <Button onClick={() => window.location.reload()}>Try again</Button>}
         <Button asChild variant="secondary">
           <Link href="/#get-a-kit">
-            <ArrowLeft weight="bold" /> Try another site
+            <ArrowLeft strokeWidth={2.25} /> Try another site
           </Link>
         </Button>
         {owners && (

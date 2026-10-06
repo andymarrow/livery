@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ArrowUpRight, Plus, Tray } from "@phosphor-icons/react/ssr";
+import { ArrowUpRight, Plus, Inbox as Tray } from "lucide-react";
 import { CodeBlock } from "@/components/CodeBlock";
 import { CopyButton } from "@/components/CopyButton";
 import { EmptyState } from "@/components/EmptyState";

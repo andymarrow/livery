@@ -1,7 +1,7 @@
 "use client";
 
 import { Accordion as AccordionPrimitive } from "radix-ui";
-import { Plus } from "@phosphor-icons/react";
+import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Accordion = AccordionPrimitive.Root;
@@ -22,7 +22,7 @@ export function AccordionTrigger({ className, children, ...props }: React.Compon
       >
         {children}
         <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-fg-muted transition-[transform,background-color,color] duration-300 ease-out-soft group-data-[state=open]:rotate-45 group-data-[state=open]:bg-accent-soft group-data-[state=open]:text-accent-soft-fg">
-          <Plus className="size-3.5" weight="bold" />
+          <Plus className="size-3.5" strokeWidth={2.25} />
         </span>
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>

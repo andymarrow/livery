@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowUpRight, Info, SealCheck } from "@phosphor-icons/react/ssr";
+import { ArrowUpRight, Info, BadgeCheck as SealCheck } from "lucide-react";
 import { LicenceBadge } from "@/components/LicenceBadge";
 import { Badge } from "@/components/ui/badge";
 import { skillNameFor } from "@/lib/generate/flow";
@@ -61,7 +61,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="accent">v{view.version}</Badge>
-            {withdrawn ? <Badge variant="danger">Withdrawn</Badge> : <Badge variant="neutral"><SealCheck weight="fill" className="text-accent" /> Published {view.publishedAt.slice(0, 10)}</Badge>}
+            {withdrawn ? <Badge variant="danger">Withdrawn</Badge> : <Badge variant="neutral"><SealCheck className="text-accent" /> Published {view.publishedAt.slice(0, 10)}</Badge>}
           </div>
           <h1 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">{view.domain}</h1>
           <a href={view.sourceUrl} target="_blank" rel="noreferrer noopener" className="mt-2 inline-flex items-center gap-1 text-[14px] text-fg-muted transition-colors hover:text-fg">
@@ -81,7 +81,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
 
       {view.latestVersion > view.version && (
         <div className="mt-8 flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 text-sm">
-          <Info weight="duotone" className="size-4 shrink-0 text-accent" />
+          <Info className="size-4 shrink-0 text-accent" />
           A newer version of this kit exists.
           <Link href={kitPath(view.slug, view.latestVersion)} className="ml-auto font-medium text-accent hover:underline">Open v{view.latestVersion}</Link>
         </div>

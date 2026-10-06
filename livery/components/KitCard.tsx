@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight } from "@phosphor-icons/react/ssr";
+import { ArrowUpRight } from "lucide-react";
 import { kitPath } from "@/lib/kit/urls";
 import type { KitCard as KitCardData } from "@/services/kitRead";
 
@@ -27,7 +27,7 @@ export function KitCard({ kit }: { kit: KitCardData }) {
             <p className="truncate text-[12.5px] text-fg-subtle">{new URL(kit.sourceUrl).pathname === "/" ? "Homepage" : new URL(kit.sourceUrl).pathname}</p>
           </div>
           <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border text-fg-subtle transition-colors duration-200 group-hover:border-accent group-hover:bg-accent group-hover:text-on-accent">
-            <ArrowUpRight weight="bold" className="size-3.5" />
+            <ArrowUpRight strokeWidth={2.25} className="size-3.5" />
           </span>
         </div>
         <div className="mt-auto flex flex-wrap items-center gap-1.5 text-[11.5px] text-fg-muted">

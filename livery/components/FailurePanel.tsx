@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Prohibit, WarningCircle } from "@phosphor-icons/react/ssr";
+import { ArrowLeft, Ban as Prohibit, CircleAlert as WarningCircle } from "lucide-react";
 import type { ReadFailureReason } from "@/lib/extract/types";
 import { failureCopy } from "@/lib/kit/failure";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ export function FailurePanel({ reason, host }: { reason: ReadFailureReason; host
   return (
     <div className="mx-auto w-full max-w-lg text-center">
       <span className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-border bg-surface text-fg-muted">
-        <Icon weight="duotone" className="size-6" />
+        <Icon className="size-6" />
       </span>
       <h1 className="mt-6 text-3xl font-semibold tracking-[-0.035em] text-balance">{copy.title}</h1>
       <p className="mt-3 text-[15px] leading-relaxed text-fg-muted text-pretty">{copy.body}</p>
@@ -22,7 +22,7 @@ export function FailurePanel({ reason, host }: { reason: ReadFailureReason; host
       <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
         <Button asChild variant="secondary">
           <Link href="/#get-a-kit">
-            <ArrowLeft weight="bold" /> Try another site
+            <ArrowLeft strokeWidth={2.25} /> Try another site
           </Link>
         </Button>
         {OWNER_REASONS.includes(reason) && (

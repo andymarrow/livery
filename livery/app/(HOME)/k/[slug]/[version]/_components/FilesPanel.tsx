@@ -1,6 +1,6 @@
 "use client";
 
-import { BracketsCurly, FileText } from "@phosphor-icons/react";
+import { Braces as BracketsCurly, FileText } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
@@ -17,7 +17,7 @@ export function FilesPanel({ files }: { files: { path: string; text: string }[] 
           <AccordionItem key={file.path} value={file.path}>
             <AccordionTrigger className="py-4">
               <span className="flex items-center gap-3">
-                <Icon weight="duotone" className="size-4 text-accent" />
+                <Icon className="size-4 text-accent" />
                 <span className="font-mono text-[13px]">{file.path}</span>
                 <span className="text-[12px] font-normal text-fg-subtle">{(file.text.length / 1024).toFixed(1)} KB</span>
               </span>

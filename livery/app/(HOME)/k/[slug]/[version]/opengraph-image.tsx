@@ -13,20 +13,20 @@ export default async function KitOgImage({ params }: { params: Promise<{ slug: s
   const number = parseVersion(version);
   const view = number && supabaseConfigured() ? await getKitVersion(slug, number) : null;
   const palette = view?.tokens?.palette;
-  const bands = palette ? [palette.background, palette.surface, palette.text, palette.accent, palette.border].filter((c): c is string => Boolean(c)) : ["#f6f5f1", "#ffffff", "#151513", "#0f7c72"];
+  const bands = palette ? [palette.background, palette.surface, palette.text, palette.accent, palette.border].filter((c): c is string => Boolean(c)) : ["#efeee8", "#ffffff", "#1a1a17", "#0d7268"];
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "#f6f5f1", fontFamily: "sans-serif" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "#efeee8", fontFamily: "sans-serif" }}>
         <div style={{ display: "flex", height: 300 }}>
           {bands.map((colour, i) => (
             <div key={i} style={{ flexGrow: i === 0 ? 3 : 1, background: colour }} />
           ))}
         </div>
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", flexGrow: 1, padding: "48px 64px" }}>
-          <span style={{ fontSize: 76, fontWeight: 600, color: "#151513", letterSpacing: -3 }}>{view?.domain ?? slug}</span>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 28, color: "#5c5a54" }}>
+          <span style={{ fontSize: 76, fontWeight: 600, color: "#1a1a17", letterSpacing: -3 }}>{view?.domain ?? slug}</span>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 28, color: "#55534d" }}>
             <span>Design kit · v{number ?? 1}</span>
-            <span style={{ color: "#0f7c72", fontWeight: 600 }}>livery.site</span>
+            <span style={{ color: "#0d7268", fontWeight: 600 }}>livery.site</span>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
-import { CheckCircle, Info, WarningCircle, X } from "@phosphor-icons/react";
+import { CircleCheck as CheckCircle, Info, CircleAlert as WarningCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ToastTone = "neutral" | "success" | "danger";

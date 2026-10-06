@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "@phosphor-icons/react/ssr";
+import { ArrowRight } from "lucide-react";
 import { KitCard } from "@/components/KitCard";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
@@ -16,7 +16,7 @@ export function LibraryTeaser({ kits }: { kits: KitCardData[] }) {
           <SectionHeading kicker="The library" title="Every link becomes a kit anyone can use." />
           <Button asChild variant="secondary" className="shrink-0 self-start sm:self-auto">
             <Link href="/explore">
-              Explore all kits <ArrowRight weight="bold" />
+              Explore all kits <ArrowRight strokeWidth={2.25} />
             </Link>
           </Button>
         </div>

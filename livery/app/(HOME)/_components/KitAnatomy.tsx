@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { BracketsCurly, FileText, FolderSimple, Image as ImageIcon } from "@phosphor-icons/react";
+import { Braces as BracketsCurly, FileText, Folder as FolderSimple, Image as ImageIcon } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
 import { LIVERY_KIT, type KitFilePreview } from "@/data/liveryKit";
 import { cn } from "@/lib/utils";
@@ -82,7 +82,7 @@ export function KitAnatomy() {
     <div className="overflow-hidden rounded-[22px] border border-border bg-surface">
       <div className="flex h-12 items-center justify-between gap-4 border-b border-border px-4">
         <div className="flex min-w-0 items-center gap-2.5 text-[13px]">
-          <FolderSimple weight="duotone" className="size-4 shrink-0 text-accent" />
+          <FolderSimple className="size-4 shrink-0 text-accent" />
           <span className="truncate font-mono text-fg-muted">.claude/skills/</span>
           <span className="-ml-2 truncate font-mono font-medium text-fg">livery-livery-site</span>
         </div>
@@ -123,7 +123,7 @@ export function KitAnatomy() {
                     selected ? "opacity-100" : "opacity-0",
                   )}
                 />
-                <Icon weight={selected ? "duotone" : "regular"} className={cn("size-4 shrink-0", selected && "text-accent")} />
+                <Icon className={cn("size-4 shrink-0", selected && "text-accent")} />
                 <span className="min-w-0">
                   <span className="block font-mono text-[12.5px] font-medium">{entry.path}</span>
                   <span className="hidden truncate text-[11.5px] text-fg-subtle md:block">{entry.description}</span>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, List } from "@phosphor-icons/react";
+import { ArrowUpRight, Menu as List } from "lucide-react";
 import { LogoMark } from "@/components/Logo";
 import { ThemeSwitch } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";

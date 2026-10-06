@@ -18,7 +18,7 @@ description: Apply the livery.site design kit (Livery v1) to this
 
 **Never edit a file before step 5. Ask, don't assume.**
 
-Calm warm paper, hairline borders and a single teal accent
+Soft paper tones, hairline borders and a single teal accent
 that only ever marks the next step.
 
 ## 1. Audit
@@ -43,18 +43,18 @@ motion → voice.`,
     content: `{
   "colour": {
     "light": {
-      "background": "#f6f5f1",
-      "surface": "#ffffff",
-      "text": "#151513",
-      "text-muted": "#5c5a54",
-      "border": "#e4e2dc",
-      "accent": "#0f7c72",
+      "background": "#efeee8",
+      "surface": "#f8f7f3",
+      "text": "#1a1a17",
+      "text-muted": "#55534d",
+      "border": "#dddbd3",
+      "accent": "#0d7268",
       "on-accent": "#ffffff"
     },
     "dark": {
-      "background": "#0c0c0d",
-      "surface": "#141415",
-      "text": "#ededea",
+      "background": "#161718",
+      "surface": "#1d1e20",
+      "text": "#e6e5e0",
       "accent": "#5fd4c2",
       "on-accent": "#052420"
     }
@@ -125,7 +125,7 @@ Tone: calm, direct, plain.
 |----------|----------------|--------------------|
 | font     | Hanken Grotesk | ✅ Free to reuse    |
 | font     | Geist Mono     | ✅ Free to reuse    |
-| icon set | Phosphor       | ✅ Free to reuse    |
+| icon set | Lucide         | ✅ Free to reuse    |
 | logo     | Site logo      | 🎨 Style only       |
 
 This kit contains no font files, images, logos, stylesheets
