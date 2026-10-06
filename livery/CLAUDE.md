@@ -79,6 +79,14 @@ Inspiration: rize.roggy.site, goatrank.lol, and the owner's reference screenshot
 - Responsive from phone to wide desktop. Accessible: contrast in both themes, visible focus, keyboard support, semantic HTML.
 - More context and rules will be added over time. Treat this file as the source of truth and update it when the owner gives new standing rules.
 
+## Commands
+
+- `npm run dev`, `npm run build`, `npm run lint`, `npm run typecheck`
+- `npm test`: unit, guardrail fixtures (real Chrome if installed) and database tests (embedded Postgres via PGlite, with Supabase roles stubbed)
+- `LIVE=1 npx vitest run tests/live`: opt-in smoke test against real websites
+- `node scripts/contrast.mjs`: WCAG contrast of the theme tokens
+- Database changes go in `supabase/migrations/` as new timestamped files, are covered by `tests/db`, then applied through the Supabase MCP.
+
 ## Reminders
 
 - Read the relevant guide in `node_modules/next/dist/docs/` before writing Next.js code (see `AGENTS.md`); this Next.js version has breaking changes.

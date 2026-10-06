@@ -1,0 +1,115 @@
+// Sites Livery refuses entirely, at every level, whatever an opt-in file says.
+// A design kit of a bank homepage plus a login page an agent invents is a
+// phishing kit. Matching covers the domain and all of its subdomains.
+// Grow this from the logs; it is deliberately conservative to start.
+
+export type DenyCategory = "bank" | "payments" | "crypto" | "identity" | "government";
+
+export const DENIED_DOMAINS: Record<string, DenyCategory> = {
+  // Banks
+  "chase.com": "bank",
+  "bankofamerica.com": "bank",
+  "wellsfargo.com": "bank",
+  "citi.com": "bank",
+  "citibank.com": "bank",
+  "usbank.com": "bank",
+  "capitalone.com": "bank",
+  "pnc.com": "bank",
+  "tdbank.com": "bank",
+  "ally.com": "bank",
+  "hsbc.com": "bank",
+  "hsbc.co.uk": "bank",
+  "barclays.co.uk": "bank",
+  "barclays.com": "bank",
+  "lloydsbank.com": "bank",
+  "natwest.com": "bank",
+  "santander.com": "bank",
+  "santander.co.uk": "bank",
+  "bnpparibas.com": "bank",
+  "deutsche-bank.de": "bank",
+  "ing.com": "bank",
+  "commbank.com.au": "bank",
+  "westpac.com.au": "bank",
+  "rbc.com": "bank",
+  "td.com": "bank",
+  "scotiabank.com": "bank",
+  "icicibank.com": "bank",
+  "hdfcbank.com": "bank",
+  "sbi.co.in": "bank",
+  "combanketh.et": "bank",
+  "monzo.com": "bank",
+  "revolut.com": "bank",
+  "chime.com": "bank",
+  "n26.com": "bank",
+  "wise.com": "payments",
+
+  // Payments and checkout surfaces
+  "paypal.com": "payments",
+  "paypal.me": "payments",
+  "venmo.com": "payments",
+  "cash.app": "payments",
+  "checkout.stripe.com": "payments",
+  "buy.stripe.com": "payments",
+  "connect.stripe.com": "payments",
+  "dashboard.stripe.com": "payments",
+  "js.stripe.com": "payments",
+  "adyen.com": "payments",
+  "braintreegateway.com": "payments",
+  "checkout.com": "payments",
+  "klarna.com": "payments",
+  "afterpay.com": "payments",
+  "squareup.com": "payments",
+  "zellepay.com": "payments",
+  "westernunion.com": "payments",
+  "moneygram.com": "payments",
+  "telebirr.et": "payments",
+
+  // Crypto exchanges and wallets
+  "coinbase.com": "crypto",
+  "binance.com": "crypto",
+  "kraken.com": "crypto",
+  "crypto.com": "crypto",
+  "okx.com": "crypto",
+  "bybit.com": "crypto",
+  "kucoin.com": "crypto",
+  "gemini.com": "crypto",
+  "metamask.io": "crypto",
+  "phantom.app": "crypto",
+  "trustwallet.com": "crypto",
+  "ledger.com": "crypto",
+  "blockchain.com": "crypto",
+
+  // Identity and sign-in pages most often faked
+  "accounts.google.com": "identity",
+  "myaccount.google.com": "identity",
+  "appleid.apple.com": "identity",
+  "idmsa.apple.com": "identity",
+  "icloud.com": "identity",
+  "login.microsoftonline.com": "identity",
+  "login.live.com": "identity",
+  "account.microsoft.com": "identity",
+  "login.yahoo.com": "identity",
+  "okta.com": "identity",
+  "auth0.com": "identity",
+  "facebook.com": "identity",
+  "instagram.com": "identity",
+
+  // Government services
+  "irs.gov": "government",
+  "ssa.gov": "government",
+  "login.gov": "government",
+  "gov.uk": "government",
+};
+
+// Whole top-level and second-level suffixes refused by category.
+export const DENIED_SUFFIXES: Record<string, DenyCategory> = {
+  bank: "bank",
+  gov: "government",
+  mil: "government",
+  "gov.uk": "government",
+  "gov.au": "government",
+  "gov.et": "government",
+  "gov.in": "government",
+  "gc.ca": "government",
+  "gouv.fr": "government",
+};

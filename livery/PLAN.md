@@ -141,27 +141,27 @@ Each phase ends with a **done when** check. Work on a feature branch per phase, 
 
 Use Supabase migrations (via MCP or `supabase/migrations/`). Follow the supabase and postgres best-practice skills (RLS on every table, indexes on lookup keys, no `security definer` without a reason).
 
-- [ ] Tables: `sites`, `kits`, `kit_versions`, `kit_items`, `read_failures`, `rate_limits`. (`library` and `profiles` are added when accounts arrive.)
-- [ ] `sites.opt_in` is `none | granted | forbidden`, plus `grant jsonb`, `grant_checked_at`. `kit_versions` gets `grant_snapshot jsonb`, `grant_hash`, `flow_version`, status `building | ready | failed | withdrawn`.
-- [ ] Trigger: reject any `UPDATE` on `kit_versions` once `published_at` is set, except moving status to `withdrawn` (and clearing the zip path) via a dedicated function.
-- [ ] `bump_rate(key, window, max)` atomic function.
-- [ ] Unique build lock so two requests for the same URL don't build twice (insert `building` row first, handle conflict).
-- [ ] RLS: public read on `ready` kit_versions, kits, kit_items; everything else service-role only. Writes only from server code.
-- [ ] Storage buckets: `kits` (public read, no overwrite), `screenshots` (private, signed URLs).
-- [ ] Generate TS types from the schema. Run the security advisors.
+- [x] Tables: `sites`, `kits`, `kit_versions`, `kit_items`, `read_failures`, `rate_limits`. (`library` and `profiles` are added when accounts arrive.)
+- [x] `sites.opt_in` is `none | granted | forbidden`, plus `grant_doc jsonb` (`grant` is a reserved word), `grant_checked_at`. `kit_versions` gets `grant_snapshot jsonb`, `grant_hash`, `flow_version`, status `building | ready | failed | withdrawn`.
+- [x] Trigger: reject any `UPDATE` on `kit_versions` once `published_at` is set, except moving status to `withdrawn` (and clearing the zip path) via a dedicated function.
+- [x] `bump_rate(key, window, max)` atomic function.
+- [x] Unique build lock so two requests for the same URL don't build twice (insert `building` row first, handle conflict).
+- [x] RLS: public read on `ready` kit_versions, kits, kit_items; everything else service-role only. Writes only from server code.
+- [x] Storage buckets: `kits` (public read, no overwrite), `screenshots` (private, signed URLs).
+- [ ] Generate TS types from the schema. Run the security advisors. (Hand-written types in `lib/supabase/database.types.ts` for now. Pending: apply the migrations through the Supabase MCP, then regenerate types and run advisors.)
 
 **Done when:** advisors report no RLS gaps; permanence trigger and rate function covered by SQL tests.
 
 ### Phase 3: Safe URL intake and browser
 
-- [ ] `lib/url/normalise`: lowercase host, strip query/hash/tracking, bare domain becomes homepage, handle `https:/` collapsing that happens in paths.
-- [ ] `lib/url/ssrf`: https only, DNS resolve, reject private/loopback/link-local/metadata addresses, limit redirects and re-check each hop.
-- [ ] `lib/url/blocklist`: banks, payment providers, crypto exchanges/wallets, government services, identity pages (Apple ID, Microsoft, Google, PayPal), `.bank` TLD, plus `sites.opt_in = 'forbidden'`.
-- [ ] `lib/browser.ts` using `playwright-core` `connectOverCDP`.
-- [ ] Render at 3 widths (390, 820, 1440), wait for network idle + fonts, scroll to trigger lazy content, block analytics/ads/autoplay video.
-- [ ] Block detection **before** extraction, returning the typed `ReadResult`: bot protection (Cloudflare, DataDome, PerimeterX, AWS WAF, Akamai, captcha frames), login wall, empty render, not found, robots disallowed, unsafe URL, timeout, `sensitive_page`.
-- [ ] `read_failures` memory (24h; 1h for timeout and empty). Retry only network errors, once.
-- [ ] Rate limiting by hashed IP on build requests (cache hits are free and unlimited).
+- [x] `lib/url/normalise`: lowercase host, strip query/hash/tracking, bare domain becomes homepage, handle `https:/` collapsing that happens in paths.
+- [x] `lib/url/ssrf`: https only, DNS resolve, reject private/loopback/link-local/metadata addresses, limit redirects and re-check each hop.
+- [x] `lib/url/blocklist`: banks, payment providers, crypto exchanges/wallets, government services, identity pages (Apple ID, Microsoft, Google, PayPal), `.bank` TLD, plus `sites.opt_in = 'forbidden'`.
+- [x] `lib/browser.ts` using `playwright-core` `connectOverCDP`.
+- [x] Render at 3 widths (390, 820, 1440), wait for network idle + fonts, scroll to trigger lazy content, block analytics/ads/autoplay video.
+- [x] Block detection **before** extraction, returning the typed `ReadResult`: bot protection (Cloudflare, DataDome, PerimeterX, AWS WAF, Akamai, captcha frames), login wall, empty render, not found, robots disallowed, unsafe URL, timeout, `sensitive_page`.
+- [x] `read_failures` memory (24h; 1h for timeout and empty). Retry only network errors, once.
+- [x] Rate limiting by hashed IP on build requests (cache hits are free and unlimited).
 
 **Done when:** unit tests pass for SSRF and blocklist; fixtures for Cloudflare challenge, login page and empty SPA each return the right reason and nothing is extracted.
 

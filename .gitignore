@@ -1,0 +1,3 @@
+# Local MCP config (may hold credentials)
+.mcp.json
+.DS_Store
