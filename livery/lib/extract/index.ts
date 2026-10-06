@@ -2,6 +2,7 @@ import "server-only";
 import type { Page } from "playwright-core";
 import { EXTRACTOR_VERSION } from "@/constants/constants";
 import type { KitItemKind, KitLicence } from "@/lib/supabase/database.types";
+import { collectAssets, type AssetCandidates, type AssetKind } from "./collect/collectAssets";
 import { collectDesign, type RawDesign } from "./collect/collectDesign";
 import { captureFrame, type Frame } from "./frames";
 import { luminance, parseColor } from "./process/color";
@@ -33,6 +34,8 @@ export type Extraction = {
   items: KitItem[];
   frames: Frame[];
   text: RawDesign["text"];
+  /** Owner-granted asset candidates (level 5 only), turned into files later. */
+  assetCandidates: AssetCandidates | null;
 };
 
 // Probes the other colour scheme, if the site has one: through
@@ -113,7 +116,8 @@ function licenceItems(fonts: FontInfo[], icons: IconReport, imagery: Imagery): K
  * Collects design data from each rendered viewport (plug `visit` into
  * renderSite), then `finish` turns it into one Extraction. Deterministic: no model.
  */
-export function createExtractor(sourceUrl: string) {
+export function createExtractor(sourceUrl: string, options: { assets?: AssetKind[] } = {}) {
+  let assetCandidates: AssetCandidates | null = null;
   const raws: Partial<Record<Viewport["name"], RawDesign>> = {};
   const frames: Frame[] = [];
   let alternate: RawDesign | null = null;
@@ -124,6 +128,7 @@ export function createExtractor(sourceUrl: string) {
     raws[viewport.name] = raw;
     if (viewport.name === "desktop") {
       components = await analyseComponents(page, raw.components);
+      if (options.assets?.length) assetCandidates = await page.evaluate(collectAssets, options.assets).catch(() => null);
       const backdrop = parseColor(raw.pageBackground);
       alternate = await collectOtherScheme(page, raw, backdrop ? luminance(backdrop) < 0.2 : false);
     }
@@ -146,6 +151,7 @@ export function createExtractor(sourceUrl: string) {
       components,
       imagery,
       items: licenceItems(fonts, icons, imagery),
+      assetCandidates,
       frames: frames.sort((a, b) => b.width - a.width),
       text: {
         headings: [...new Set([...desktop.text.headings, ...mobile.text.headings])],

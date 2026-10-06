@@ -10,6 +10,8 @@ export type FlowInput = {
   licenceRequired: number;
   styleOnly: number;
   attribution: string | null;
+  /** Data files in this kit, in reading order. */
+  files?: string[];
 };
 
 // The flow is the product: a fixed template owned by Livery, identical in
@@ -31,7 +33,7 @@ description: Apply the ${siteName} design kit (Livery v${version}) to this proje
 
 ${summary}
 
-Kit files (read each one only when its step needs it): \`tokens.json\`, \`fonts.json\`, \`icons.json\`, \`components.md\`, \`layout.md\`, \`motion.md\`, \`voice.md\`, \`rules.md\`, \`licences.md\`, \`frames/\`.
+Kit files (read each one only when its step needs it): ${(input.files ?? ["tokens.json", "fonts.json", "icons.json", "components.md", "layout.md", "motion.md", "voice.md", "rules.md", "licences.md", "frames/"]).map((f) => `\`${f}\``).join(", ")}.${input.files?.includes("owner-rules.md") ? "\nThe owner's own rules are in `owner-rules.md`; they outrank `rules.md`." : ""}
 
 Levels offered:
 ${levelLines}
@@ -56,7 +58,7 @@ For each area (tokens, components, layout, motion, voice), rate the gap small / 
 ## 4. Ask
 Ask which areas to apply. Warn clearly where the gap is large.
 Ask what must not change (logo colours, required brand colours, legal copy).
-For voice: show three of the user's own sentences rewritten with \`voice.md\`, then ask.
+${!input.files || input.files.includes("voice.md") ? "For voice: show three of the user's own sentences rewritten with `voice.md`, then ask." : ""}
 
 ## 5. Resolve conflicts
 For the chosen areas, quote each conflicting project rule with file:line. For each one offer: keep the rule / override once / override and update the rule.
@@ -65,11 +67,11 @@ For hard rules, ask a second time and repeat the rule's stated reason.
 ## 6. Licences
 Read \`licences.md\`. Install fonts and icons only from their official sources (Google Fonts, Fontsource, npm), never from the source site.
 For each item marked "needs a licence": use it only if the user confirms they hold a licence; otherwise use the listed free alternative.
-Items marked "style only" (logos, photos, illustrations, custom icons) are recreated as style only: shape, weight and colour treatment, never copied files.
+Items marked "style only" (logos, photos, illustrations, custom icons) are recreated as style only: shape, weight and colour treatment, never copied files.${input.files?.includes("assets/") ? "\nFiles in `assets/` were shared by the site's owner; use them under the terms in licences.md. Never recreate the logo." : ""}
 Styling the user's own login or checkout pages with these tokens is fine. Never recreate the source site's login, checkout or branding.
 
 ## 7. Apply
-One area per commit, in this order: tokens → components → layout → motion → voice.
+One area per commit, in this order: tokens → components → layout → motion → voice (only the areas this kit's levels include).
 Commit message: \`livery(${siteName} v${version}): <area>\`. Edits to project rule files go in the same commit.
 Read the data file for an area only when you reach it. Follow \`rules.md\` throughout, especially its "Never" list.
 

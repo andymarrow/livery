@@ -218,12 +218,12 @@ Premium, calm, alive. Built with the design rules, in light and dark.
 
 ### Phase 8: Owner opt-in and levels 4 to 6
 
-- [ ] Fetch and validate `/.well-known/livery.json` (HTTPS, JSON, under 32 KB, schema, same host only, redirects within host). Fallback `<link rel="livery">`. Cache 24h max. Store `grant_snapshot` + `grant_hash`.
-- [ ] Honor `allow.levels`, `assets` (no logo option), `quote_text`, `paths`, `terms` (copied to `licences.md`), `rules` (becomes `rules.md`).
-- [ ] `allow.levels: []` means opt-out, same as a takedown (`forbidden`).
-- [ ] Withdrawal: removing/narrowing the file makes new builds style-only and withdraws old versions (zip deleted, 410).
-- [ ] Never overridden: sensitive pages, font licences, rate limits, robots, SSRF checks.
-- [ ] Real frames for opted-in sites. "Livery-enabled" badge.
+- [x] Fetch and validate `/.well-known/livery.json` (HTTPS, JSON, under 32 KB, schema, same host only, redirects within host; the apex and its www. twin count as one host). Fallback `<link rel="livery">`. Cache 24h max. Store `grant_snapshot` + `grant_hash`.
+- [x] Honor `allow.levels`, `assets` (no logo option), `quote_text`, `paths`, `terms` (copied to `licences.md`), `rules` (becomes `rules.md`).
+- [x] `allow.levels: []` means opt-out, same as a takedown (`forbidden`).
+- [x] Withdrawal: removing/narrowing the file makes new builds style-only and withdraws old versions (zip deleted, 410).
+- [x] Never overridden: sensitive pages, font licences, rate limits, robots, SSRF checks.
+- [x] "Owner approved" badge on kit pages and cards. (Deviation: frames stay content-removed even for opted-in sites, because a real frame would show the logo, which no grant can share.)
 
 **Done when:** a test site with a valid file yields a level 4 to 6 kit with its own `rules.md`; removing the file withdraws it.
 

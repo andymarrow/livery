@@ -34,8 +34,9 @@ export default async function BuildPage({ searchParams }: PageProps<"/build">) {
     );
   }
 
+  const grantHash = screened.value.grant.status === "granted" ? screened.value.grant.hash : null;
   const ready = await findReadyKit(screened.value.sourceUrl, EXTRACTOR_VERSION);
-  if (ready) redirect(kitPath(ready.slug, ready.version));
+  if (ready && ready.grantHash === grantHash) redirect(kitPath(ready.slug, ready.version));
 
   return (
     <Shell>

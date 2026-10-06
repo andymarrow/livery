@@ -5,7 +5,7 @@ import type { Json } from "@/lib/supabase/database.types";
 import { getAdminClient } from "@/lib/supabase/admin";
 import type { KitItem } from "@/lib/extract";
 
-export type ReadyKit = { kitId: string; versionId: string; slug: string; version: number; contentHash: string; publishedAt: string };
+export type ReadyKit = { kitId: string; versionId: string; slug: string; version: number; contentHash: string; publishedAt: string; grantHash: string | null };
 
 /** Newest published version of a URL built by the current extractor, if any. */
 export async function findReadyKit(sourceUrl: string, extractorVersion: number): Promise<ReadyKit | null> {
@@ -15,7 +15,7 @@ export async function findReadyKit(sourceUrl: string, extractorVersion: number):
   if (!kit) return null;
   const { data: version, error: versionError } = await db
     .from("kit_versions")
-    .select("id, version, content_hash, published_at")
+    .select("id, version, content_hash, published_at, grant_hash")
     .eq("kit_id", kit.id)
     .eq("status", "ready")
     .eq("extractor_version", extractorVersion)
@@ -24,7 +24,15 @@ export async function findReadyKit(sourceUrl: string, extractorVersion: number):
     .maybeSingle();
   if (versionError) throw versionError;
   if (!version?.version || !version.content_hash || !version.published_at) return null;
-  return { kitId: kit.id, versionId: version.id, slug: kit.slug, version: version.version, contentHash: version.content_hash, publishedAt: version.published_at };
+  return {
+    kitId: kit.id,
+    versionId: version.id,
+    slug: kit.slug,
+    version: version.version,
+    contentHash: version.content_hash,
+    publishedAt: version.published_at,
+    grantHash: version.grant_hash,
+  };
 }
 
 export async function startBuild(target: { sourceUrl: string; domain: string; slug: string }, extractorVersion: number, flowVersion: number) {

@@ -152,9 +152,9 @@ ${bullets(a.voice.rules)}
 ${examples ? `\n## Examples (new sentences in this voice)\n\n${examples}\n` : ""}`;
 }
 
-export function rulesMd(e: Extraction, a: Analysis, siteName: string) {
+export function rulesMd(e: Extraction, a: Analysis, siteName: string, hasOwnerRules = false) {
   return `# ${siteName}: design rules
-
+${hasOwnerRules ? "\n> The site's owner shared their own rules in `owner-rules.md`. Read them first; where they disagree with this file, they win.\n" : ""}
 ${a.summary}
 
 ## Principles
@@ -181,7 +181,7 @@ ${bullets(a.shape)}
 
 const LABEL = { free: "✅ Free to reuse", licence_required: "🔑 Needs a licence", style_only: "🎨 Style only" } as const;
 
-export function licencesMd(e: Extraction, attribution: string | null) {
+export function licencesMd(e: Extraction, attribution: string | null, terms: { licence: string; commercial: boolean; attribution?: string } | null = null, assetCount = 0) {
   const rows = e.items
     .filter((i) => i.kind !== "icon" || i.licence !== "free")
     .map((i) => `| ${i.kind.replace("_", " ")} | ${i.name} | ${LABEL[i.licence]} | ${i.licence_name ?? ""} | ${i.alternative ?? ""} |`)
@@ -199,7 +199,7 @@ Design tokens are measured values and are free to reuse.
 | Kind | Item | Label | Licence | Free alternative |
 |---|---|---|---|---|
 ${rows || "| | none | | | |"}
-${attribution ? `\n## Attribution\n\n${attribution}\n` : ""}
-This kit contains no font files, images, logos, stylesheets or text from the source site. Frames in \`frames/\` have images replaced by flat blocks and text replaced by bars.
+${terms ? `\n## Owner's terms\n\nThe site's owner opted in through livery.json under **${terms.licence}**, ${terms.commercial ? "commercial use allowed" : "non-commercial use only"}.${assetCount ? ` The ${assetCount} file(s) in \`assets/\` are shared under these terms; the logo is never included.` : ""}\n` : ""}${attribution ? `\n## Attribution\n\n${attribution}\n` : ""}
+${assetCount ? "Apart from the owner-approved files in `assets/`, this kit" : "This kit"} contains no font files, images, logos, stylesheets or text from the source site. Frames in \`frames/\` have images replaced by flat blocks and text replaced by bars.
 `;
 }

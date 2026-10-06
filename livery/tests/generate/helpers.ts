@@ -41,6 +41,7 @@ export function fakeExtraction(): Extraction {
       { name: "mobile", width: 390, height: 844, webp: WEBP },
     ],
     text: { headings: [SOURCE_TEXT], paragraphs: [], actions: [] },
+    assetCandidates: null,
   };
 }
 

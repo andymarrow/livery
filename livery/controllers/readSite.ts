@@ -8,13 +8,19 @@ import { normaliseTarget, type Target } from "@/lib/url/normalise";
 import { checkRobots } from "@/lib/url/robotsCheck";
 import { safeFetch } from "@/lib/url/ssrf";
 import { getActiveFailure, rememberFailure } from "@/services/readFailures";
-import { isForbiddenByOwner } from "@/services/sites";
+import { getSiteGrant, type SiteGrant } from "@/services/grants";
+import { grantCovers } from "@/lib/optin/grant";
+
+export type ScreenedTarget = Target & {
+  /** The owner's decision, narrowed to this page: a grant that doesn't cover the path counts as none. */
+  grant: Exclude<SiteGrant, { status: "forbidden" }>;
+};
 
 /**
- * Step 1: everything we can decide without contacting the site.
- * Ordered cheapest first. Never touches the network of the target.
+ * Step 1: everything we can decide before rendering. Ordered cheapest first.
+ * The only request to the site is the owner's livery.json, at most once a day.
  */
-export async function screenTarget(raw: string): Promise<ReadResult<Target>> {
+export async function screenTarget(raw: string): Promise<ReadResult<ScreenedTarget>> {
   const normalised = normaliseTarget(raw);
   if (!normalised.ok) return normalised;
   const target = normalised.value;
@@ -23,12 +29,14 @@ export async function screenTarget(raw: string): Promise<ReadResult<Target>> {
   if (category) return fail("sensitive_page", `${target.domain} is a ${category} site`);
   if (isSensitivePath(target.url.pathname)) return fail("sensitive_page", `${target.url.pathname} is a sign-in or payment page`);
 
-  if (await isForbiddenByOwner(target.domain)) return fail("blocked_by_owner", `the owner of ${target.domain} opted out`);
-
   const remembered = await getActiveFailure(target.sourceUrl);
   if (remembered) return remembered;
 
-  return normalised;
+  const grant = await getSiteGrant(target.domain);
+  if (grant.status === "forbidden") return fail("blocked_by_owner", `the owner of ${target.domain} opted out`);
+  const covered = grant.status === "granted" && grantCovers(grant.grant, target.url.pathname) ? grant : ({ status: "none" } as const);
+
+  return { ok: true, value: { ...target, grant: covered } };
 }
 
 export type Visit = (rendered: RenderedPage) => Promise<void>;

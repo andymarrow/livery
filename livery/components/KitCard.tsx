@@ -31,6 +31,7 @@ export function KitCard({ kit }: { kit: KitCardData }) {
           </span>
         </div>
         <div className="mt-auto flex flex-wrap items-center gap-1.5 text-[11.5px] text-fg-muted">
+          {kit.ownerApproved && <span className="rounded-full bg-accent-soft px-2 py-0.5 font-medium text-accent-soft-fg">Owner approved</span>}
           {kit.scheme && <span className="rounded-full bg-surface-2 px-2 py-0.5 capitalize">{kit.scheme}</span>}
           {kit.font && <span className="max-w-[10rem] truncate rounded-full bg-surface-2 px-2 py-0.5">{kit.font}</span>}
           {kit.iconSet && <span className="max-w-[10rem] truncate rounded-full bg-surface-2 px-2 py-0.5">{kit.iconSet}</span>}

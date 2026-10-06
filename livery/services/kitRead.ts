@@ -27,6 +27,8 @@ export type KitVersionView = {
   analysis: Analysis | null;
   items: { kind: KitItemKind; name: string; licence: KitLicence; licence_name: string | null; alternative: string | null }[];
   latestVersion: number;
+  /** Built under the site owner's livery.json grant. */
+  ownerApproved: boolean;
 };
 
 /** A published or withdrawn version. Building and failed builds are never visible. */
@@ -36,7 +38,7 @@ export async function getKitVersion(slug: string, version: number): Promise<KitV
   if (!kit) return null;
   const { data: v } = await db
     .from("kit_versions")
-    .select("id, version, status, levels, skill_md, tar_path, zip_path, manifest, content_hash, published_at, withdrawn_at, data")
+    .select("id, version, status, levels, skill_md, tar_path, zip_path, manifest, content_hash, published_at, withdrawn_at, data, grant_hash")
     .eq("kit_id", kit.id)
     .eq("version", version)
     .in("status", ["ready", "withdrawn"])
@@ -67,6 +69,7 @@ export async function getKitVersion(slug: string, version: number): Promise<KitV
     analysis: data.analysis ?? null,
     items: items ?? [],
     latestVersion: latest ?? v.version,
+    ownerApproved: v.grant_hash !== null,
   };
 }
 
@@ -122,6 +125,7 @@ export type KitCard = {
   scheme: "light" | "dark" | null;
   font: string | null;
   iconSet: string | null;
+  ownerApproved: boolean;
 };
 
 /** Newest published kits for the library, newest version per kit. */
@@ -130,7 +134,7 @@ export async function listKits({ query, limit = 24, offset = 0 }: { query?: stri
   const db = getPublicClient();
   let request = db
     .from("kit_versions")
-    .select("version, published_at, data, kits!inner(slug, domain, source_url)", { count: "exact" })
+    .select("version, published_at, data, grant_hash, kits!inner(slug, domain, source_url)", { count: "exact" })
     .eq("status", "ready")
     .order("published_at", { ascending: false })
     .range(offset, offset + limit - 1);
@@ -140,7 +144,7 @@ export async function listKits({ query, limit = 24, offset = 0 }: { query?: stri
 
   const seen = new Set<string>();
   const cards: KitCard[] = [];
-  for (const row of (data ?? []) as unknown as { version: number; published_at: string; data: { extraction?: { tokens?: Tokens; fonts?: { family: string }[]; icons?: { library?: { name: string } | null } } }; kits: { slug: string; domain: string; source_url: string } }[]) {
+  for (const row of (data ?? []) as unknown as { version: number; published_at: string; grant_hash: string | null; data: { extraction?: { tokens?: Tokens; fonts?: { family: string }[]; icons?: { library?: { name: string } | null } } }; kits: { slug: string; domain: string; source_url: string } }[]) {
     if (seen.has(row.kits.slug)) continue;
     seen.add(row.kits.slug);
     const tokens = row.data?.extraction?.tokens;
@@ -156,6 +160,7 @@ export async function listKits({ query, limit = 24, offset = 0 }: { query?: stri
       scheme: palette?.scheme ?? null,
       font: tokens?.typography.families.display ?? row.data?.extraction?.fonts?.[0]?.family ?? null,
       iconSet: row.data?.extraction?.icons?.library?.name ?? null,
+      ownerApproved: row.grant_hash !== null,
     });
   }
   return { cards, total: count ?? cards.length };

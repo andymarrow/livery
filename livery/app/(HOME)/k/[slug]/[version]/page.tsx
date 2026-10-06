@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowUpRight, Info, BadgeCheck as SealCheck } from "lucide-react";
+import { ArrowUpRight, Info, BadgeCheck as SealCheck, ShieldCheck } from "lucide-react";
 import { LicenceBadge } from "@/components/LicenceBadge";
 import { Badge } from "@/components/ui/badge";
 import { skillNameFor } from "@/lib/generate/flow";
@@ -61,6 +61,11 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="accent">v{view.version}</Badge>
+            {view.ownerApproved && !withdrawn && (
+              <Badge variant="accent" title="Built under the site owner's livery.json">
+                <ShieldCheck strokeWidth={2.25} /> Owner approved
+              </Badge>
+            )}
             {withdrawn ? <Badge variant="danger">Withdrawn</Badge> : <Badge variant="neutral"><SealCheck className="text-accent" /> Published {view.publishedAt.slice(0, 10)}</Badge>}
           </div>
           <h1 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">{view.domain}</h1>
