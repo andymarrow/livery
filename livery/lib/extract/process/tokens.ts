@@ -322,7 +322,7 @@ export function motion(raws: RawDesign[]): Motion {
     // Generated names ("dot-0-3-upDown") collapse to one pattern each.
     keyframes: [...new Map(
       topEntries(animations, 40)
-        .filter(([name]) => keyframes[name])
+        .filter(([name]) => keyframes[name] && !/url\(/i.test(keyframes[name]))
         .map(([name]) => [name.replace(/\d+/g, "#"), { name, css: keyframes[name] }] as const),
     ).values()].slice(0, 8),
     animated: Object.keys(msWeights).length > 0 || Object.keys(animations).length > 0,

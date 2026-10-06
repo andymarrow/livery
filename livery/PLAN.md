@@ -169,27 +169,27 @@ Use Supabase migrations (via MCP or `supabase/migrations/`). Follow the supabase
 
 Mechanical and deterministic. No model here.
 
-- [ ] **Tokens:** colors (CSS variables + usage frequency + role guess: bg, surface, text, border, accent), light/dark if the site has both, type families + scale, spacing snapped to a 4px/8px grid, radii, borders, shadows, breakpoints. Cluster near-duplicates into a real scale.
-- [ ] **Icons:** detect via class names, iconify tags, loaded icon fonts, bundle package names; fall back to hashing normalised SVGs against an index of open-source sets (Iconify data). Record library, package, icon names, size, stroke, gap.
-- [ ] **Fonts:** identify family, map to Google Fonts / Fontsource, flag commercial ones with a free alternative.
-- [ ] **Components:** buttons, inputs, cards, nav, badges, tabs: computed styles for default, hover, focus, active, disabled. Real hover/focus via Playwright.
-- [ ] **Motion (level 3):** transition durations/easings, keyframes in use, scroll-triggered reveals, hover behaviors.
-- [ ] **Layout:** container widths, grid/column patterns, section rhythm, mobile behavior.
-- [ ] **Content-removed screenshots:** inject CSS that replaces images/video/non-icon SVG with flat average-color blocks and text with bars; keep icons, borders, radii, spacing. Save WebP, cap height.
-- [ ] Assign a licence label to every item: ✅ free (positively matched), 🔑 needs a licence (with ✅ alternative), 🎨 style only (default for anything unknown).
+- [x] **Tokens:** colors (CSS variables + usage frequency + role guess: bg, surface, text, border, accent), light/dark if the site has both, type families + scale, spacing snapped to a 4px/8px grid, radii, borders, shadows, breakpoints. Cluster near-duplicates into a real scale.
+- [x] **Icons:** detect via class names, iconify tags, Font Awesome kits, and drawing style (grid, stroke, linecap). Record library, package, icon names, size, stroke. (Deferred: hashing SVGs against the Iconify index; rendered paths rarely match Iconify's optimised paths byte for byte, so it needs shape-level matching.)
+- [x] **Fonts:** identify family, map to Google Fonts / Fontsource, flag commercial ones with a free alternative.
+- [x] **Components:** buttons, inputs, cards, nav, badges, tabs: computed styles for default, hover, focus, active, disabled. Real hover/focus via Playwright.
+- [x] **Motion (level 3):** transition durations/easings, keyframes in use, scroll-triggered reveals, hover behaviors.
+- [x] **Layout:** container widths, grid/column patterns, section rhythm, mobile behavior.
+- [x] **Content-removed screenshots** (captured as WebP through the DevTools protocol, no image library needed; background textures averaged to their real colour): inject CSS that replaces images/video/non-icon SVG with flat average-color blocks and text with bars; keep icons, borders, radii, spacing. Save WebP, cap height.
+- [x] Assign a licence label to every item: ✅ free (positively matched), 🔑 needs a licence (with ✅ alternative), 🎨 style only (default for anything unknown).
 
 **Done when:** running on 4 to 5 real sites (including the Krimson, GoatRank and Rize references) gives sensible tokens, correct icon set, and screenshots with no copyrighted content.
 
 ### Phase 5: Kit generation
 
-- [ ] Gemini client with structured output (schema-validated JSON), retries on transient errors, token/cost logging.
-- [ ] Prompts that write **reasons, not just values**: rules.md ("never does X, because Y"), voice.md (analysis of tone with **new** example sentences), component recipes, do/don't list.
-- [ ] Image input: send the content-removed screenshots to the model for layout and psychology reading.
-- [ ] **Flow template** (Livery-owned, `flow_version`): steps 0 to 10 from the research notes (prepare, audit, scan project rules, report gap, ask, resolve conflicts, licences, apply one commit per area, verify, keep it, summary). Fixed text, identical in every kit. It states the login-styling exception: styling the user's own login with the kit is fine, recreating the source's login/checkout is not.
-- [ ] Kit files: `SKILL.md`, `tokens.json`, `icons.json`, `fonts.json`, `components.md`, `motion.md`, `layout.md`, `voice.md`, `rules.md`, `licences.md`, `frames/`.
-- [ ] Copyright guards before publish: no raster images, no font files, no stylesheets, no raw HTML; 8-word n-gram overlap check against source text (regenerate once, then drop the examples); every unmatched SVG is labelled 🎨.
-- [ ] Packaging: tar.gz + zip, `manifest.json` with per-file sha256, content hash stored on the version.
-- [ ] Publish: write storage objects (no overwrite), set `published_at`, insert `kit_items`.
+- [x] Gemini client with structured output (schema-validated JSON), retries on transient errors, token/cost logging.
+- [x] Prompts that write **reasons, not just values**: rules.md ("never does X, because Y"), voice.md (analysis of tone with **new** example sentences), component recipes, do/don't list.
+- [x] Image input: send the content-removed screenshots to the model for layout and psychology reading.
+- [x] **Flow template** (Livery-owned, `flow_version`): steps 0 to 10 from the research notes (prepare, audit, scan project rules, report gap, ask, resolve conflicts, licences, apply one commit per area, verify, keep it, summary). Fixed text, identical in every kit. It states the login-styling exception: styling the user's own login with the kit is fine, recreating the source's login/checkout is not.
+- [x] Kit files: `SKILL.md`, `tokens.json`, `icons.json`, `fonts.json`, `components.md`, `motion.md`, `layout.md`, `voice.md`, `rules.md`, `licences.md`, `frames/`.
+- [x] Copyright guards before publish: no raster images, no font files, no stylesheets, no raw HTML; 8-word n-gram overlap check against source text (regenerate once, then drop the examples); every unmatched SVG is labelled 🎨.
+- [x] Packaging (deterministic, byte-order sorted, fixed mtime; own ustar writer + fflate): tar.gz + zip, `manifest.json` with per-file sha256, content hash stored on the version.
+- [x] Publish: write storage objects (no overwrite), set `published_at`, insert `kit_items` (`services/kits.ts`, orchestrated by `controllers/buildKit.ts`). Pending a live run once Supabase and Gemini keys are in `.env.local`.
 
 **Done when:** a built kit passes all guard tests, and its `SKILL.md` stays short (data lives in separate files).
 
@@ -240,6 +240,17 @@ Premium, calm, alive. Built with the design rules, in light and dark.
 - [ ] Domain `livery.site` connected, env vars set in Vercel, Supabase production project, Browserless region set.
 
 **Done when:** the whole pipeline passes on the fixture set and a real end-to-end run: paste a link, get the prompt, run it in Claude Code, see the project transformed with one commit per area.
+
+## Levels (defined in `lib/generate/levels.ts`)
+
+| Level | Name | Covers | Offered |
+|---|---|---|---|
+| 1 | Tokens | colour, type, spacing, radii, borders, depth | every site |
+| 2 | Structure | component recipes, layout | every site |
+| 3 | Feel | motion, voice | every site |
+| 4 | Owner rules | the owner's rules document | opted-in sites |
+| 5 | Owner assets | illustrations, custom icons, photos the owner allows | opted-in sites |
+| 6 | Quoted copy | real sentences in voice examples | opted-in sites |
 
 ## 5. Later (not v1)
 
