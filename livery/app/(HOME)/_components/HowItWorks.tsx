@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check } from "@/components/icons";
 import { SITE } from "@/constants/constants";
 import { AskPreview } from "./AskPreview";
 

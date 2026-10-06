@@ -1,6 +1,6 @@
 "use client";
 
-import { Download as DownloadSimple, Bot as Robot, Terminal } from "lucide-react";
+import { Download as DownloadSimple, Puzzle, SquareTerminal } from "@/components/icons";
 import { CopyButton } from "@/components/CopyButton";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,13 +12,13 @@ export function InstallPanel({ prompt, zipUrl, tarUrl, skillName, sha256 }: { pr
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
           <TabsList>
             <TabsTrigger value="prompt">
-              <Terminal strokeWidth={2.25} /> Claude Code
+              <SquareTerminal /> Claude Code
             </TabsTrigger>
             <TabsTrigger value="download">
-              <DownloadSimple strokeWidth={2.25} /> Download
+              <DownloadSimple /> Download
             </TabsTrigger>
             <TabsTrigger value="other">
-              <Robot strokeWidth={2.25} /> Other agents
+              <Puzzle /> Other agents
             </TabsTrigger>
           </TabsList>
         </div>

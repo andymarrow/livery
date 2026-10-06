@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, CornerDownLeft as KeyReturn } from "lucide-react";
+import { ArrowRight, CornerDownLeft as KeyReturn } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/CopyButton";
 import { SITE } from "@/constants/constants";

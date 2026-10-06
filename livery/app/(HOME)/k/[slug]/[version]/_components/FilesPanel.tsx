@@ -1,6 +1,6 @@
 "use client";
 
-import { Braces as BracketsCurly, FileText } from "lucide-react";
+import { fileIcon } from "@/components/icons";
 import { CopyButton } from "@/components/CopyButton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
@@ -12,12 +12,12 @@ export function FilesPanel({ files }: { files: { path: string; text: string }[] 
   return (
     <Accordion type="multiple" defaultValue={["SKILL.md"]} className="rounded-[22px] border border-border bg-surface px-4 sm:px-6">
       {sorted.map((file) => {
-        const Icon = file.path.endsWith(".json") ? BracketsCurly : FileText;
+        const Icon = fileIcon(file.path);
         return (
           <AccordionItem key={file.path} value={file.path}>
             <AccordionTrigger className="py-4">
               <span className="flex items-center gap-3">
-                <Icon className="size-4 text-accent" />
+                <Icon className="size-[18px] text-accent" />
                 <span className="font-mono text-[13px]">{file.path}</span>
                 <span className="text-[12px] font-normal text-fg-subtle">{(file.text.length / 1024).toFixed(1)} KB</span>
               </span>

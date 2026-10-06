@@ -1,4 +1,4 @@
-import { GitCommitHorizontal as GitCommit, Bot as Robot, BadgeCheck as SealCheck, User } from "lucide-react";
+import { GitCommitHorizontal as GitCommit, BadgeCheck as SealCheck } from "@/components/icons";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { cn } from "@/lib/utils";
@@ -14,18 +14,29 @@ const GAP = [
   { area: "Voice", size: "Small", level: 1 },
 ];
 
+// A coding agent, drawn as what it is: a prompt waiting for input.
+function AgentMark() {
+  return (
+    <span aria-hidden className="mt-0.5 flex size-8 shrink-0 items-center justify-center gap-[2px] rounded-[10px] bg-fg font-mono text-[17px] font-bold leading-none text-bg">
+      <span className="-translate-y-[1.5px]">›</span>
+      <span className="h-[2.5px] w-2 translate-y-[6px] rounded-full bg-accent animate-caret" />
+    </span>
+  );
+}
+
+function YouMark() {
+  return (
+    <span aria-hidden className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-accent-soft font-mono text-[10.5px] font-semibold tracking-tight text-accent-soft-fg">
+      you
+    </span>
+  );
+}
+
 function Message({ from, children, delay = 0 }: { from: "agent" | "you"; children: React.ReactNode; delay?: number }) {
   const agent = from === "agent";
   return (
     <Reveal delay={delay} as="li" className={cn("flex gap-3", !agent && "flex-row-reverse")}>
-      <span
-        className={cn(
-          "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full border",
-          agent ? "border-border bg-surface text-fg" : "border-transparent bg-fg text-bg",
-        )}
-      >
-        {agent ? <Robot className="size-4" /> : <User strokeWidth={2.25} className="size-3.5" />}
-      </span>
+      {agent ? <AgentMark /> : <YouMark />}
       <div className={cn("min-w-0 max-w-[34rem]", agent ? "flex-1" : "text-right")}>
         <p className="mb-1.5 text-[11.5px] font-medium text-fg-subtle">{agent ? "Your agent" : "You"}</p>
         <div className={cn("text-left text-[14.5px] leading-relaxed", agent ? "block" : "inline-block rounded-2xl rounded-tr-md bg-fg px-4 py-2.5 text-bg")}>

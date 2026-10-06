@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Hand as HandPalm, Search as MagnifyingGlass, Paintbrush as PaintBrush } from "lucide-react";
+import { FileCode, FileRemove, WebValidation } from "@/components/icons";
 import { OptInGenerator } from "./_components/OptInGenerator";
 import { SiteChecker } from "./_components/SiteChecker";
 import { TakedownForm } from "./_components/TakedownForm";
@@ -37,13 +37,13 @@ export default function OwnersPage() {
       </p>
 
       <div className="mt-14">
-        <Block wide id="opt-in" icon={<PaintBrush />} kicker="Opt in" title="Share more of your design" body="Grant levels 4 to 6: your own design rules, assets you're happy to share, and real copy in voice examples. Publish the file and new kits pick it up within a day.">
+        <Block wide id="opt-in" icon={<FileCode />} kicker="Opt in" title="Share more of your design" body="Grant levels 4 to 6: your own design rules, assets you're happy to share, and real copy in voice examples. Publish the file and new kits pick it up within a day.">
           <OptInGenerator />
         </Block>
-        <Block id="check" icon={<MagnifyingGlass />} kicker="Check" title="See what Livery sees" body="Whether LiveryBot can reach your site, whether robots.txt or bot protection stops it, and whether your opt-in file is valid.">
+        <Block id="check" icon={<WebValidation />} kicker="Check" title="See what Livery sees" body="Whether LiveryBot can reach your site, whether robots.txt or bot protection stops it, and whether your opt-in file is valid.">
           <SiteChecker />
         </Block>
-        <Block id="takedown" icon={<HandPalm />} kicker="Opt out" title="Withdraw your kits" body="The fastest way is an opt-out file. You can also ask us directly; published versions are withdrawn and their links answer 410 Gone.">
+        <Block id="takedown" icon={<FileRemove />} kicker="Opt out" title="Withdraw your kits" body="The fastest way is an opt-out file. You can also ask us directly; published versions are withdrawn and their links answer 410 Gone.">
           <TakedownForm />
         </Block>
       </div>

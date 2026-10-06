@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Menu as List } from "lucide-react";
+import { ArrowUpRight, Menu as List } from "@/components/icons";
 import { LogoMark } from "@/components/Logo";
 import { ThemeSwitch } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";

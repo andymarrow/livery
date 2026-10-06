@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Ban as Prohibit, CircleAlert as WarningCircle } from "lucide-react";
+import { ArrowLeft, Ban as Prohibit, CircleAlert as WarningCircle } from "@/components/icons";
 import type { ReadFailureReason } from "@/lib/extract/types";
 import { failureCopy } from "@/lib/kit/failure";
 import { Button } from "@/components/ui/button";

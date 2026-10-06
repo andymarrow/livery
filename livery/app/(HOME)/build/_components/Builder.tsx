@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, LoaderCircle as CircleNotch, Hourglass as HourglassMedium, CircleAlert as WarningCircle } from "lucide-react";
+import { ArrowLeft, Check, LoaderCircle as CircleNotch, Hourglass as HourglassMedium, CircleAlert as WarningCircle } from "@/components/icons";
 import Link from "next/link";
 import type { BuildEvent } from "@/app/api/build/route";
 import type { BuildStage, ReadFailureReason } from "@/lib/extract/types";

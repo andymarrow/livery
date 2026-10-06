@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { CircleCheck as CheckCircle, LoaderCircle as CircleNotch, CircleX as XCircle } from "lucide-react";
+import { CircleCheck as CheckCircle, LoaderCircle as CircleNotch, CircleX as XCircle } from "@/components/icons";
 import { checkSite, type CheckResult } from "@/app/actions/checkSite";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

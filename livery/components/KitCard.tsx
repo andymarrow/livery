@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "@/components/icons";
 import { kitPath } from "@/lib/kit/urls";
 import type { KitCard as KitCardData } from "@/services/kitRead";
 

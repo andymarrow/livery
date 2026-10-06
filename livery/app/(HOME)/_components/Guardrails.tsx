@@ -1,4 +1,4 @@
-import { Fingerprint, Hand as HandPalm, LockKeyhole as LockKey, ShieldCheck } from "lucide-react";
+import { CardBlocked, FingerprintCheck, ShieldCheck, StoreVerified } from "@/components/icons";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 
@@ -9,17 +9,17 @@ const ITEMS = [
     body: "LiveryBot says who it is and respects robots.txt. When a site blocks it, Livery stops and says so.",
   },
   {
-    Icon: LockKey,
+    Icon: CardBlocked,
     title: "No login, payment or bank pages",
     body: "Sign-in, checkout and banking pages are refused outright, so a kit can never become a look-alike.",
   },
   {
-    Icon: Fingerprint,
+    Icon: FingerprintCheck,
     title: "Permanent, verifiable versions",
     body: "A published version never changes. Your agent checks its sha256 before installing anything.",
   },
   {
-    Icon: HandPalm,
+    Icon: StoreVerified,
     title: "Owners stay in charge",
     body: "Site owners can opt in for richer kits, or opt out and have their kits withdrawn, with one file.",
   },

@@ -180,12 +180,6 @@
     border-color: var(--border);
   }
 
-  /* Smooth line icons: Lucide's default 2px stroke is lightened. Icons given
-     an explicit strokeWidth (bold spots in small buttons) keep theirs. */
-  svg.lucide[stroke-width="2"] {
-    stroke-width: 1.75;
-  }
-
   html {
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;

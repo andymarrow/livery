@@ -70,8 +70,8 @@ Inspiration: rize.roggy.site, goatrank.lol, and the owner's reference screenshot
 
 ## Icons
 
-- **Lucide** (`lucide-react`) is the only icon set, kept smooth: the base CSS lightens the default stroke to 1.75.
-- Use `strokeWidth={2.25}` only for tiny icons inside small buttons and badges. Size icons with CSS (`size-4`), not props. No filled or two-tone icons.
+- **Hugeicons** (stroke rounded, free: `@hugeicons/react` + `@hugeicons/core-free-icons`) is the only icon set. Always import from `@/components/icons`, which wraps each glyph with a light 1.5 stroke (2 at most). Add new glyphs there.
+- Pick icons for meaning in each section (e.g. `fileIcon(path)` for kit files); never a generic robot or placeholder. Size icons with CSS (`size-4`). No filled or two-tone icons.
 
 ## Layout safety
 

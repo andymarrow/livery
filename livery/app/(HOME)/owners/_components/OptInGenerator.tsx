@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check } from "lucide-react";
+import { Check } from "@/components/icons";
 import { CopyButton } from "@/components/CopyButton";
 import { Input } from "@/components/ui/input";
 import { LEVELS } from "@/lib/generate/levels";

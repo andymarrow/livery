@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { CircleCheck as CheckCircle, LoaderCircle as CircleNotch } from "lucide-react";
+import { CircleCheck as CheckCircle, LoaderCircle as CircleNotch } from "@/components/icons";
 import { submitTakedown, type TakedownResult } from "@/app/actions/submitTakedown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

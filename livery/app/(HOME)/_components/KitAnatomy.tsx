@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { Braces as BracketsCurly, FileText, Folder as FolderSimple, Image as ImageIcon } from "lucide-react";
+import { CodeFolder, fileIcon, Image as ImageIcon } from "@/components/icons";
 import { CopyButton } from "@/components/CopyButton";
 import { LIVERY_KIT, type KitFilePreview } from "@/data/liveryKit";
 import { cn } from "@/lib/utils";
@@ -60,7 +60,6 @@ function Line({ text, kind }: { text: string; kind: KitFilePreview["kind"] }) {
   );
 }
 
-const ICONS = { markdown: FileText, json: BracketsCurly } as const;
 
 export function KitAnatomy() {
   const [active, setActive] = useState(0);
@@ -82,7 +81,7 @@ export function KitAnatomy() {
     <div className="overflow-hidden rounded-[22px] border border-border bg-surface">
       <div className="flex h-12 items-center justify-between gap-4 border-b border-border px-4">
         <div className="flex min-w-0 items-center gap-2.5 text-[13px]">
-          <FolderSimple className="size-4 shrink-0 text-accent" />
+          <CodeFolder className="size-[18px] shrink-0 text-accent" />
           <span className="truncate font-mono text-fg-muted">.claude/skills/</span>
           <span className="-ml-2 truncate font-mono font-medium text-fg">livery-livery-site</span>
         </div>
@@ -102,7 +101,7 @@ export function KitAnatomy() {
           className="flex min-w-0 gap-1 overflow-x-auto border-b border-border p-2 md:flex-col md:overflow-visible md:border-b-0 md:border-r"
         >
           {LIVERY_KIT.map((entry, index) => {
-            const Icon = ICONS[entry.kind];
+            const Icon = fileIcon(entry.path);
             const selected = index === active;
             return (
               <button

@@ -1,6 +1,6 @@
 "use client";
 
-import { Search as MagnifyingGlass } from "lucide-react";
+import { Search as MagnifyingGlass } from "@/components/icons";
 import { ThemeSwitch } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";

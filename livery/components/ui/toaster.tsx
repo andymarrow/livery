@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
-import { CircleCheck as CheckCircle, Info, CircleAlert as WarningCircle, X } from "lucide-react";
+import { CircleCheck as CheckCircle, Info, CircleAlert as WarningCircle, X } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 type ToastTone = "neutral" | "success" | "danger";

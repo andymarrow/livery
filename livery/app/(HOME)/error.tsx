@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, RotateCw, TriangleAlert } from "lucide-react";
+import { ArrowLeft, RotateCw, TriangleAlert } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
 // Keeps the site header and footer; only the page area shows the error.

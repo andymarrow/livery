@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Search as MagnifyingGlass, Inbox as Tray } from "lucide-react";
+import { Search as MagnifyingGlass, Inbox as Tray } from "@/components/icons";
 import { EmptyState } from "@/components/EmptyState";
 import { KitCard } from "@/components/KitCard";
 import { Button } from "@/components/ui/button";

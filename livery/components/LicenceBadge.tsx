@@ -1,4 +1,4 @@
-import { Check, KeyRound as Key, Palette } from "lucide-react";
+import { Check, KeyRound as Key, Palette } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 
 export type Licence = "free" | "licence_required" | "style_only";

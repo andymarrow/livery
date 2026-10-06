@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { LoaderCircle as CircleNotch, Search as MagnifyingGlass, X } from "lucide-react";
+import { LoaderCircle as CircleNotch, Search as MagnifyingGlass, X } from "@/components/icons";
 import { Kbd } from "@/components/ui/kbd";
 
 // Filters the library as you type (debounced), and "/" focuses it.
