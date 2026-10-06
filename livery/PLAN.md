@@ -116,24 +116,24 @@ Each phase ends with a **done when** check. Work on a feature branch per phase, 
 
 ### Phase 0: Foundation (do first)
 
-- [ ] Verify Supabase MCP is connected and which project it targets.
-- [ ] Branch `chore/foundation`. Commit `CLAUDE.md` and `PLAN.md`.
-- [ ] Read `node_modules/next/dist/docs/` for routing, route handlers, caching, fonts (this Next.js has breaking changes).
-- [ ] Install: `playwright-core`, `@supabase/supabase-js`, `@supabase/ssr`, `zod`, `lucide-react`, `next-themes` (or minimal custom theme provider), `tar-stream`/`archiver` (zip + tar.gz), Gemini SDK.
-- [ ] Set up shadcn-style `components/ui` primitives we need (button, input, dialog, tabs, tooltip, sheet, command).
-- [ ] Env scaffolding: `.env.local` (ignored) + `.env.example` listing `BROWSER_WS_ENDPOINT`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `SUPABASE_*`, `IP_HASH_SECRET`, `EXTRACTOR_VERSION`.
-- [ ] Add scripts: `typecheck`, `test`. Set up Vitest.
+- [ ] Verify Supabase MCP is connected and which project it targets. (`.mcp.json` is configured, but the tools are not loaded in the session yet: needs approval/auth in Claude Code.)
+- [x] Branch `chore/foundation`. Commit `CLAUDE.md` and `PLAN.md`.
+- [x] Read `node_modules/next/dist/docs/` for routing, route handlers, caching, fonts (this Next.js has breaking changes).
+- [x] Install (done, packaging libs `archiver`/`tar-stream` deferred to Phase 5 when used): `playwright-core`, `@supabase/supabase-js`, `@supabase/ssr`, `zod`, `lucide-react`, `next-themes` (or minimal custom theme provider), `tar-stream`/`archiver` (zip + tar.gz), Gemini SDK.
+- [x] Set up shadcn-style `components/ui` primitives (button, input, badge, card, dialog, sheet, tabs, tooltip, separator, skeleton, kbd, toaster). `command` deferred to Explore (Phase 7).
+- [x] Env scaffolding: `.env.local` (ignored) + `.env.example` listing `BROWSER_WS_ENDPOINT`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `SUPABASE_*`, `IP_HASH_SECRET`, `EXTRACTOR_VERSION`.
+- [x] Add scripts: `typecheck`, `test`. Set up Vitest.
 
 **Done when:** `npm run build`, `lint` and `typecheck` pass on a clean tree; env vars documented.
 
 ### Phase 1: Design system and shell
 
-- [ ] Tokens in `app/globals.css`: neutral scale, teal accent scale, semantic colors (success/warn/danger kept muted), radii, spacing, type scale, motion durations/easings. Light + dark, both contrast-checked (AA).
-- [ ] Fonts: pick one UI sans + one mono (mono only for hashes, code, number columns). Load with `next/font`. Fonts must be free (OFL).
-- [ ] Theme: system default, toggle in navbar, no flash on load.
-- [ ] Layout chrome: navbar (logo, Explore, Owners, theme toggle), footer (Bot, Legal, Owners, Takedown), mobile menu.
-- [ ] Core components: `Logo`, `ThemeToggle`, `CopyButton` (with copied state), `CodeBlock`, `Badge` (licence labels), `Skeleton`, `EmptyState`, `Toaster`.
-- [ ] A hidden `/design` route (dev only) showing every component in both themes.
+- [x] Tokens in `app/globals.css`: neutral scale, teal accent scale, semantic colors (success/warn/danger kept muted), radii, spacing, type scale, motion durations/easings. Light + dark, both contrast-checked (AA).
+- [x] Fonts: pick one UI sans + one mono (mono only for hashes, code, number columns). Load with `next/font`. Fonts must be free (OFL).
+- [x] Theme: system default, toggle in navbar, no flash on load.
+- [x] Layout chrome: navbar (logo, Explore, Owners, theme toggle), footer (Bot, Legal, Owners, Takedown), mobile menu.
+- [x] Core components: `Logo`, `ThemeToggle`, `CopyButton` (with copied state), `CodeBlock`, `Badge` (licence labels), `Skeleton`, `EmptyState`, `Toaster`.
+- [x] A hidden `/design` route (dev only) showing every component in both themes.
 
 **Done when:** every primitive looks correct in light and dark, keyboard focus is visible, no gradient/colored-shadow/floating element anywhere.
 

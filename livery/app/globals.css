@@ -1,26 +1,237 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+  Livery design tokens.
+  Rules (see CLAUDE.md): one accent (teal), flat surfaces, hairline borders,
+  no gradients, no coloured shadows, nothing floating.
+  Theme: follows the system unless <html data-theme="light|dark"> overrides it.
+*/
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+:root {
+  color-scheme: light;
+
+  /* Surfaces: warm paper, white cards, a sunken tone for wells and tracks */
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --surface-2: #efeee9;
+  --surface-3: #e7e5df;
+
+  /* Lines */
+  --border: #e4e2dc;
+  --border-strong: #d2cfc7;
+
+  /* Text */
+  --fg: #151513;
+  --fg-muted: #5c5a54;
+  --fg-subtle: #736f68;
+
+  /* Accent: teal. #0f7c72 holds 5:1 on white for text and white-on-accent buttons */
+  --accent: #0f7c72;
+  --accent-hover: #0b6a61;
+  --accent-soft: #d7ece8;
+  --accent-soft-fg: #0b5d55;
+  --on-accent: #ffffff;
+  --ring: #0f7c72;
+
+  /* Status, kept muted so the accent stays the only loud colour */
+  --success: #2a6e46;
+  --success-soft: #e5f1e8;
+  --warning: #855710;
+  --warning-soft: #f6eedd;
+  --danger: #b4392f;
+  --danger-soft: #f7e5e2;
+
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0c0c0d;
+  --surface: #141415;
+  --surface-2: #1b1b1d;
+  --surface-3: #232326;
+  --border: #242427;
+  --border-strong: #34343a;
+  --fg: #ededea;
+  --fg-muted: #a3a29c;
+  --fg-subtle: #86857e;
+  --accent: #5fd4c2;
+  --accent-hover: #7cddcd;
+  --accent-soft: #122e2a;
+  --accent-soft-fg: #7cddcd;
+  --on-accent: #052420;
+  --ring: #5fd4c2;
+  --success: #6fcf97;
+  --success-soft: #142a1e;
+  --warning: #e3b45c;
+  --warning-soft: #2c2312;
+  --danger: #f08a7e;
+  --danger-soft: #2f1714;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0c0c0d;
+    --surface: #141415;
+    --surface-2: #1b1b1d;
+    --surface-3: #232326;
+    --border: #242427;
+    --border-strong: #34343a;
+    --fg: #ededea;
+    --fg-muted: #a3a29c;
+    --fg-subtle: #86857e;
+    --accent: #5fd4c2;
+    --accent-hover: #7cddcd;
+    --accent-soft: #122e2a;
+    --accent-soft-fg: #7cddcd;
+    --on-accent: #052420;
+    --ring: #5fd4c2;
+    --success: #6fcf97;
+    --success-soft: #142a1e;
+    --warning: #e3b45c;
+    --warning-soft: #2c2312;
+    --danger: #f08a7e;
+    --danger-soft: #2f1714;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-fg: var(--accent-soft-fg);
+  --color-on-accent: var(--on-accent);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+}
+
+/* Motion tokens. A plain @theme block so they also exist as CSS variables. */
+@theme {
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --animate-caret: caret 1.1s steps(1) infinite;
+  --animate-rise: rise 0.5s var(--ease-out-soft) both;
+  --animate-pulse-dot: pulse-dot 2s var(--ease-in-out-soft) infinite;
+}
+
+@keyframes caret {
+  50% { opacity: 0; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+@keyframes dialog-in {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)) scale(0.985); }
+}
+@keyframes sheet-in {
+  from { transform: translateX(100%); }
+}
+@keyframes sheet-out {
+  to { transform: translateX(100%); }
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+    color: var(--accent-soft-fg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Theme switches should not animate every surface at once */
+  .theme-switching,
+  .theme-switching * {
+    transition: none !important;
+  }
+}
+
+@layer utilities {
+  /* Uppercase micro-label, used for section kickers and stat captions */
+  .label-micro {
+    font-size: 11px;
+    line-height: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
