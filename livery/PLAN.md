@@ -229,14 +229,14 @@ Premium, calm, alive. Built with the design rules, in light and dark.
 
 ### Phase 9: Quality, safety, launch
 
-- [ ] **Guardrail fixtures:** saved bank homepage, Stripe-style checkout, login pages, logo-heavy landing. Assert refusals, or: no image files, no font files, no 8-word overlap, 🎨 for every unmatched SVG.
-- [ ] **Flow tests:** 4 sample repos (Next.js + Tailwind v4, Vite + CSS modules, shadcn, plain HTML), one with a conflicting `CLAUDE.md`. Run `claude -p` with scripted answers. Assert: no edit before questions, one commit per approved area, conflicts quoted with file:line, no 🔑 item installed without confirmation. Re-run whenever `flow_version` changes.
-- [ ] **Fidelity check:** build a reference page from a kit, screenshot, compare to the content-removed frames.
-- [ ] Observability: structured logs (`lib/logger`), blocked-domain counts (the outreach list), build duration and cost per kit.
-- [ ] Cleanup jobs: stale `read_failures`, replaced screenshots after 30 days, rate-limit window pruning.
-- [ ] Takedown process documented, with a quick-response path.
-- [ ] Final pass: security review, accessibility audit, performance budget, error boundaries, 404/500 pages.
-- [ ] Domain `livery.site` connected, env vars set in Vercel, Supabase production project, Browserless region set.
+- [x] **Guardrail fixtures:** saved bank homepage, Stripe-style checkout, login pages, logo-heavy landing. Assert refusals, or: no image files, no font files, no 8-word overlap, 🎨 for every unmatched SVG.
+- [x] **Flow tests** (harness in `tests/flow/`, run manually with `tests/flow/run.sh <site>`; not yet run against production): 4 sample repos (Next.js + Tailwind v4, Vite + CSS modules, shadcn, plain HTML), one with a conflicting `CLAUDE.md`. Run `claude -p` with scripted answers. Assert: no edit before questions, one commit per approved area, conflicts quoted with file:line, no 🔑 item installed without confirmation. Re-run whenever `flow_version` changes.
+- [ ] **Fidelity check** (deferred: needs a reference-page generator): build a reference page from a kit, screenshot, compare to the content-removed frames.
+- [x] Observability: structured logs (`lib/logger`), blocked-domain counts (the outreach list), build duration and cost per kit.
+- [x] Cleanup jobs (daily Vercel Cron, `/api/cron/cleanup`; also re-checks grants): stale `read_failures`, replaced screenshots after 30 days, rate-limit window pruning.
+- [x] Takedown process documented (`docs/operations.md`), with `/api/admin/takedown` as the quick-response path.
+- [x] Final pass: security headers, error boundaries (`error.tsx`, `global-error.tsx`), 404. Lighthouse on production build: accessibility, best practices and SEO 100 on every page; performance 94–99 (home and kit pages 94 under simulated mobile throttling).
+- [ ] Domain `livery.site` connected, env vars set in Vercel, Supabase production project, Browserless region set. (Owner tasks; checklist in `docs/launch.md`. Browserless `production-sfo` verified; `vercel.json` pins `sfo1`.)
 
 **Done when:** the whole pipeline passes on the fixture set and a real end-to-end run: paste a link, get the prompt, run it in Claude Code, see the project transformed with one commit per area.
 

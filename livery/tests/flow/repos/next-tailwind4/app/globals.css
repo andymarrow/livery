@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #2563eb;
+  --color-page: #ffffff;
+  --radius-card: 24px;
+}
+
+body { background: var(--color-page); color: #0f172a; }

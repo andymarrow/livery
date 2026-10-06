@@ -185,6 +185,27 @@ describe("takedown requests", () => {
   });
 });
 
+describe("operations", () => {
+  it("lists blocked domains for outreach, hidden from anon", async () => {
+    await db.query(`select public.record_read_failure('https://a.example/', 'a.example', 'bot_protection', null, now() + interval '1 day')`);
+    await db.query(`select public.record_read_failure('https://a.example/', 'a.example', 'bot_protection', null, now() + interval '1 day')`);
+    await db.query(`select public.record_read_failure('https://b.example/', 'b.example', 'timeout', null, now() + interval '1 hour')`);
+    const { rows } = await db.query(`select domain, hits from public.blocked_domains`);
+    expect(rows).toEqual([{ domain: "a.example", hits: 2 }]);
+    await asRole(db, "anon", async () => {
+      await expect(db.query(`select * from public.blocked_domains`)).rejects.toThrow(/permission denied/);
+    });
+  });
+
+  it("finds frames of withdrawn versions for cleanup", async () => {
+    const a = await startBuild();
+    await publish(a.kit_version_id);
+    await db.query(`select * from public.withdraw_version($1)`, [a.kit_version_id]);
+    const { rows } = await db.query<{ kit_version_id: string }>(`select * from public.stale_frame_versions()`);
+    expect(rows.map((r) => r.kit_version_id)).toEqual([a.kit_version_id]);
+  });
+});
+
 describe("storage", () => {
   it("creates a public kits bucket and a private screenshots bucket", async () => {
     const { rows } = await db.query(`select id, public from storage.buckets order by id`);

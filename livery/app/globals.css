@@ -34,7 +34,7 @@
   /* Text */
   --fg: #1a1a17;
   --fg-muted: #55534d;
-  --fg-subtle: #6a675f;
+  --fg-subtle: #65625b;
 
   /* Accent: teal. #0d7268 holds 4.5:1+ on every surface; white on it reads at 5.6:1 */
   --accent: #0d7268;
@@ -64,7 +64,7 @@
   --border-strong: #3c3d41;
   --fg: #e6e5e0;
   --fg-muted: #a3a19b;
-  --fg-subtle: #8c8a84;
+  --fg-subtle: #908e88;
   --accent: #5fd4c2;
   --accent-hover: #7cddcd;
   --accent-soft: #173430;
@@ -90,7 +90,7 @@
     --border-strong: #3c3d41;
     --fg: #e6e5e0;
     --fg-muted: #a3a19b;
-    --fg-subtle: #8c8a84;
+    --fg-subtle: #908e88;
     --accent: #5fd4c2;
     --accent-hover: #7cddcd;
     --accent-soft: #173430;

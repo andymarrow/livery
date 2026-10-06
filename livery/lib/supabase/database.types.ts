@@ -98,7 +98,9 @@ export type Database = {
         created_at: string;
       }>;
     };
-    Views: Record<string, never>;
+    Views: {
+      blocked_domains: { Row: { domain: string; reason: ReadFailureReason; hits: number; pages: number; last_at: string }; Relationships: [] };
+    };
     Functions: {
       bump_rate: {
         Args: { p_key: string; p_window_seconds: number; p_max: number };
@@ -147,6 +149,7 @@ export type Database = {
         Returns: undefined;
       };
       prune_ephemeral: { Args: Record<string, never>; Returns: undefined };
+      stale_frame_versions: { Args: { p_age?: string }; Returns: { kit_version_id: string }[] };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

@@ -96,7 +96,9 @@ Inspiration: rize.roggy.site, goatrank.lol, and the owner's reference screenshot
 - `npm test`: unit, guardrail fixtures (real Chrome if installed) and database tests (embedded Postgres via PGlite, with Supabase roles stubbed)
 - `LIVE=1 npx vitest run tests/live`: opt-in smoke test against real websites
 - `node scripts/contrast.mjs`: WCAG contrast of the theme tokens
-- Database changes go in `supabase/migrations/` as new timestamped files, are covered by `tests/db`, then applied through the Supabase MCP.
+- Database changes go in `supabase/migrations/` as new timestamped files, are covered by `tests/db`, then applied (the owner runs them in the Supabase SQL editor).
+- `tests/flow/run.sh <site>`: manual flow tests with `claude -p` against four sample repos (costs model calls).
+- Launch and operations runbooks: `docs/launch.md`, `docs/operations.md`.
 
 ## Reminders
 

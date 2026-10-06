@@ -1,4 +1,6 @@
 import "server-only";
+import { revalidatePath } from "next/cache";
+import { kitPath } from "@/lib/kit/urls";
 import { logger } from "@/lib/logger";
 import { getAdminClient } from "@/lib/supabase/admin";
 
@@ -12,7 +14,7 @@ export async function withdrawVersions(domain: string, { all, keepHash = null }:
   const db = getAdminClient();
   const { data, error } = await db
     .from("kit_versions")
-    .select("id, grant_hash, kits!inner(domain)")
+    .select("id, version, grant_hash, kits!inner(domain, slug)")
     .eq("status", "ready")
     .eq("kits.domain", domain);
   if (error) throw error;
@@ -29,6 +31,15 @@ export async function withdrawVersions(domain: string, { all, keepHash = null }:
     if (artefacts.tar_path) files.push(artefacts.tar_path.replace(/kit\.tar\.gz$/, "manifest.json"));
     if (files.length) await db.storage.from("kits").remove(files);
     await db.storage.from("screenshots").remove(["desktop", "tablet", "mobile"].map((n) => `${version.id}/${n}.webp`));
+    const kit = version.kits as unknown as { slug: string };
+    if (version.version) {
+      try {
+        revalidatePath(kitPath(kit.slug, version.version));
+        revalidatePath("/explore");
+      } catch {
+        // Outside a request (scripts, tests): nothing cached to clear.
+      }
+    }
   }
   if (targets.length) logger.info("withdraw.done", { domain, count: targets.length, all });
   return targets.length;

@@ -29,6 +29,7 @@ export type KitVersionView = {
   latestVersion: number;
   /** Built under the site owner's livery.json grant. */
   ownerApproved: boolean;
+  frameSizes: Record<string, { width: number; height: number }>;
 };
 
 /** A published or withdrawn version. Building and failed builds are never visible. */
@@ -48,7 +49,7 @@ export async function getKitVersion(slug: string, version: number): Promise<KitV
     db.from("kit_items").select("kind, name, licence, licence_name, alternative").eq("kit_version_id", v.id).order("id"),
     latestVersion(kit.id),
   ]);
-  const data = (v.data ?? {}) as { extraction?: { tokens?: Tokens }; analysis?: Analysis };
+  const data = (v.data ?? {}) as { extraction?: { tokens?: Tokens; frames?: { name: string; width: number; height: number }[] }; analysis?: Analysis };
   return {
     kitId: kit.id,
     versionId: v.id,
@@ -70,6 +71,7 @@ export async function getKitVersion(slug: string, version: number): Promise<KitV
     items: items ?? [],
     latestVersion: latest ?? v.version,
     ownerApproved: v.grant_hash !== null,
+    frameSizes: Object.fromEntries((data.extraction?.frames ?? []).map((f) => [f.name, { width: f.width, height: f.height }])),
   };
 }
 

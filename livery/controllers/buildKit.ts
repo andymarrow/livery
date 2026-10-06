@@ -71,7 +71,17 @@ function withOwnerAssets(items: KitItem[], files: KitFile[], terms: OwnerTerms |
 
 // Stored data: measurements only. Never the site's text, and frames live in storage.
 function storedExtraction(extraction: Extraction) {
-  return { source: extraction.source, tokens: extraction.tokens, fonts: extraction.fonts, icons: extraction.icons, components: extraction.components, imagery: extraction.imagery, items: extraction.items };
+  return {
+    source: extraction.source,
+    tokens: extraction.tokens,
+    fonts: extraction.fonts,
+    icons: extraction.icons,
+    components: extraction.components,
+    imagery: extraction.imagery,
+    items: extraction.items,
+    // Sizes only, so the kit page can reserve space for the frames.
+    frames: extraction.frames.map(({ name, width, height }) => ({ name, width, height })),
+  };
 }
 
 export type BuildOutcome =

@@ -112,7 +112,7 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
                 className="h-full w-full bg-transparent pr-2 font-medium text-fg outline-none focus-visible:outline-none"
               />
               {!value && (
-                <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 flex items-center font-medium text-fg-subtle/70">
+                <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 flex items-center font-medium text-fg-subtle">
                   {focused ? "paste any website" : placeholder}
                   <span className="ml-px inline-block h-[1.1em] w-[2px] translate-y-px rounded-full bg-accent animate-caret" />
                 </span>
@@ -183,9 +183,9 @@ function AgentLine({ path }: { path: string }) {
       <span className="label-micro hidden shrink-0 sm:inline">Agents</span>
       <span aria-hidden className="hidden h-4 w-px bg-border-strong sm:inline-block" />
       <code className="min-w-0 flex-1 truncate font-mono text-[13px] text-fg-muted">
-        <span className="text-fg-subtle select-none">$ </span>
+        <span className="text-fg-muted select-none">$ </span>
         curl -fsSL {SITE.domain}/
-        <span className={path ? "text-accent" : "text-fg-subtle"}>{path || "<any-site>"}</span>
+        <span className={path ? "text-accent" : "text-fg-muted"}>{path || "<any-site>"}</span>
       </code>
       <CopyButton value={command} variant="ghost" size="icon-sm" label="Copy command" disabled={!path} />
     </div>

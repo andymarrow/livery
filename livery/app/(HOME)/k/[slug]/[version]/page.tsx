@@ -14,8 +14,13 @@ import { DesignGlance } from "./_components/DesignGlance";
 import { FilesPanel } from "./_components/FilesPanel";
 import { InstallPanel } from "./_components/InstallPanel";
 
-// Shorter than the signed frame URLs (2h), so cached pages never show expired images.
+// Rendered once per version and cached; refreshed every 30 minutes (shorter
+// than the 2h signed frame URLs) and immediately when a version is withdrawn.
+export const dynamic = "force-static";
 export const revalidate = 1800;
+export async function generateStaticParams() {
+  return [];
+}
 
 async function load(params: PageProps<"/k/[slug]/[version]">["params"]) {
   const { slug, version } = await params;
@@ -166,7 +171,15 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
                     <div key={frame.name} className="overflow-hidden rounded-2xl border border-border bg-surface">
                       <div className="max-h-[36rem] overflow-y-auto">
                         {/* eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL from private storage */}
-                        <img src={frame.url} alt={`${frame.name} layout of ${view.domain} with content removed`} className="block w-full" />
+                        <img
+                          src={frame.url}
+                          alt={`${frame.name} layout of ${view.domain} with content removed`}
+                          width={view.frameSizes[frame.name]?.width}
+                          height={view.frameSizes[frame.name]?.height}
+                          loading="lazy"
+                          decoding="async"
+                          className="block h-auto w-full"
+                        />
                       </div>
                       <p className="border-t border-border px-3 py-2 font-mono text-[11px] text-fg-subtle">{frame.name}</p>
                     </div>

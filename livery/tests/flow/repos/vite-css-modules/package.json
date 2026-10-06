@@ -1,0 +1,1 @@
+{ "name": "flow-vite-css-modules", "private": true, "dependencies": { "react": "19.2.8", "vite": "^7" } }

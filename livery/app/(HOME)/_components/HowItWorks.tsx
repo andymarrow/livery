@@ -64,7 +64,7 @@ function PastePreview() {
   return (
     <div className="w-full max-w-[17rem]">
       <div className="flex h-11 items-center rounded-xl border border-border-strong bg-surface px-3.5 text-[14px] font-medium">
-        <span className="text-fg-subtle">{SITE.domain}/</span>
+        <span className="text-fg-muted">{SITE.domain}/</span>
         <span className="text-fg">example.com</span>
         <span className="ml-px h-4 w-[2px] rounded-full bg-accent animate-caret" />
       </div>
@@ -76,7 +76,7 @@ function PastePreview() {
             style={{ backgroundColor: swatch }}
           />
         ))}
-        <span className="ml-1.5 text-xs text-fg-subtle">Palette, type, spacing, icons</span>
+        <span className="ml-1.5 text-xs text-fg-muted">Palette, type, spacing, icons</span>
       </div>
     </div>
   );
