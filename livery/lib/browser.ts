@@ -1,5 +1,5 @@
 import "server-only";
-import { chromium, type Browser } from "playwright-core";
+import type { Browser } from "playwright-core";
 
 // Browserless and similar hosts also expose REST endpoints (/screenshot,
 // /content, ...). Those are for one-off jobs; Livery drives a live browser over
@@ -21,6 +21,9 @@ export function cdpEndpoint(raw: string) {
  * the installed Google Chrome is used.
  */
 export async function getBrowser(): Promise<Browser> {
+  // Loaded only when a browser is really needed, so routes that just screen a
+  // URL (and refuse it) never pay for, or depend on, Playwright loading.
+  const { chromium } = await import("playwright-core");
   const endpoint = process.env.BROWSER_WS_ENDPOINT;
   if (endpoint) return chromium.connectOverCDP(cdpEndpoint(endpoint), { timeout: 20_000 });
   if (process.env.NODE_ENV === "production") throw new Error("BROWSER_WS_ENDPOINT is not set");

@@ -2,7 +2,10 @@ import "server-only";
 import { lookup } from "node:dns/promises";
 import type { LookupAddress } from "node:dns";
 import ipaddr from "ipaddr.js";
-import { Agent, fetch as undiciFetch, type Response } from "undici";
+import { Agent, request } from "node:https";
+import type { IncomingMessage } from "node:http";
+import { Readable } from "node:stream";
+import { createBrotliDecompress, createGunzip, createInflate } from "node:zlib";
 import { BOT } from "@/constants/constants";
 import { fail, type ReadResult } from "@/lib/extract/types";
 
@@ -54,7 +57,47 @@ function guardedLookup(hostname: string, options: { all?: boolean }, callback: L
     .catch((error) => callback(error, ""));
 }
 
-const agent = new Agent({ connect: { lookup: guardedLookup as never }, connections: 16 });
+const agent = new Agent({ keepAlive: true, maxSockets: 16 });
+
+// Built on node:https rather than a fetch library: it runs on any Node the
+// host provides, and its `lookup` hook lets the address check happen at
+// connect time. Returns a standard Response so callers stay simple.
+function decode(res: IncomingMessage) {
+  const encoding = String(res.headers["content-encoding"] ?? "").toLowerCase();
+  if (encoding === "gzip" || encoding === "x-gzip") return res.pipe(createGunzip());
+  if (encoding === "deflate") return res.pipe(createInflate());
+  if (encoding === "br") return res.pipe(createBrotliDecompress());
+  return res;
+}
+
+function requestOnce(url: URL, method: string, accept: string, signal: AbortSignal): Promise<Response> {
+  return new Promise((resolve, reject) => {
+    const req = request(
+      url,
+      {
+        method,
+        agent,
+        signal,
+        lookup: guardedLookup as never,
+        headers: { "user-agent": BOT.userAgent, accept, "accept-encoding": "gzip, deflate, br" },
+      },
+      (res) => {
+        const status = res.statusCode ?? 502;
+        const headers = new Headers();
+        for (const [key, value] of Object.entries(res.headers)) {
+          if (value === undefined || key === "content-encoding" || key === "content-length") continue;
+          headers.set(key, Array.isArray(value) ? value.join(", ") : String(value));
+        }
+        const empty = method === "HEAD" || status === 204 || status === 304 || (status >= 300 && status < 400);
+        if (empty) res.resume();
+        const body = empty ? null : (Readable.toWeb(decode(res)) as ReadableStream<Uint8Array>);
+        resolve(new Response(body, { status: status < 200 || status > 599 ? 502 : status, headers }));
+      },
+    );
+    req.on("error", reject);
+    req.end();
+  });
+}
 
 export type SafeResponse = { response: Response; finalUrl: URL; redirects: number };
 
@@ -75,16 +118,10 @@ export async function safeFetch(
 
     let response: Response;
     try {
-      response = await undiciFetch(url, {
-        method,
-        redirect: "manual",
-        signal: deadline,
-        dispatcher: agent,
-        headers: { "user-agent": BOT.userAgent, accept },
-      });
+      response = await requestOnce(url, method, accept, deadline);
     } catch (error) {
-      const err = error as { name?: string; cause?: { code?: string } };
-      if (err.cause?.code === "EUNSAFEADDR") return fail("unsafe_url", `${url.hostname} resolves to a non-public address`);
+      const err = error as { name?: string; code?: string; cause?: { code?: string } };
+      if (err.code === "EUNSAFEADDR" || err.cause?.code === "EUNSAFEADDR") return fail("unsafe_url", `${url.hostname} resolves to a non-public address`);
       if (err.name === "TimeoutError" || err.name === "AbortError") return fail("timeout", `no response from ${url.hostname}`);
       return fail("timeout", `could not connect to ${url.hostname}`);
     }

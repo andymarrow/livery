@@ -14,6 +14,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // LIVERY_DIST_DIR lets a production check build into its own folder, so it
+  // never touches the .next a running dev server is using.
+  distDir: process.env.LIVERY_DIST_DIR || ".next",
   poweredByHeader: false,
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
