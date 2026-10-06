@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check } from "lucide-react";
+import { Check } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 const AREAS = [
@@ -38,7 +38,7 @@ export function AskPreview() {
                   on ? "bg-accent text-on-accent" : "bg-surface-3 text-fg-muted",
                 )}
               >
-                {on && <Check className="size-3" strokeWidth={3} />}
+                {on && <Check className="size-3" weight="bold" />}
                 {on ? "Apply" : "Skip"}
               </span>
             </button>

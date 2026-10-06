@@ -171,6 +171,20 @@ describe("row level security", () => {
   });
 });
 
+describe("takedown requests", () => {
+  it("are written by the server and invisible to anon", async () => {
+    await db.query(`insert into public.takedown_requests (domain, email, message, relationship) values ('example.com', 'a@example.com', 'please remove', 'owner')`);
+    await asRole(db, "anon", async () => {
+      await expect(db.query(`select * from public.takedown_requests`)).rejects.toThrow(/permission denied/);
+      await expect(db.query(`insert into public.takedown_requests (domain, email, message, relationship) values ('x.com', 'a@x.com', 'm', 'owner')`)).rejects.toThrow(/permission denied/);
+    });
+  });
+
+  it("reject malformed emails", async () => {
+    await expect(db.query(`insert into public.takedown_requests (domain, email, message, relationship) values ('example.com', 'nope', 'm', 'owner')`)).rejects.toThrow();
+  });
+});
+
 describe("storage", () => {
   it("creates a public kits bucket and a private screenshots bucket", async () => {
     const { rows } = await db.query(`select id, public from storage.buckets order by id`);

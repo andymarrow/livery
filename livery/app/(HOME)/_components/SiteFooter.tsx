@@ -8,7 +8,7 @@ export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-border">
       <div className="mx-auto max-w-6xl px-4 pb-8 pt-14 sm:px-6">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div className="max-w-xs">
             <Logo />
             <p className="mt-3 text-sm leading-relaxed text-fg-muted">{SITE.tagline}</p>

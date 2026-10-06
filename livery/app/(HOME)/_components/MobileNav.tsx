@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Menu } from "lucide-react";
+import { ArrowUpRight, List } from "@phosphor-icons/react";
 import { LogoMark } from "@/components/Logo";
 import { ThemeSwitch } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ export function MobileNav() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu">
-          <Menu />
+          <List />
         </Button>
       </SheetTrigger>
       <SheetContent>

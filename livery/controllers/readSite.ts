@@ -1,7 +1,7 @@
 import "server-only";
 import { getBrowser } from "@/lib/browser";
 import { renderAt, WIDTHS, type RenderedPage } from "@/lib/extract/render";
-import { fail, type ReadFailure, type ReadResult } from "@/lib/extract/types";
+import { fail, type Progress, type ReadFailure, type ReadResult } from "@/lib/extract/types";
 import { detectBlock } from "@/lib/guards/detectBlock";
 import { deniedCategory, isSensitivePath } from "@/lib/url/blocklist";
 import { normaliseTarget, type Target } from "@/lib/url/normalise";
@@ -46,13 +46,14 @@ async function withOneRetry<T>(run: () => Promise<ReadResult<T>>): Promise<ReadR
  * width while the page is open (extraction plugs in here in Phase 4).
  * Failures are remembered so repeated requests don't hit the site again.
  */
-export async function renderSite(target: Target, visit: Visit): Promise<ReadResult<{ finalUrl: URL }>> {
-  const result = await renderSiteUnrecorded(target, visit);
+export async function renderSite(target: Target, visit: Visit, onProgress: Progress = () => {}): Promise<ReadResult<{ finalUrl: URL }>> {
+  const result = await renderSiteUnrecorded(target, visit, onProgress);
   if (!result.ok) await rememberFailure(target.sourceUrl, target.domain, result);
   return result;
 }
 
-async function renderSiteUnrecorded(target: Target, visit: Visit): Promise<ReadResult<{ finalUrl: URL }>> {
+async function renderSiteUnrecorded(target: Target, visit: Visit, onProgress: Progress): Promise<ReadResult<{ finalUrl: URL }>> {
+  onProgress("checking", "redirects and robots.txt");
   // Preflight with our own fetch: every redirect hop is checked for https and public addresses.
   const preflight = await withOneRetry(() => safeFetch(target.url, { timeoutMs: 12_000 }));
   if (!preflight.ok) return preflight;
@@ -69,6 +70,7 @@ async function renderSiteUnrecorded(target: Target, visit: Visit): Promise<ReadR
   try {
     const [desktop, ...rest] = [WIDTHS[2], WIDTHS[0], WIDTHS[1]];
 
+    onProgress("rendering", `${desktop.width}px`);
     const first = await withOneRetry(() => renderAt(browser, finalUrl, desktop));
     if (!first.ok) return first;
     const blocked: ReadFailure | null = detectBlock(first.value.signals);
@@ -83,6 +85,7 @@ async function renderSiteUnrecorded(target: Target, visit: Visit): Promise<ReadR
     }
 
     for (const viewport of rest) {
+      onProgress("rendering", `${viewport.width}px`);
       const rendered = await renderAt(browser, finalUrl, viewport);
       if (!rendered.ok) return rendered;
       try {

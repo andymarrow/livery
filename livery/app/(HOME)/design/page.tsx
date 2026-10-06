@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ArrowUpRight, Inbox, Plus } from "lucide-react";
+import { ArrowUpRight, Plus, Tray } from "@phosphor-icons/react/ssr";
 import { CodeBlock } from "@/components/CodeBlock";
 import { CopyButton } from "@/components/CopyButton";
 import { EmptyState } from "@/components/EmptyState";
@@ -76,16 +76,16 @@ export default function DesignPage() {
       <Section title="Type">
         <div className="space-y-5">
           {TYPE_SCALE.map(([name, className]) => (
-            <div key={name} className="grid items-baseline gap-2 sm:grid-cols-[120px_1fr]">
+            <div key={name} className="grid grid-cols-1 items-baseline gap-2 sm:grid-cols-[120px_1fr]">
               <span className="font-mono text-xs text-fg-subtle">{name}</span>
               <p className={className}>Give your app a new livery</p>
             </div>
           ))}
-          <div className="grid items-baseline gap-2 sm:grid-cols-[120px_1fr]">
+          <div className="grid grid-cols-1 items-baseline gap-2 sm:grid-cols-[120px_1fr]">
             <span className="font-mono text-xs text-fg-subtle">Micro</span>
             <p className="label-micro">Total kits · this week</p>
           </div>
-          <div className="grid items-baseline gap-2 sm:grid-cols-[120px_1fr]">
+          <div className="grid grid-cols-1 items-baseline gap-2 sm:grid-cols-[120px_1fr]">
             <span className="font-mono text-xs text-fg-subtle">Mono</span>
             <p className="font-mono text-[13px]">sha256 3f9a…c21e</p>
           </div>
@@ -141,7 +141,7 @@ export default function DesignPage() {
       </Section>
 
       <Section title="Cards">
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Card>
             <CardHeader>
               <div>
@@ -181,14 +181,14 @@ export default function DesignPage() {
       </Section>
 
       <Section title="Code and empty states">
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <CodeBlock
             title="SKILL.md"
             language="markdown"
             code={`---\nname: livery-example-com\ndescription: Apply the example.com design kit.\n---\n\n# example.com design kit · v1\n\nNever edit a file before step 5. Ask, don't assume.`}
           />
           <EmptyState
-            icon={<Inbox />}
+            icon={<Tray />}
             title="No kits match"
             description="Try a different accent, font or icon set, or paste a site to build a new kit."
             action={<Button variant="secondary">Clear filters</Button>}

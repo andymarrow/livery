@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { MagnifyingGlass } from "@phosphor-icons/react";
 import { ThemeSwitch } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -13,13 +13,13 @@ export function InteractiveDemos() {
   const toast = useToast();
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <div className="rounded-2xl border border-border bg-surface p-5">
         <p className="label-micro mb-4">Inputs</p>
         <div className="space-y-3">
-          <Input placeholder="Search kits" />
+          <Input placeholder="MagnifyingGlass kits" />
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-fg-subtle" />
+            <MagnifyingGlass className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-fg-subtle" />
             <Input placeholder="With an icon" className="pl-10" />
           </div>
           <Input aria-invalid placeholder="Invalid state" defaultValue="not a url" />

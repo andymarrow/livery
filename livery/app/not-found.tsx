@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@phosphor-icons/react/ssr";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 

@@ -88,6 +88,15 @@ export type Database = {
         last_at: string;
       }>;
       rate_limits: Table<{ key: string; window_start: string; count: number }>;
+      takedown_requests: Table<{
+        id: number;
+        domain: string;
+        email: string;
+        message: string;
+        relationship: "owner" | "agent" | "other";
+        status: "open" | "actioned" | "rejected";
+        created_at: string;
+      }>;
     };
     Views: Record<string, never>;
     Functions: {

@@ -8,9 +8,11 @@ export const FOOTER_LINKS = {
   Product: [
     { href: "/explore", label: "Explore kits" },
     { href: "/#how-it-works", label: "How it works" },
+    { href: "/about", label: "About" },
   ],
   Owners: [
     { href: "/owners", label: "Opt in or out" },
+    { href: "/owners#check", label: "Check your site" },
     { href: "/bot", label: "About LiveryBot" },
   ],
   Legal: [

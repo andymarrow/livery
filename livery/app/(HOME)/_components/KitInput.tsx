@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { CornerDownLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, KeyReturn } from "@phosphor-icons/react";
+import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/CopyButton";
 import { SITE } from "@/constants/constants";
 import { EXAMPLE_SITES } from "@/constants/options";
@@ -42,11 +44,11 @@ function useTypedPlaceholder(words: readonly string[], active: boolean) {
   return text;
 }
 
-export function KitInput() {
+export function KitInput({ compact = false }: { compact?: boolean }) {
+  const router = useRouter();
   const inputId = useId();
   const errorId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
-  const copyRef = useRef<HTMLDivElement>(null);
   const [value, setValue] = useState("");
   const [focused, setFocused] = useState(false);
   const [showError, setShowError] = useState(false);
@@ -64,7 +66,7 @@ export function KitInput() {
       inputRef.current?.focus();
       return;
     }
-    copyRef.current?.querySelector("button")?.click();
+    router.push(`/build?url=${encodeURIComponent(result.path)}`);
   }
 
   function pick(site: string) {
@@ -74,7 +76,7 @@ export function KitInput() {
   }
 
   return (
-    <div id="get-a-kit" className="w-full scroll-mt-28">
+    <div id={compact ? undefined : "get-a-kit"} className="w-full scroll-mt-28">
       <form onSubmit={submit} noValidate>
         <label htmlFor={inputId} className="sr-only">
           Website address
@@ -118,26 +120,30 @@ export function KitInput() {
             </div>
             {result.ok && (
               <span className="hidden shrink-0 items-center gap-1 pr-2 text-xs text-fg-subtle sm:inline-flex">
-                <CornerDownLeft className="size-3.5" /> to copy
+                <KeyReturn className="size-3.5" /> to build
               </span>
             )}
           </div>
-          <div ref={copyRef}>
+          <div className="flex items-center gap-2">
             <CopyButton
               key={shortcut}
               value={shortcut}
               label="Copy kit link"
               copiedLabel="Link copied"
-              variant="primary"
-              size="lg"
+              variant="ghost"
+              size="icon"
               disabled={!result.ok}
-              className="h-12 w-full rounded-[14px] sm:h-14 sm:w-auto sm:px-6"
+              className="hidden size-12 rounded-[14px] sm:inline-flex sm:size-14"
             />
+            <Button type="submit" size="lg" className="group/build h-12 w-full rounded-[14px] sm:h-14 sm:w-auto sm:px-6">
+              Build kit
+              <ArrowRight weight="bold" className="transition-transform duration-200 ease-out-soft group-hover/build:translate-x-0.5" />
+            </Button>
           </div>
         </div>
       </form>
 
-      <div className="mt-4 flex min-h-6 flex-wrap items-center justify-center gap-x-1.5 gap-y-2">
+      <div className={cn("mt-4 flex min-h-6 flex-wrap items-center gap-x-1.5 gap-y-2", compact ? "justify-start" : "justify-center")}>
         {invalid ? (
           <p id={errorId} role="alert" className="text-sm text-danger">
             That doesn&apos;t look like a public website address. Try something like linear.app.
@@ -164,7 +170,7 @@ export function KitInput() {
         )}
       </div>
 
-      <AgentLine path={path} />
+      {!compact && <AgentLine path={path} />}
     </div>
   );
 }

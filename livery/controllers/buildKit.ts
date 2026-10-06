@@ -1,7 +1,7 @@
 import "server-only";
 import { EXTRACTOR_VERSION, FLOW_VERSION } from "@/constants/constants";
 import { createExtractor, type Extraction } from "@/lib/extract";
-import type { ReadFailure } from "@/lib/extract/types";
+import type { Progress, ReadFailure } from "@/lib/extract/types";
 import { generateKit } from "@/lib/generate/kit";
 import { packageKit } from "@/lib/generate/package";
 import { geminiWriter, type DesignWriter } from "@/lib/generate/writer";
@@ -27,7 +27,8 @@ export type BuildOutcome =
  * the build lock, render and extract, generate, guard, package, upload, publish.
  * Any failure after the lock releases it, so the next request can retry.
  */
-export async function resolveKit(raw: string, options: { ip: string; writer?: DesignWriter }): Promise<BuildOutcome> {
+export async function resolveKit(raw: string, options: { ip: string; writer?: DesignWriter; onProgress?: Progress }): Promise<BuildOutcome> {
+  const progress: Progress = options.onProgress ?? (() => {});
   const screened = await screenTarget(raw);
   if (!screened.ok) return { status: "failed", failure: screened };
   const target = screened.value;
@@ -44,17 +45,21 @@ export async function resolveKit(raw: string, options: { ip: string; writer?: De
   const started = Date.now();
   try {
     const extractor = createExtractor(target.sourceUrl);
-    const rendered = await renderSite(target, extractor.visit);
+    const rendered = await renderSite(target, extractor.visit, progress);
     if (!rendered.ok) {
       await failBuild(lock.kit_version_id, `${rendered.reason}: ${rendered.detail ?? ""}`);
       return { status: "failed", failure: rendered, slug: target.slug };
     }
+    progress("extracting");
     const extraction = extractor.finish(rendered.value.finalUrl.toString());
 
     const version = await nextVersion(lock.kit_id);
+    progress("writing", "rules, components and voice");
     const kit = await generateKit(extraction, options.writer ?? geminiWriter(), { slug: target.slug, version });
+    progress("packaging");
     const packaged = packageKit(kit.files, { skillName: kit.skillName, version, flowVersion: FLOW_VERSION });
 
+    progress("publishing");
     const paths = await uploadArtefacts(target.slug, version, packaged);
     await uploadFrames(lock.kit_version_id, extraction.frames);
 

@@ -67,6 +67,16 @@ Inspiration: rize.roggy.site, goatrank.lol, and the owner's reference screenshot
 - **Minor interactions make it feel alive:** hover/press states, small transitions, count-ups, live indicators, smooth tab and carousel changes. Subtle and fast. Respect `prefers-reduced-motion`.
 - **Every section and interaction should feel like a breath of fresh air:** simple, with one creative touch, so the target audience says "wow". Don't ship generic template layouts.
 
+## Icons
+
+- **Phosphor** (`@phosphor-icons/react`) is the only icon set. Server components import from `@phosphor-icons/react/ssr`, client components from `@phosphor-icons/react`.
+- `regular` weight by default, `bold` inside small buttons and badges, `duotone` (in the accent colour) for feature icons. Size icons with CSS (`size-4`), not props.
+
+## Layout safety
+
+- Every CSS grid declares its base column (`grid-cols-1`, or `minmax(0,1fr)` tracks). Implicit grid columns size to their content and break phone layouts.
+- Never delete `.next` while a dev server may be running; it breaks the running server.
+
 ## Hard bans (these make a site look vibe-coded)
 
 - **No floating elements.** Nothing hovering over the layout, no detached drifting cards, no decorative levitation.

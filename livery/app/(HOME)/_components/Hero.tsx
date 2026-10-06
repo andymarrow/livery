@@ -3,13 +3,14 @@ import { KitInput } from "./KitInput";
 
 const AGENTS = ["Claude Code", "Codex", "Cursor", "Windsurf", "any agent that reads Markdown"];
 
-export function Hero() {
+export function Hero({ kitCount }: { kitCount: number }) {
   return (
     <section className="relative px-4 pb-20 pt-16 sm:px-6 sm:pb-28 sm:pt-24">
       <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
         <Badge variant="neutral" className="animate-rise h-7 px-3 text-[12.5px]">
           <LiveDot />
-          Design kits for coding agents
+          {/* The count only appears once the library is big enough to say something. */}
+          {kitCount >= 25 ? `${kitCount.toLocaleString("en-US")} design kits in the library` : "Design kits for coding agents"}
         </Badge>
 
         <h1

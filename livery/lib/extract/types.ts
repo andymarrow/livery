@@ -33,3 +33,7 @@ export const RETRY_AFTER_SECONDS: Record<ReadFailureReason, number> = {
   sensitive_page: 24 * HOUR,
   blocked_by_owner: 24 * HOUR,
 };
+
+/** Build stages, reported to the build page as they happen. */
+export type BuildStage = "checking" | "rendering" | "extracting" | "writing" | "packaging" | "publishing";
+export type Progress = (stage: BuildStage, detail?: string) => void;

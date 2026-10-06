@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check } from "@phosphor-icons/react/ssr";
 import { SITE } from "@/constants/constants";
 import { AskPreview } from "./AskPreview";
 
@@ -24,7 +24,7 @@ export function HowItWorks() {
   return (
     <section id="how-it-works" className="scroll-mt-20 border-t border-border px-4 py-20 sm:px-6 sm:py-28">
       <div className="mx-auto max-w-6xl">
-        <div className="grid gap-6 md:grid-cols-[1fr_1fr] md:items-end">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_1fr] md:items-end">
           <div>
             <p className="label-micro">How it works</p>
             <h2 className="mt-3 text-3xl font-semibold leading-[1.05] tracking-[-0.035em] text-balance sm:text-[44px]">
@@ -38,11 +38,11 @@ export function HowItWorks() {
           </p>
         </div>
 
-        <ol className="mt-14 grid gap-4 md:grid-cols-3">
+        <ol className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-3">
           {STEPS.map((step, index) => (
             <li
               key={step.title}
-              className="group flex flex-col rounded-2xl border border-border bg-surface p-2 transition-[border-color] duration-200 hover:border-border-strong"
+              className="group flex min-w-0 flex-col rounded-2xl border border-border bg-surface p-2 transition-[border-color] duration-200 hover:border-border-strong"
             >
               <div className="flex h-48 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface-2 p-5">
                 {step.visual}
@@ -96,7 +96,7 @@ function InstallPreview() {
           {line.prompt ? (
             <span className="text-fg-subtle">$</span>
           ) : (
-            <Check className="size-3 shrink-0 text-accent" strokeWidth={3} />
+            <Check className="size-3 shrink-0 text-accent" weight="bold" />
           )}
           <span className={line.prompt ? "truncate text-fg" : "truncate text-fg-muted"}>{line.text}</span>
         </div>

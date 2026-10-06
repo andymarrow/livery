@@ -1,7 +1,7 @@
 "use client";
 
 import { Dialog as SheetPrimitive } from "radix-ui";
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 export const Sheet = SheetPrimitive.Root;

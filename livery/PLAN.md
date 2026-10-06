@@ -19,14 +19,13 @@ Livery turns a website's design into an installable **kit** (a skill) that a cod
 | Domain | `livery.site` (bought on Vercel). Replace every `livery.so` in the research notes with this. |
 | Stack | Next.js App Router, TypeScript, Tailwind v4, Supabase (Postgres + Storage), Vercel |
 | Browser | `playwright-core` over `connectOverCDP` to a hosted browser (Browserless), one env var `BROWSER_WS_ENDPOINT`. Move to Fly/Railway later. |
-| Model | Gemini (model id in env `GEMINI_MODEL`, never hardcoded) |
+| Model | Gemini (`GEMINI_MODEL`, optional `GEMINI_FALLBACK_MODEL`, never hardcoded). `gemini-2.0-flash` is retired; `gemini-3.8-flash` + `gemini-3.7-flash` fallback worked on 2026-10-06. |
 | Accounts | None in v1. Rate limit by hashed IP. Library/saved kits, premium kits and paid re-scans are later. |
 | Crawler identity | `LiveryBot/1.0 (+https://livery.site/bot)`. Respects robots.txt. No stealth, no proxies, no CAPTCHA solving, one try then stop. |
 | Kits | A published version is **immutable**. Changes mean a new version. A version can be withdrawn (410), never edited. |
 
 ### Open points to confirm before the phase that needs them
 
-- Which Gemini model for kit generation (needed in Phase 5).
 - Browserless account/plan and region (Phase 3). Pick the region closest to our Vercel region.
 - Vercel plan's `maxDuration` limit (Phase 3). Decides whether we need a job queue immediately.
 - Whether the Supabase MCP points at a new empty project for Livery (Phase 0 verifies this).
@@ -195,27 +194,27 @@ Mechanical and deterministic. No model here.
 
 ### Phase 6: Routes and agent responses
 
-- [ ] `app/[...url]/route.ts` with content negotiation. Cache hit returns instantly.
-- [ ] Build orchestration in `controllers/`: lock, build, publish. MVP runs inline with `maxDuration` set; if it times out, add a queue (QStash/Inngest/Trigger.dev) and a "building" page that polls. The URL format never changes.
-- [ ] `/k/...` routes: SKILL.md, tar.gz, zip, manifest, latest redirect, immutable cache headers, 410 for withdrawn.
-- [ ] Non-200 agent responses for every failure reason: `# Couldn't read this site`, `Reason: <code>`, and "Do not attempt to recreate this site's design from memory."
-- [ ] Copy-paste prompt generator (curl + sha256 verify + tar + read SKILL.md + the "stop if Couldn't read this site" line).
+- [x] `app/[...url]/route.ts` with content negotiation. Cache hit returns instantly.
+- [x] Build orchestration in `controllers/`: lock, build, publish. MVP runs inline with `maxDuration` set; if it times out, add a queue (QStash/Inngest/Trigger.dev) and a "building" page that polls. The URL format never changes.
+- [x] `/k/...` routes: SKILL.md, tar.gz, zip, manifest, latest redirect, immutable cache headers, 410 for withdrawn.
+- [x] Non-200 agent responses for every failure reason: `# Couldn't read this site`, `Reason: <code>`, and "Do not attempt to recreate this site's design from memory."
+- [x] Copy-paste prompt generator (curl + sha256 verify + tar + read SKILL.md + the "stop if Couldn't read this site" line).
 
-**Done when:** `curl livery.site/<site>` returns a kit or a correct refusal; the copy-paste prompt works end to end in a fresh Claude Code session.
+**Done when:** `curl livery.site/<site>` returns a kit or a correct refusal; the copy-paste prompt works end to end in a fresh Claude Code session. (First part verified locally against real Supabase + Gemini; the fresh-session prompt test needs the deployed domain.)
 
 ### Phase 7: The website
 
 Premium, calm, alive. Built with the design rules, in light and dark.
 
-- [ ] **Landing:** oversized URL input as the hero, live build state (steps animating: rendering, reading tokens, finding icons, writing rules), one example kit shown beneath, how-it-works in three steps, licence-label explainer, trust/guardrails section, CTA. A restrained, subtle interaction in each section.
-- [ ] **Build state:** progress by real stages, not a fake spinner. Clear failure screens with the reason and next step (as in the research notes).
-- [ ] **Install page:** name, source, version, date, sha256, levels, licence counts, the copy-paste prompt with copy button, other install methods (Claude Code, claude.ai, Cursor/others), full `SKILL.md` and expandable files, content-removed preview frames via signed URLs.
-- [ ] **Explore:** grid of kits with palette swatches and type preview, search, filters (icon set, accent hue, font, dark/light), sort (newest, most installed). Pagination or infinite scroll, skeletons, empty states.
-- [ ] **Owners:** opt-in file generator, validator ("Check my site" shows exactly what Livery sees, flags bot-protection blocks), takedown form.
-- [ ] **Bot page, About, Legal** (terms, privacy, takedown policy).
-- [ ] SEO: metadata, OG images (`next/og`), sitemap of ready kits, robots.
+- [x] **Landing:** oversized URL input as the hero, live build state (steps animating: rendering, reading tokens, finding icons, writing rules), one example kit shown beneath, how-it-works in three steps, licence-label explainer, trust/guardrails section, CTA. A restrained, subtle interaction in each section.
+- [x] **Build state:** progress by real stages, not a fake spinner. Clear failure screens with the reason and next step (as in the research notes).
+- [x] **Install page:** name, source, version, date, sha256, levels, licence counts, the copy-paste prompt with copy button, other install methods (Claude Code, claude.ai, Cursor/others), full `SKILL.md` and expandable files, content-removed preview frames via signed URLs.
+- [x] **Explore:** grid of kits with palette strips, live domain search (`/` to focus), pagination, empty states. (Deferred: filters by icon set / accent hue / font / scheme, and sort by installs, which needs install counts.)
+- [x] **Owners:** opt-in file generator, validator ("Check my site" shows exactly what Livery sees, flags bot-protection blocks), takedown form.
+- [x] **Bot page, About, Legal** (terms, privacy, takedown policy).
+- [x] SEO: metadata, OG images (`next/og`, per-kit palette), sitemap of ready kits, robots.
 
-**Done when:** Lighthouse performance and accessibility are 95+ on landing, install and explore; mobile and desktop reviewed in both themes.
+**Done when:** Lighthouse performance and accessibility are 95+ on landing, install and explore; mobile and desktop reviewed in both themes. (Reviewed in both themes at 320–1440px with no horizontal overflow; Lighthouse run still pending.)
 
 ### Phase 8: Owner opt-in and levels 4 to 6
 

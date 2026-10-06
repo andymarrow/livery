@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
-import { CircleAlert, CircleCheck, Info, X } from "lucide-react";
+import { CheckCircle, Info, WarningCircle, X } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 type ToastTone = "neutral" | "success" | "danger";
@@ -10,7 +10,7 @@ type ToastInput = Omit<Toast, "id" | "tone"> & { tone?: ToastTone };
 
 const ToastContext = createContext<((toast: ToastInput) => void) | null>(null);
 
-const ICONS = { neutral: Info, success: CircleCheck, danger: CircleAlert } as const;
+const ICONS = { neutral: Info, success: CheckCircle, danger: WarningCircle } as const;
 const ICON_COLOURS = { neutral: "text-fg-muted", success: "text-success", danger: "text-danger" } as const;
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {

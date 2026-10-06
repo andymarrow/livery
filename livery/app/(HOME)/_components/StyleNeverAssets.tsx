@@ -32,7 +32,7 @@ export function StyleNeverAssets() {
           </h2>
         </div>
 
-        <div className="mt-12 grid overflow-hidden rounded-2xl border border-border bg-surface md:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 overflow-hidden rounded-2xl border border-border bg-surface md:grid-cols-3">
           {ITEMS.map((item, index) => (
             <div
               key={item.licence}
