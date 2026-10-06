@@ -76,7 +76,7 @@ Inspiration: rize.roggy.site, goatrank.lol, and the owner's reference screenshot
 ## Layout safety
 
 - Every CSS grid declares its base column (`grid-cols-1`, or `minmax(0,1fr)` tracks). Implicit grid columns size to their content and break phone layouts.
-- Never delete `.next` while a dev server may be running; it breaks the running server.
+- Never delete `.next` or run `npm run build` / `next start` while a dev server runs from this folder (check `lsof -iTCP:3000 -sTCP:LISTEN` first); both write `.next` and take the dev server down.
 
 ## Hard bans (these make a site look vibe-coded)
 
