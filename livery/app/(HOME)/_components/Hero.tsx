@@ -1,24 +1,18 @@
-import { Badge, LiveDot } from "@/components/ui/badge";
 import { HeroFigure } from "./HeroFigure";
 import { KitInput } from "./KitInput";
 import { MeasureField } from "./MeasureField";
 
 const AGENTS = ["Claude Code", "Codex", "Cursor", "Windsurf"];
 
-export function Hero({ kitCount }: { kitCount: number }) {
+export function Hero() {
   return (
     <section className="relative flex min-h-[calc(100svh-4rem)] items-center overflow-hidden border-b border-border px-4 py-14 sm:px-6 lg:py-20">
       <MeasureField />
 
       <div className="relative mx-auto grid w-full max-w-[80rem] grid-cols-1 items-center gap-14 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-16">
         <div className="min-w-0">
-          <Badge variant="neutral" className="animate-rise h-7 bg-surface px-3 text-xs shadow-card">
-            <LiveDot />
-            {kitCount >= 25 ? `${kitCount.toLocaleString("en-US")} design kits in the library` : "Design kits for coding agents"}
-          </Badge>
-
           <h1
-            className="animate-rise mt-7 text-[44px] font-bold leading-[1.02] tracking-[-0.035em] text-balance sm:text-6xl xl:text-[76px]"
+            className="animate-rise text-[44px] font-bold leading-[1.02] tracking-[-0.035em] text-balance sm:text-6xl xl:text-[76px]"
             style={{ animationDelay: "60ms" }}
           >
             Give Your App

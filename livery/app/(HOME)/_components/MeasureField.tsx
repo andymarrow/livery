@@ -3,13 +3,12 @@
 import { useEffect, useRef } from "react";
 import { useTheme } from "@/app/_context/ThemeContext";
 
-// The hero's backdrop: a lattice of measuring marks, like a design tool's
-// canvas. Near the pointer the marks grow and take the accent, and dashed
-// inspector lines follow it with live coordinates. With no pointer, the
-// crosshair drifts on its own. Every mark is a solid colour: no gradients.
+// The hero's backdrop: a quiet lattice of measuring marks, like a design
+// tool's canvas. The few marks right under the pointer lift a little and
+// fade back when it leaves. Nothing moves on its own.
 
-const STEP = 30;
-const REACH = 170;
+const STEP = 32;
+const REACH = 96;
 
 export function MeasureField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -22,20 +21,17 @@ export function MeasureField() {
     if (!canvas || !host || !ctx) return;
 
     const css = getComputedStyle(document.documentElement);
-    const colour = { mark: css.getPropertyValue("--border-strong").trim(), accent: css.getPropertyValue("--accent").trim(), text: css.getPropertyValue("--fg-muted").trim() };
+    const colour = { mark: css.getPropertyValue("--border-strong").trim(), near: css.getPropertyValue("--fg-subtle").trim() };
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     let width = 0;
     let height = 0;
     let dpr = 1;
     let raf = 0;
-    let visible = true;
     let inside = false;
-    let clock = 0;
-    let last = performance.now();
     let presence = 0;
-    const pointer = { x: 0, y: 0 };
-    const lens = { x: 0, y: 0 };
+    let last = performance.now();
+    const pointer = { x: -999, y: -999 };
 
     const resize = () => {
       const rect = host.getBoundingClientRect();
@@ -44,8 +40,6 @@ export function MeasureField() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
-      lens.x = width * 0.72;
-      lens.y = height * 0.4;
       draw();
     };
 
@@ -54,15 +48,13 @@ export function MeasureField() {
       ctx.clearRect(0, 0, width, height);
       const offsetX = (width % STEP) / 2;
       const offsetY = (height % STEP) / 2;
-
+      ctx.lineWidth = 1;
       for (let x = offsetX; x <= width; x += STEP) {
         for (let y = offsetY; y <= height; y += STEP) {
-          const d = Math.hypot(x - lens.x, y - lens.y);
-          const near = presence * Math.max(0, 1 - d / REACH);
-          const size = 2 + near * 3.5;
-          ctx.globalAlpha = 0.45 + near * 0.55;
-          ctx.strokeStyle = near > 0.15 ? colour.accent : colour.mark;
-          ctx.lineWidth = 1;
+          const near = presence * Math.max(0, 1 - Math.hypot(x - pointer.x, y - pointer.y) / REACH) ** 2;
+          const size = 2 + near * 1.5;
+          ctx.globalAlpha = 0.4 + near * 0.4;
+          ctx.strokeStyle = near > 0.2 ? colour.near : colour.mark;
           ctx.beginPath();
           ctx.moveTo(Math.round(x - size) + 0.5, Math.round(y) + 0.5);
           ctx.lineTo(Math.round(x + size) + 0.5, Math.round(y) + 0.5);
@@ -72,80 +64,49 @@ export function MeasureField() {
         }
       }
       ctx.globalAlpha = 1;
-      if (presence < 0.02) return;
-
-      // Inspector crosshair with a coordinate readout.
-      ctx.globalAlpha = 0.5 * presence;
-      ctx.strokeStyle = colour.accent;
-      ctx.setLineDash([3, 5]);
-      ctx.beginPath();
-      ctx.moveTo(0, Math.round(lens.y) + 0.5);
-      ctx.lineTo(width, Math.round(lens.y) + 0.5);
-      ctx.moveTo(Math.round(lens.x) + 0.5, 0);
-      ctx.lineTo(Math.round(lens.x) + 0.5, height);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      ctx.globalAlpha = presence;
-      ctx.fillStyle = colour.accent;
-      ctx.fillRect(Math.round(lens.x) - 2, Math.round(lens.y) - 2, 5, 5);
-      ctx.font = "10px ui-monospace, SFMono-Regular, Menlo, monospace";
-      ctx.fillStyle = colour.text;
-      ctx.textBaseline = "top";
-      const label = `x ${Math.round(lens.x)}  y ${Math.round(lens.y)}`;
-      const flip = lens.x > width - 120;
-      ctx.textAlign = flip ? "right" : "left";
-      ctx.fillText(label, Math.round(lens.x) + (flip ? -10 : 10), Math.round(lens.y) + 8);
-      ctx.globalAlpha = 1;
     };
 
     const tick = (now: number) => {
       raf = 0;
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
-      clock += dt;
-      const target = inside
-        ? pointer
-        : { x: width * (0.62 + 0.26 * Math.sin(clock * 0.21)), y: height * (0.42 + 0.3 * Math.sin(clock * 0.33 + 1.2)) };
-      const ease = 1 - Math.exp(-dt / (inside ? 0.07 : 0.6));
-      lens.x += (target.x - lens.x) * ease;
-      lens.y += (target.y - lens.y) * ease;
-      presence += ((inside ? 1 : 0.55) - presence) * (1 - Math.exp(-dt / 0.25));
+      const target = inside ? 1 : 0;
+      presence += (target - presence) * (1 - Math.exp(-dt / 0.2));
       draw();
-      if (visible) raf = requestAnimationFrame(tick);
+      if (Math.abs(target - presence) > 0.005) raf = requestAnimationFrame(tick);
     };
 
     const start = () => {
-      if (reduced || raf || !visible) return;
+      if (reduced || raf) return;
       last = performance.now();
       raf = requestAnimationFrame(tick);
     };
 
     const onMove = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
       const rect = host.getBoundingClientRect();
       pointer.x = e.clientX - rect.left;
       pointer.y = e.clientY - rect.top;
       inside = true;
+      if (!raf) {
+        if (presence > 0.995) draw();
+        else start();
+      }
+    };
+    const onLeave = () => {
+      inside = false;
       start();
     };
-    const onLeave = () => (inside = false);
 
     host.addEventListener("pointermove", onMove, { passive: true });
     host.addEventListener("pointerleave", onLeave, { passive: true });
     const ro = new ResizeObserver(resize);
     ro.observe(host);
-    const io = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-      if (visible) start();
-    });
-    io.observe(host);
     resize();
-    start();
 
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      io.disconnect();
       host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerleave", onLeave);
     };

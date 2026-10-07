@@ -13,9 +13,11 @@ import { MobileNav } from "./MobileNav";
 
 type Pill = { left: number; width: number; visible: boolean };
 
-// A solid header that slims down once the page scrolls. A pill glides under
-// the link you point at and rests on the current page; a 1px accent line
-// along the bottom edge shows how far down the page you are.
+// Logo left, links centred in a capsule, actions right. At the top it sits
+// flat on the page; once the page scrolls it slims, turns translucent with a
+// blur, and a 1px accent line along the bottom shows how far down you are.
+// Inside the capsule a pill glides to the link you point at and rests on the
+// current page.
 export function SiteHeader() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -61,20 +63,25 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 border-b bg-bg transition-[border-color,box-shadow] duration-300",
-        scrolled ? "border-border shadow-card" : "border-transparent",
+        "sticky top-0 z-40 border-b transition-[background-color,border-color] duration-300",
+        scrolled ? "border-border bg-bg/75 backdrop-blur-xl backdrop-saturate-150" : "border-transparent bg-bg",
       )}
       style={{ viewTransitionName: "site-header" }}
     >
-      <div className={cn("mx-auto flex max-w-[80rem] items-center gap-8 px-4 transition-[height] duration-300 ease-out-soft sm:px-6", scrolled ? "h-14" : "h-16")}>
-        <Logo className="shrink-0" />
+      <div
+        className={cn(
+          "mx-auto grid max-w-[80rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 transition-[height] duration-300 ease-out-soft sm:px-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]",
+          scrolled ? "h-14" : "h-[4.5rem]",
+        )}
+      >
+        <Logo className="justify-self-start" />
 
         <nav aria-label="Main" className="hidden md:block" onPointerLeave={() => setHovered(null)}>
-          <ul className="relative flex items-center gap-0.5">
+          <ul className="relative flex items-center gap-0.5 rounded-full border border-border bg-surface/70 p-1">
             <li
               aria-hidden
               className={cn(
-                "pointer-events-none absolute inset-y-0 rounded-full bg-surface-3/70 transition-[left,width,opacity] duration-300 ease-out-soft",
+                "pointer-events-none absolute inset-y-1 rounded-full bg-surface-3 transition-[left,width,opacity] duration-300 ease-out-soft",
                 pill.visible ? "opacity-100" : "opacity-0",
               )}
               style={{ left: pill.left, width: pill.width }}
@@ -93,12 +100,12 @@ export function SiteHeader() {
                     onFocus={() => setHovered(index)}
                     onBlur={() => setHovered(null)}
                     className={cn(
-                      "relative inline-flex h-8 items-center rounded-full px-3.5 text-sm transition-colors duration-150",
-                      active ? "font-semibold text-fg" : "font-medium text-fg-muted hover:text-fg",
+                      "relative inline-flex h-8 items-center rounded-full px-3.5 text-sm font-medium transition-colors duration-150",
+                      active ? "text-fg" : "text-fg-muted hover:text-fg",
                     )}
                   >
+                    {active && <span aria-hidden className="mr-1.5 size-1.5 rounded-full bg-accent" />}
                     {link.label}
-                    {active && <span aria-hidden className="absolute -bottom-[3px] left-1/2 size-1 -translate-x-1/2 rounded-full bg-accent" />}
                   </Link>
                 </li>
               );
@@ -106,7 +113,7 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <div className="ml-auto flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 justify-self-end">
           <ThemeToggle />
           <Button asChild size="sm" className="hidden h-9 px-4 text-sm sm:inline-flex">
             <Link href="/#get-a-kit">

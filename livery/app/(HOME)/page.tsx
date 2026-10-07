@@ -8,22 +8,22 @@ import { NextSteps } from "./_components/NextSteps";
 // The library teaser and count refresh every five minutes.
 export const revalidate = 300;
 
-async function recentKits(): Promise<{ kits: KitCard[]; total: number }> {
-  if (!supabaseConfigured()) return { kits: [], total: 0 };
+async function recentKits(): Promise<KitCard[]> {
+  if (!supabaseConfigured()) return [];
   try {
-    const { cards, total } = await listKits({ limit: 6 });
-    return { kits: cards, total };
+    const { cards } = await listKits({ limit: 6 });
+    return cards;
   } catch (error) {
     logger.warn("home.library_unavailable", { error: error instanceof Error ? error.message : String(error) });
-    return { kits: [], total: 0 };
+    return [];
   }
 }
 
 export default async function HomePage() {
-  const { kits, total } = await recentKits();
+  const kits = await recentKits();
   return (
     <>
-      <Hero kitCount={total} />
+      <Hero />
       <LibraryTeaser kits={kits} />
       <NextSteps />
     </>
