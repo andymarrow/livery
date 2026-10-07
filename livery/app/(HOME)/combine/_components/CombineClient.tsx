@@ -75,7 +75,14 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
   const lastInput = useRef<HTMLInputElement>(null);
   const focusNew = useRef(false);
 
-  useEffect(() => () => void (cancelled.current = true), []);
+  // Reset on every mount: React mounts twice in development, and a flag left
+  // true by the first cleanup would stop every run before it starts.
+  useEffect(() => {
+    cancelled.current = false;
+    return () => {
+      cancelled.current = true;
+    };
+  }, []);
   useEffect(() => {
     if (focusNew.current) lastInput.current?.focus();
     focusNew.current = false;
@@ -159,6 +166,7 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
     setProblem(null);
     setSteps(urls.map(() => ({ status: "waiting" })));
     setCombine({ status: "waiting" });
+    requestAnimationFrame(() => document.getElementById("combine-progress")?.scrollIntoView({ behavior: "smooth", block: "start" }));
 
     // One link at a time: each is its own kit first, so cached ones are instant.
     for (const [index, url] of urls.entries()) {
@@ -202,7 +210,7 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
     const urls = checked.filter((c) => c.ok).map((c) => c.path!);
     const failed = steps.some((s) => s.status === "failed") || combine.status === "failed";
     return (
-      <div className="mx-auto w-full max-w-2xl">
+      <div id="combine-progress" className="mx-auto w-full max-w-2xl scroll-mt-24">
         <p className="label-micro">{kind === "site" ? "Combining pages" : "Measuring a taste"}</p>
         <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance">{preview}</h2>
         <p className="mt-2 text-sm text-fg-muted">Each link becomes its own kit first; links already in the library are instant. Then the measurements are merged.</p>
