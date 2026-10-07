@@ -7,6 +7,7 @@ import Link from "next/link";
 import type { BuildEvent } from "@/app/api/build/route";
 import type { BuildStage, ReadFailureReason } from "@/lib/extract/types";
 import { failureCopy } from "@/lib/kit/failure";
+import { readEvents } from "@/lib/kit/stream";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -41,23 +42,34 @@ export function Builder({ url, host }: { url: string; host: string }) {
   const [state, setState] = useState<State>({ phase: "running", stage: null });
   const [started] = useState(() => Date.now());
   const ran = useRef(false);
+  // Whether this page is still on screen. Set on every mount: React mounts
+  // twice in development, and the build must outlive the first cleanup.
+  const alive = useRef(true);
+  const poll = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   useEffect(() => {
-    if (ran.current) return; // React runs effects twice in development
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      clearInterval(poll.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (ran.current) return; // one build per page, even when effects run twice
     ran.current = true;
-    let cancelled = false;
-    let poll: ReturnType<typeof setInterval> | undefined;
 
     const waitForOther = () => {
       setState({ phase: "waiting" });
-      poll = setInterval(async () => {
+      poll.current = setInterval(async () => {
         const res = await fetch(`/api/kits/status?url=${encodeURIComponent(url)}`, { cache: "no-store" }).catch(() => null);
         const data = res?.ok ? ((await res.json()) as { ready: boolean; path?: string }) : null;
-        if (data?.ready && data.path && !cancelled) router.replace(data.path);
+        if (data?.ready && data.path && alive.current) router.replace(data.path);
       }, 4000);
     };
 
     const handle = (event: BuildEvent) => {
+      if (!alive.current) return;
       if (event.type === "stage") setState({ phase: "running", stage: event.stage, detail: event.detail });
       else if (event.type === "ready") router.replace(event.path);
       else if (event.type === "building") waitForOther();
@@ -73,27 +85,11 @@ export function Builder({ url, host }: { url: string; host: string }) {
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ url }),
         });
-        if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-        while (!cancelled) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() ?? "";
-          for (const line of lines) if (line.trim()) handle(JSON.parse(line) as BuildEvent);
-        }
+        await readEvents<BuildEvent>(response, handle, () => !alive.current);
       } catch {
-        if (!cancelled) setState({ phase: "error", message: "The connection dropped. The build may still finish; refresh in a minute." });
+        if (alive.current) setState({ phase: "error", message: "The connection dropped. The build may still finish; refresh in a minute." });
       }
     })();
-
-    return () => {
-      cancelled = true;
-      clearInterval(poll);
-    };
   }, [url, router]);
 
   if (state.phase === "failed") {
