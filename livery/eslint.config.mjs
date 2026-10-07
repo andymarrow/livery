@@ -15,6 +15,10 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Sample projects for the flow tests, not part of the app.
     "tests/flow/repos/**",
+    // Built extension bundles.
+    "extension/dist/**",
+    "extension/dist-dev/**",
+    "extension/dist-test/**",
   ]),
 ]);
 

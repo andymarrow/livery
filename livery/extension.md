@@ -136,9 +136,9 @@ No passwords or cookies of the measured site ever reach Livery; the token only l
 
 ### Done when
 
-- [ ] Connect, revoke, and token expiry work.
-- [ ] A capture for another domain is refused; an oversized or malformed one is refused.
-- [ ] A kit with a capture source builds, is private, and its page shows the captured page in its sources.
+- [x] Connect, revoke, and token expiry work.
+- [x] A capture for another domain is refused; an oversized or malformed one is refused.
+- [x] A kit with a capture source builds, is private, and its page shows the captured page in its sources.
 
 ## 6. Phase D: the extension
 
@@ -183,9 +183,9 @@ The UI is built in Livery's style (teal accent, light/dark following the system)
 
 ### Done when
 
-- [ ] Works on a real logged-in dashboard; the page is restored afterwards.
-- [ ] Nothing is sent before the user presses Send, and the request contains no text from the page.
-- [ ] The token is revocable from `/me`.
+- [x] Works on a real logged-in dashboard; the page is restored afterwards.
+- [x] Nothing is sent before the user presses Send, and the request contains no text from the page.
+- [x] The token is revocable from `/me`.
 
 ## 7. Phase E and F
 

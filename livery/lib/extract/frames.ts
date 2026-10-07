@@ -1,5 +1,6 @@
 import "server-only";
 import type { Page } from "playwright-core";
+import { pinFixed } from "./collect/pinFixed";
 import { stripContent } from "./collect/stripContent";
 import type { Viewport } from "./render";
 
@@ -27,20 +28,7 @@ export async function captureFrame(page: Page, viewport: Viewport): Promise<Fram
   // shifted, cropped slices) and very tall single captures come back black on
   // pages with heavy effects. Fixed and sticky elements are pinned where they
   // first appear, so a header shows once instead of on every screen.
-  await page.evaluate(() => {
-    for (const el of Array.from(document.querySelectorAll<HTMLElement>("body *"))) {
-      const position = getComputedStyle(el).position;
-      if (position === "fixed") {
-        const r = el.getBoundingClientRect();
-        el.style.setProperty("position", "absolute", "important");
-        el.style.setProperty("top", `${r.top + window.scrollY}px`, "important");
-        el.style.setProperty("bottom", "auto", "important");
-      } else if (position === "sticky") {
-        el.style.setProperty("position", "relative", "important");
-        el.style.setProperty("top", "auto", "important");
-      }
-    }
-  });
+  await page.evaluate(pinFixed);
   const screen = viewport.height;
   const tiles: { input: Buffer; top: number; left: number }[] = [];
   for (let wanted = 0; wanted < height; wanted += screen) {

@@ -25,6 +25,8 @@ export async function stripContent(): Promise<number> {
     }
   });
   live.replaceWith(frozen);
+  // Kept so the browser extension can put the user's real page back afterwards.
+  (window as unknown as { __liveryLiveBody?: HTMLElement }).__liveryLiveBody = live;
   window.scrollTo(scrollX, scrollY);
 
   const neutral = (() => {
@@ -139,7 +141,18 @@ export async function stripContent(): Promise<number> {
   }
 
   const style = document.createElement("style");
+  style.setAttribute("data-livery-style", "");
   style.textContent = "input,textarea,select{color:transparent !important}input::placeholder,textarea::placeholder{color:transparent !important}";
   document.head.appendChild(style);
   return replaced;
+}
+
+/** Puts the user's real page back after a capture (the extension; the server just discards its page). */
+export function restoreContent() {
+  const holder = window as unknown as { __liveryLiveBody?: HTMLElement };
+  if (holder.__liveryLiveBody) {
+    document.body.replaceWith(holder.__liveryLiveBody);
+    delete holder.__liveryLiveBody;
+  }
+  document.querySelectorAll("style[data-livery-style]").forEach((el) => el.remove());
 }

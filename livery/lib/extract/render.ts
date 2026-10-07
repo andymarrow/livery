@@ -3,6 +3,7 @@ import type { Browser, BrowserContext, Page, Response } from "playwright-core";
 import { BOT } from "@/constants/constants";
 import { collectSignals, type PageSignals } from "@/lib/guards/signals";
 import { isUnsafeHostname } from "@/lib/url/ssrf";
+import { unrollInPage } from "./collect/unroll";
 import { fail, type ReadResult } from "./types";
 
 export const WIDTHS = [
@@ -71,25 +72,7 @@ export async function waitForSettle(page: Page, { quietMs = 1000, maxMs = 15000 
 // This lets the biggest such element grow to its content, so lazy sections
 // load, the design is measured in full and frames show the whole page.
 export async function unrollScrollers(page: Page) {
-  await page.evaluate(() => {
-    const viewportWidth = window.innerWidth;
-    const candidates = Array.from(document.querySelectorAll<HTMLElement>("body *")).filter((el) => {
-      const s = getComputedStyle(el);
-      return /(auto|scroll)/.test(s.overflowY) && el.scrollHeight > el.clientHeight + 200 && el.clientWidth >= viewportWidth * 0.5 && el.clientHeight >= window.innerHeight * 0.6;
-    });
-    if (document.documentElement.scrollHeight > window.innerHeight + 200 || !candidates.length) return;
-    const main = candidates.sort((a, b) => b.scrollHeight - a.scrollHeight)[0];
-    const open = (el: HTMLElement) => {
-      el.style.setProperty("height", "auto", "important");
-      el.style.setProperty("max-height", "none", "important");
-      el.style.setProperty("overflow", "visible", "important");
-    };
-    open(main);
-    for (let el = main.parentElement; el; el = el.parentElement) {
-      open(el);
-      el.style.setProperty("min-height", "100vh");
-    }
-  });
+  await page.evaluate(unrollInPage);
 }
 
 // Scrolls through the page so lazy sections and scroll-triggered styles load.

@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Livery",
+  "short_name": "Livery",
+  "version": "0.1.0",
+  "description": "Measure the design of a page you're signed into and add it to your Livery kit. Private until you publish.",
+  "homepage_url": "https://www.livery.site",
+  "minimum_chrome_version": "116",
+  "action": {
+    "default_title": "Add this page to Livery",
+    "default_popup": "popup.html",
+    "default_icon": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png" }
+  },
+  "icons": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png", "128": "icons/icon-128.png" },
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["https://www.livery.site/*", "https://livery.site/*"],
+  "background": { "service_worker": "background.js", "type": "module" },
+  "content_scripts": [
+    {
+      "matches": ["https://www.livery.site/extension/connect*", "https://livery.site/extension/connect*"],
+      "js": ["connect.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

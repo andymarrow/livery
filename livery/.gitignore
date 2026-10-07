@@ -45,3 +45,7 @@ next-env.d.ts
 
 # local MCP config (may hold credentials)
 .mcp.json
+extension/dist/
+extension/dist-dev/
+extension/dist-test/
+extension/*.zip
