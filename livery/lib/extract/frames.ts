@@ -16,8 +16,9 @@ export async function captureFrame(page: Page, viewport: Viewport): Promise<Fram
   await page.evaluate(stripContent);
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(150);
-  const fullHeight = await page.evaluate(() => document.documentElement.scrollHeight);
-  const height = Math.min(fullHeight, MAX_HEIGHT[viewport.name]);
+  const fullHeight = await page.evaluate(() => Math.max(document.documentElement.scrollHeight, document.body.scrollHeight));
+  // Never shorter than the screen itself, never longer than the cap.
+  const height = Math.min(Math.max(fullHeight, viewport.height), MAX_HEIGHT[viewport.name]);
   const session = await page.context().newCDPSession(page);
   try {
     const { data } = await session.send("Page.captureScreenshot", {

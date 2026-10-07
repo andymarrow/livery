@@ -1,7 +1,7 @@
 // Runs inside the page, just before a frame is captured. Removes everything
 // that belongs to the site's owner while keeping the design: images, video and
 // non-icon SVGs become flat blocks in their average colour (or a neutral tone
-// when the image can't be read), and text becomes solid bars in its own colour.
+// when the image can't be read), and text becomes soft bars in its own colour.
 // Icons, borders, radii, spacing and backgrounds stay exactly as they were.
 
 export async function stripContent(): Promise<number> {
@@ -108,7 +108,10 @@ export async function stripContent(): Promise<number> {
     const color = getComputedStyle(node.parentElement as Element).color;
     const span = document.createElement("span");
     span.setAttribute("data-livery-bar", "");
-    span.style.cssText = `color:transparent !important;background:${color};opacity:.85;border-radius:.18em;-webkit-box-decoration-break:clone;box-decoration-break:clone;`;
+    // A soft bar across the x-height in the text's own colour, drawn as a
+    // thick underline so it follows every line wrap: reads as copy without
+    // the heavy full-height blocks a background would paint.
+    span.style.cssText = `color:transparent !important;text-decoration:underline !important;text-decoration-color:color-mix(in srgb, ${color} 58%, transparent) !important;text-decoration-thickness:.46em !important;text-underline-offset:-.58em !important;text-decoration-skip-ink:none !important;`;
     node.replaceWith(span);
     span.appendChild(node);
   }

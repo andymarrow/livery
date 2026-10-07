@@ -12,6 +12,7 @@ import { supabaseConfigured } from "@/lib/supabase/configured";
 import { frameUrls, getKitVersion, readKitFiles } from "@/services/kitRead";
 import { DesignGlance } from "./_components/DesignGlance";
 import { FilesPanel } from "./_components/FilesPanel";
+import { FrameViewer } from "./_components/FrameViewer";
 import { InstallPanel } from "./_components/InstallPanel";
 import { SourceExplorer } from "./_components/SourceExplorer";
 import { AddToTaste } from "@/components/AddToTaste";
@@ -180,29 +181,15 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
             <section className="mt-14">
               <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="text-2xl font-semibold tracking-tight">Reference Frames</h2>
-                <p className="text-[13px] text-fg-subtle">Images became flat blocks and text became bars. Layout, rhythm and colour stay.</p>
+                <p className="text-[13px] text-fg-subtle">The site with its content removed: images are flat blocks, text is soft bars. Layout, rhythm and colour stay. Scroll inside each screen.</p>
               </div>
-              <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-[1fr_16rem]">
-                {frames.map((frame) =>
-                  frame.url ? (
-                    <div key={frame.name} className="overflow-hidden rounded-[18px] border border-border bg-surface shadow-card">
-                      <div className="max-h-[36rem] overflow-y-auto">
-                        {/* eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL from private storage */}
-                        <img
-                          src={frame.url}
-                          alt={`${frame.name} layout of ${view.title} with content removed`}
-                          width={view.frameSizes[frame.name]?.width}
-                          height={view.frameSizes[frame.name]?.height}
-                          loading="lazy"
-                          decoding="async"
-                          className="block h-auto w-full"
-                        />
-                      </div>
-                      <p className="border-t border-border px-3 py-2 font-mono text-[11px] text-fg-subtle">{frame.name}</p>
-                    </div>
-                  ) : null,
-                )}
-              </div>
+              <FrameViewer
+                title={view.title}
+                frames={frames.flatMap((f) => {
+                  const size = view.frameSizes[f.name];
+                  return f.url && size ? [{ name: f.name, url: f.url, width: size.width, height: size.height }] : [];
+                })}
+              />
             </section>
           )}
 

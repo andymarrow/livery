@@ -37,6 +37,61 @@ async function guardRequests(context: BrowserContext) {
   });
 }
 
+// Waits until the page stops changing and no longer looks like a loading
+// screen. App-style sites often go network-idle while a splash (a spinner
+// and no visible copy) sits perfectly still for several seconds before the
+// real page draws, so "unchanged for a second" alone isn't enough.
+export async function waitForSettle(page: Page, { quietMs = 1000, maxMs = 15000 } = {}) {
+  const started = Date.now();
+  let last = -1;
+  let quietSince = Date.now();
+  while (Date.now() - started < maxMs) {
+    const state = await page
+      .evaluate(() => {
+        const leaves = Array.from(document.querySelectorAll("body *")).filter((el) => {
+          if (el.childElementCount || !el.textContent?.trim()) return false;
+          const r = el.getBoundingClientRect();
+          return r.width > 1 && r.height > 1 && r.top < window.innerHeight && r.bottom > 0;
+        }).length;
+        const spinning = document.getAnimations().some((a) => a.playState === "running" && a.effect?.getTiming().iterations === Infinity);
+        const busy = document.querySelector('[aria-busy="true"], [role="progressbar"]') !== null;
+        return { size: document.body.innerText.length + document.getElementsByTagName("*").length, loading: leaves < 4 && (spinning || busy) };
+      })
+      .catch(() => ({ size: -1, loading: false }));
+    if (state.size !== last) {
+      last = state.size;
+      quietSince = Date.now();
+    } else if (Date.now() - quietSince >= quietMs && !state.loading) return;
+    await page.waitForTimeout(200);
+  }
+}
+
+// App shells scroll inside a full-height element (<main class="h-dvh
+// overflow-auto">) instead of the document, so the page is one screen tall.
+// This lets the biggest such element grow to its content, so lazy sections
+// load, the design is measured in full and frames show the whole page.
+export async function unrollScrollers(page: Page) {
+  await page.evaluate(() => {
+    const viewportWidth = window.innerWidth;
+    const candidates = Array.from(document.querySelectorAll<HTMLElement>("body *")).filter((el) => {
+      const s = getComputedStyle(el);
+      return /(auto|scroll)/.test(s.overflowY) && el.scrollHeight > el.clientHeight + 200 && el.clientWidth >= viewportWidth * 0.5 && el.clientHeight >= window.innerHeight * 0.6;
+    });
+    if (document.documentElement.scrollHeight > window.innerHeight + 200 || !candidates.length) return;
+    const main = candidates.sort((a, b) => b.scrollHeight - a.scrollHeight)[0];
+    const open = (el: HTMLElement) => {
+      el.style.setProperty("height", "auto", "important");
+      el.style.setProperty("max-height", "none", "important");
+      el.style.setProperty("overflow", "visible", "important");
+    };
+    open(main);
+    for (let el = main.parentElement; el; el = el.parentElement) {
+      open(el);
+      el.style.setProperty("min-height", "100vh");
+    }
+  });
+}
+
 // Scrolls through the page so lazy sections and scroll-triggered styles load.
 async function scrollThrough(page: Page) {
   await page.evaluate(async () => {
@@ -82,8 +137,10 @@ export async function renderAt(browser: Browser, url: URL, viewport: Viewport): 
   try {
     await page.waitForLoadState("networkidle", { timeout: 6_000 }).catch(() => {});
     await page.evaluate(() => document.fonts.ready).catch(() => {});
+    await waitForSettle(page);
+    await unrollScrollers(page);
     await scrollThrough(page);
-    await page.waitForTimeout(250);
+    await waitForSettle(page, { quietMs: 500, maxMs: 3000 });
 
     const finalUrl = new URL(page.url());
     if (finalUrl.protocol !== "https:" || isUnsafeHostname(finalUrl.hostname)) {

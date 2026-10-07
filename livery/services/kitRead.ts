@@ -180,7 +180,7 @@ async function attachPreviews(all: KitCard[]) {
 
 /** Short-lived signed URLs for the content-removed preview frames. */
 export async function frameUrls(versionId: string) {
-  const names = ["desktop", "mobile"] as const;
+  const names = ["desktop", "tablet", "mobile"] as const;
   const { data } = await getAdminClient()
     .storage.from("screenshots")
     .createSignedUrls(names.map((n) => `${versionId}/${n}.webp`), 60 * 60 * 2);

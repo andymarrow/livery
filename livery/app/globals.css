@@ -310,3 +310,11 @@ main {
 @media (prefers-reduced-motion: reduce) {
   .wall-row { animation: none; }
 }
+
+/* Scroll areas that draw their own position marker (frame viewer). */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
