@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { kitPath } from "@/lib/kit/urls";
+import { kitHome } from "@/lib/kit/urls";
 import type { KitCard } from "@/services/kitRead";
 
 // Under the hero: the library itself, as two slow rows of real layout frames
@@ -9,7 +9,7 @@ import type { KitCard } from "@/services/kitRead";
 function Frame({ kit }: { kit: KitCard }) {
   return (
     <Link
-      href={kitPath(kit.slug, kit.version)}
+      href={kitHome(kit.slug)}
       className="group/frame relative block w-[19rem] shrink-0 overflow-hidden rounded-[14px] border border-border bg-surface shadow-card transition-[border-color,transform] duration-200 ease-out-soft hover:-translate-y-0.5 hover:border-border-strong sm:w-[23rem]"
     >
       <div className="h-44 overflow-hidden bg-surface-2 sm:h-52">

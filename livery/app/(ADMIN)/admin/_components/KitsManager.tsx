@@ -13,7 +13,7 @@ import type { AdminKit } from "@/services/admin";
 import { when } from "./AdminPage";
 import { Field, inputClass, KindBadge } from "./Controls";
 import { KitEditor } from "./KitEditor";
-import { refreshKit } from "./refreshKit";
+import { recombine, refreshKit } from "./refreshKit";
 import { TasteDialog } from "./TasteDialog";
 
 type KindFilter = "all" | "page" | "site" | "taste";
@@ -42,16 +42,33 @@ export function KitsManager({ kits }: { kits: AdminKit[] }) {
       delete next[k.id];
       return next;
     });
-    if (result.ok) toast({ title: `${k.name} refreshed`, description: `New version: ${result.path}`, tone: "success" });
+    if (result.ok && result.cached) toast({ title: `${k.name} is already up to date`, description: "Every site is at its newest version." });
+    else if (result.ok) toast({ title: `${k.name} refreshed`, description: `New version: ${result.path}`, tone: "success" });
     else toast({ title: `Couldn't refresh ${k.name}`, description: result.error, tone: "danger" });
     router.refresh();
     return result.ok;
   };
 
-  // One at a time: each refresh renders a live site.
+  // One at a time: each refresh renders a live site. Then every taste or
+  // multi-page kit that uses one of those sites is rebuilt once from the
+  // newest versions, so it reflects them without rendering anything again.
   const refreshMany = async (list: AdminKit[]) => {
     setSelected(new Set());
-    for (const k of list) await refresh(k);
+    const done: string[] = [];
+    for (const k of list) if (await refresh(k)) done.push(k.sourceUrl ?? "");
+    const affected = kits.filter((c) => c.kind !== "page" && c.latest?.status === "ready" && c.sources.some((s) => done.includes(s.url)));
+    for (const c of affected) {
+      setRefreshing((r) => ({ ...r, [c.id]: "Combining the newest versions" }));
+      const result = await recombine(c);
+      setRefreshing((r) => {
+        const next = { ...r };
+        delete next[c.id];
+        return next;
+      });
+      if (result.ok && !result.cached) toast({ title: `${c.name} updated`, description: `Now uses the refreshed sites: ${result.path}`, tone: "success" });
+      else if (!result.ok) toast({ title: `Couldn't update ${c.name}`, description: result.error, tone: "danger" });
+    }
+    router.refresh();
   };
 
   const tastes = kits.filter((k) => k.kind === "taste" && k.latest?.status === "ready");
@@ -166,6 +183,11 @@ export function KitsManager({ kits }: { kits: AdminKit[] }) {
                 <td className="px-3">
                   <span className="flex flex-wrap gap-1">
                     <span className={cn("rounded-md px-1.5 py-0.5 text-[11px] font-medium", k.latest?.status === "ready" ? "bg-accent-soft text-accent-soft-fg" : "bg-danger-soft text-danger")}>{k.latest?.status === "ready" ? "Live" : "Withdrawn"}</span>
+                    {k.stale && k.latest?.status === "ready" && (
+                      <span title="Some of its sites have a newer version. Refresh to use them (nothing is rendered again)." className="rounded-md bg-surface-3 px-1.5 py-0.5 text-[11px] font-medium text-accent-ink">
+                        Sites updated
+                      </span>
+                    )}
                     {k.featured && <span className="rounded-md bg-surface-3 px-1.5 py-0.5 text-[11px] font-medium">Featured</span>}
                     {k.hidden && <span className="inline-flex items-center gap-1 rounded-md bg-surface-2 px-1.5 py-0.5 text-[11px] font-medium text-fg-muted"><EyeOff className="size-3" /> Hidden</span>}
                   </span>
@@ -179,8 +201,8 @@ export function KitsManager({ kits }: { kits: AdminKit[] }) {
                         onClick={() => void refresh(k)}
                         disabled={Boolean(refreshing[k.id])}
                         aria-label={`Refresh ${k.name}`}
-                        title={k.kind === "page" ? "Analyse the site again (new version)" : "Re-analyse every site, then recombine (new version)"}
-                        className="flex size-8 items-center justify-center rounded-[8px] text-fg-subtle transition-colors hover:bg-surface-2 hover:text-fg disabled:text-accent-ink"
+                        title={k.kind === "page" ? "Analyse the site again (new version)" : "Rebuild from the newest version of each site (seconds, nothing re-rendered)"}
+                        className={cn("flex size-8 items-center justify-center rounded-[8px] transition-colors hover:bg-surface-2 hover:text-fg disabled:text-accent-ink", k.stale ? "text-accent-ink" : "text-fg-subtle")}
                       >
                         <RotateCw className={cn("size-4", refreshing[k.id] && "animate-[spin_1s_linear_infinite]")} />
                       </button>

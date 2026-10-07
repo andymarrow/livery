@@ -1,4 +1,5 @@
 import "server-only";
+import { refreshKitPages } from "@/lib/kit/revalidate";
 import { EXTRACTOR_VERSION, FLOW_VERSION } from "@/constants/constants";
 import { createExtractor, type Extraction, type KitItem } from "@/lib/extract";
 import { buildAssetFiles } from "@/lib/extract/assets";
@@ -169,6 +170,7 @@ export async function resolveKit(
     if (published !== version) throw new Error(`version mismatch: uploaded v${version}, published v${published}`);
 
     logger.info("kit.published", { slug: target.slug, version, ms: Date.now() - started, notes: kit.notes });
+    refreshKitPages();
     const ready = await findReadyKit(target.sourceUrl, EXTRACTOR_VERSION);
     if (!ready) throw new Error("published kit not found");
     return { status: "ready", kit: ready, cached: false };

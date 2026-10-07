@@ -52,6 +52,8 @@ export type KitVersionView = {
   analysis: Analysis | null;
   items: { kind: KitItemKind; name: string; licence: KitLicence; licence_name: string | null; alternative: string | null }[];
   latestVersion: number;
+  /** Every published version, newest first (withdrawn ones excluded). */
+  versions: { version: number; publishedAt: string }[];
   /** Built under the site owner's livery.json grant. */
   ownerApproved: boolean;
   frameSizes: Record<string, { width: number; height: number }>;
@@ -70,9 +72,9 @@ export async function getKitVersion(slug: string, version: number): Promise<KitV
     .in("status", ["ready", "withdrawn"])
     .maybeSingle();
   if (!v || !v.version || !v.published_at || !v.content_hash) return null;
-  const [{ data: items }, latest] = await Promise.all([
+  const [{ data: items }, versions] = await Promise.all([
     db.from("kit_items").select("kind, name, licence, licence_name, alternative").eq("kit_version_id", v.id).order("id"),
-    latestVersion(kit.id),
+    publishedVersions(kit.id),
   ]);
   const data = (v.data ?? {}) as { extraction?: { tokens?: Tokens; frames?: { name: string; width: number; height: number }[] }; analysis?: Analysis; sources?: KitSourceLink[] };
   const sources = await sourceViews(v.id, data.sources ?? []);
@@ -100,7 +102,8 @@ export async function getKitVersion(slug: string, version: number): Promise<KitV
     tokens: data.extraction?.tokens ?? null,
     analysis: data.analysis ?? null,
     items: items ?? [],
-    latestVersion: latest ?? v.version,
+    latestVersion: versions[0]?.version ?? v.version,
+    versions,
     ownerApproved: v.grant_hash !== null,
     frameSizes: Object.fromEntries((data.extraction?.frames ?? []).map((f) => [f.name, { width: f.width, height: f.height }])),
   };
@@ -124,6 +127,16 @@ async function sourceViews(versionId: string, links: KitSourceLink[]): Promise<K
       iconSet: d?.icons?.library?.name ?? null,
     };
   });
+}
+
+async function publishedVersions(kitId: string) {
+  const { data } = await getAdminClient()
+    .from("kit_versions")
+    .select("version, published_at")
+    .eq("kit_id", kitId)
+    .eq("status", "ready")
+    .order("version", { ascending: false });
+  return (data ?? []).filter((v) => v.version && v.published_at).map((v) => ({ version: v.version!, publishedAt: v.published_at! }));
 }
 
 async function latestVersion(kitId: string) {

@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { skillNameFor } from "@/lib/generate/flow";
 import { LEVELS, type Level } from "@/lib/generate/levels";
 import { installPrompt } from "@/lib/kit/prompt";
-import { kitPath, kitUrl, parseVersion } from "@/lib/kit/urls";
+import { kitHome, kitPath, kitUrl, parseVersion } from "@/lib/kit/urls";
+import { cn } from "@/lib/utils";
 import { supabaseConfigured } from "@/lib/supabase/configured";
 import { frameUrls, getKitVersion, readKitFiles } from "@/services/kitRead";
 import { DesignGlance } from "./_components/DesignGlance";
@@ -97,11 +98,41 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
         </dl>
       </header>
 
-      {view.latestVersion > view.version && (
-        <div className="mt-8 flex items-center gap-3 rounded-[18px] border border-border bg-surface px-4 py-3 text-sm shadow-card">
+      {(view.versions.length > 1 || view.latestVersion > view.version) && (
+        <div className={cn("mt-8 flex flex-wrap items-center gap-3 rounded-[18px] border px-4 py-3 text-sm shadow-card", view.latestVersion > view.version ? "border-accent/50 bg-accent-soft text-accent-soft-fg" : "border-border bg-surface")}>
           <Info className="size-4 shrink-0 text-accent-ink" />
-          A newer version of this kit exists.
-          <Link href={kitPath(view.slug, view.latestVersion)} className="ml-auto font-medium text-accent-ink hover:underline">Open v{view.latestVersion}</Link>
+          {view.latestVersion > view.version ? (
+            <>
+              <span>
+                You&apos;re looking at <span className="font-semibold">v{view.version}</span>, an earlier version. The latest is v{view.latestVersion}.
+              </span>
+              <Link href={kitHome(view.slug)} className="ml-auto inline-flex h-8 items-center rounded-full bg-accent px-3.5 text-[13px] font-semibold text-on-accent transition-opacity hover:opacity-90">
+                Open the latest
+              </Link>
+            </>
+          ) : (
+            <span className="text-fg-muted">This is the latest version.</span>
+          )}
+          <span className={cn("flex flex-wrap items-center gap-1", view.latestVersion > view.version ? "w-full sm:w-auto" : "ml-auto")}>
+            <span className="mr-1 text-[12.5px] text-fg-subtle">{view.latestVersion > view.version ? "All versions" : "Earlier versions"}</span>
+            {view.versions
+              .filter((v) => view.latestVersion > view.version || v.version !== view.version)
+              .map((v) => (
+                <Link
+                  key={v.version}
+                  href={v.version === view.latestVersion ? kitHome(view.slug) : kitPath(view.slug, v.version)}
+                  aria-current={v.version === view.version ? "page" : undefined}
+                  title={`Published ${v.publishedAt.slice(0, 10)}`}
+                  className={cn(
+                    "rounded-full border px-2.5 py-0.5 font-mono text-[12px] transition-colors",
+                    v.version === view.version ? "border-fg bg-fg text-bg" : "border-border bg-surface text-fg-muted hover:border-border-strong hover:text-fg",
+                  )}
+                >
+                  v{v.version}
+                  {v.version === view.latestVersion ? " · latest" : ""}
+                </Link>
+              ))}
+          </span>
         </div>
       )}
 

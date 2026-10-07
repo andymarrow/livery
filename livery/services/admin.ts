@@ -120,6 +120,8 @@ export type AdminKit = {
   versions: number;
   latest: { versionId: string; version: number; status: KitStatus; publishedAt: string } | null;
   sources: { url: string; slug: string; version: number }[];
+  /** Combined kits: some of their sites have a newer version than the one they were built from. */
+  stale: boolean;
 };
 
 /** Every kit with its newest published version, for the admin tables. */
@@ -151,8 +153,11 @@ export async function adminKitList(): Promise<AdminKit[]> {
       versions: versions.length,
       latest: latest ? { versionId: latest.id, version: latest.version!, status: latest.status, publishedAt: latest.published_at ?? "" } : null,
       sources: latest?.data?.sources ?? [],
+      stale: false,
     };
   }).filter((k) => k.latest);
+  const newest = new Map(kits.filter((k) => k.kind === "page" && k.latest?.status === "ready").map((k) => [k.slug, k.latest!.version]));
+  for (const k of kits) if (k.kind !== "page") k.stale = k.sources.some((s) => (newest.get(s.slug) ?? 0) > s.version);
   const framed = kits.filter((k) => !k.cover && k.latest?.status === "ready");
   if (framed.length) {
     const { data: signed } = await db.storage.from("screenshots").createSignedUrls(framed.map((k) => `${k.latest!.versionId}/desktop.webp`), 60 * 60);

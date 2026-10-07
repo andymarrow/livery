@@ -4,20 +4,33 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { adminCombineKits } from "@/app/actions/adminCombineKits";
 import { adminUpdateKit } from "@/app/actions/adminUpdateKit";
-import { ArrowRight, Pencil, Plus, X } from "@/components/icons";
+import { ArrowRight, Pencil, Plus, RotateCw, X } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
 import type { AdminKit } from "@/services/admin";
 import { Field, inputClass, KindBadge } from "./Controls";
+import { recombine } from "./refreshKit";
 
 const MAX = 5;
 const hostOf = (url: string) => new URL(url).hostname.replace(/^www\./, "");
 const label = (kind: string, url: string) => (kind === "site" ? new URL(url).pathname || "/" : hostOf(url));
 
 export function TasteManager({ combined, pages, initialEdit }: { combined: AdminKit[]; pages: AdminKit[]; initialEdit: string | null }) {
+  const router = useRouter();
+  const toast = useToast();
   const [editingId, setEditingId] = useState<string | null>(initialEdit);
+  const [updating, setUpdating] = useState<string | null>(null);
+  const update = async (k: AdminKit) => {
+    setUpdating(k.id);
+    const result = await recombine(k);
+    setUpdating(null);
+    if (result.ok && result.cached) toast({ title: `${k.name} is already up to date` });
+    else if (result.ok) toast({ title: `${k.name} updated`, description: result.path, tone: "success" });
+    else toast({ title: "Couldn't update", description: result.error, tone: "danger" });
+    router.refresh();
+  };
   const editing = combined.find((k) => k.id === editingId) ?? null;
   return (
     <>
@@ -34,6 +47,7 @@ export function TasteManager({ combined, pages, initialEdit }: { combined: Admin
                   <KindBadge kind={k.kind} />
                   <span className="font-mono text-[11px] text-fg-subtle">v{k.latest?.version}</span>
                   {k.latest?.status !== "ready" && <span className="rounded-md bg-danger-soft px-1.5 py-0.5 text-[11px] font-medium text-danger">Withdrawn</span>}
+                  {k.stale && k.latest?.status === "ready" && <span className="rounded-md bg-surface-3 px-1.5 py-0.5 text-[11px] font-medium text-accent-ink">Sites updated</span>}
                 </div>
                 <h2 className="mt-1 truncate text-[15px] font-semibold tracking-tight">{k.name}</h2>
                 <ol className="mt-2 flex flex-wrap gap-1">
@@ -45,9 +59,22 @@ export function TasteManager({ combined, pages, initialEdit }: { combined: Admin
                   ))}
                 </ol>
               </div>
-              <button type="button" onClick={() => setEditingId(k.id)} className="flex h-8 shrink-0 items-center gap-1.5 self-start rounded-[8px] border border-border px-2.5 text-[12px] font-medium text-fg-muted transition-colors hover:border-border-strong hover:text-fg">
-                <Pencil className="size-3.5" /> Edit
-              </button>
+              <div className="flex shrink-0 flex-col gap-1.5 self-start">
+                <button type="button" onClick={() => setEditingId(k.id)} className="flex h-8 items-center gap-1.5 rounded-[8px] border border-border px-2.5 text-[12px] font-medium text-fg-muted transition-colors hover:border-border-strong hover:text-fg">
+                  <Pencil className="size-3.5" /> Edit
+                </button>
+                {k.latest?.status === "ready" && (
+                  <button
+                    type="button"
+                    disabled={updating === k.id}
+                    onClick={() => void update(k)}
+                    title="Rebuild from the newest version of each site; nothing is rendered again"
+                    className={cn("flex h-8 items-center gap-1.5 rounded-[8px] border px-2.5 text-[12px] font-medium transition-colors hover:text-fg disabled:opacity-70", k.stale ? "border-accent/60 text-accent-ink" : "border-border text-fg-muted hover:border-border-strong")}
+                  >
+                    <RotateCw className={cn("size-3.5", updating === k.id && "animate-[spin_1s_linear_infinite]")} /> {updating === k.id ? "Updating" : "Update"}
+                  </button>
+                )}
+              </div>
             </article>
           ))}
         </div>

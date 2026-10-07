@@ -1,6 +1,8 @@
 import { SITE } from "@/constants/constants";
 
 export const kitPath = (slug: string, version: number) => `/k/${slug}/v${version}`;
+/** Where people browse a kit: always its newest version. Install prompts pin `kitPath` instead. */
+export const kitHome = (slug: string) => `/k/${slug}`;
 export const kitUrl = (slug: string, version: number, file?: string) => `${SITE.url}${kitPath(slug, version)}${file ? `/${file}` : ""}`;
 
 /** "v3" -> 3, anything else -> null. */

@@ -1,4 +1,5 @@
 import "server-only";
+import { refreshKitPages } from "@/lib/kit/revalidate";
 import { EXTRACTOR_VERSION, FLOW_VERSION } from "@/constants/constants";
 import { COMBINE_LIMITS, cleanCurator, combinedName, combinedSlug, sourcesHash, sourcesKey, type CombinedKind } from "@/lib/combine/identity";
 import { mergeSources, toExtraction } from "@/lib/combine/merge";
@@ -169,6 +170,7 @@ export async function combineKit(
     if (published !== version) throw new Error(`version mismatch: uploaded v${version}, published v${published}`);
 
     logger.info("kit.combined", { slug, kind, sources: sources.length, version, ms: Date.now() - started });
+    refreshKitPages();
     const ready = await findReadyCombined(key, EXTRACTOR_VERSION, hash);
     if (!ready) throw new Error("published kit not found");
     return { status: "ready", kit: ready, cached: false };

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AddToTaste } from "@/components/AddToTaste";
 import { ArrowUpRight } from "@/components/icons";
-import { kitPath } from "@/lib/kit/urls";
+import { kitHome } from "@/lib/kit/urls";
 import type { KitCard as KitCardData } from "@/services/kitRead";
 
 // A kit at a glance: its layout (the content-removed frame, panning on hover)
@@ -42,7 +42,7 @@ export function KitCard({ kit }: { kit: KitCardData }) {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="truncate text-sm font-semibold tracking-tight">
-              <Link href={kitPath(kit.slug, kit.version)} className="outline-none after:absolute after:inset-0 after:content-['']">
+              <Link href={kitHome(kit.slug)} className="outline-none after:absolute after:inset-0 after:content-['']">
                 {kit.title}
               </Link>
             </h3>

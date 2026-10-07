@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "@/components/icons";
 import { isAdmin } from "@/lib/adminSession";
-import { kitPath } from "@/lib/kit/urls";
+import { kitHome } from "@/lib/kit/urls";
 import { cn } from "@/lib/utils";
 import { adminKitList, adminOverview } from "@/services/admin";
 import { AdminPage, when } from "./_components/AdminPage";
@@ -70,7 +70,7 @@ export default async function AdminOverview() {
                   {k.preview && <img src={k.preview} alt="" className="h-full w-full object-cover object-top" />}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <Link href={kitPath(k.slug, k.latest!.version)} target="_blank" className="block truncate text-[13px] font-medium hover:underline">{k.name}</Link>
+                  <Link href={kitHome(k.slug)} target="_blank" className="block truncate text-[13px] font-medium hover:underline">{k.name}</Link>
                   <span className="block text-[11.5px] text-fg-subtle">{k.kind === "site" ? "Multi-page" : k.kind === "taste" ? "Taste" : "Page"} · v{k.latest!.version}</span>
                 </span>
                 <span className="font-mono text-[11px] text-fg-subtle">{when(k.latest!.publishedAt).slice(5)}</span>

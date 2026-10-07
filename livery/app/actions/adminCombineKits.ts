@@ -6,7 +6,7 @@ import { requireAdmin } from "@/lib/adminSession";
 import { kitPath } from "@/lib/kit/urls";
 import { logger } from "@/lib/logger";
 
-export type AdminCombineResult = { ok: true; path: string } | { ok: false; error: string };
+export type AdminCombineResult = { ok: true; path: string; cached?: boolean } | { ok: false; error: string };
 
 /**
  * Makes a taste (or multi-page kit) from published page kits, or, with
@@ -19,7 +19,7 @@ export async function adminCombineKits(input: { kind: "site" | "taste"; urls: st
     switch (outcome.status) {
       case "ready":
         revalidatePath("/", "layout");
-        return { ok: true, path: kitPath(outcome.kit.slug, outcome.kit.version) };
+        return { ok: true, path: kitPath(outcome.kit.slug, outcome.kit.version), cached: outcome.cached };
       case "invalid":
         return { ok: false, error: outcome.message };
       case "needs_sources":
