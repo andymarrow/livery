@@ -18,6 +18,14 @@ const nextConfig: NextConfig = {
   // never touches the .next a running dev server is using.
   distDir: process.env.LIVERY_DIST_DIR || ".next",
   poweredByHeader: false,
+  // playwright-core is imported lazily and reads browsers.json (and other
+  // files) from disk at runtime, which the file tracer can't see. Without
+  // this, every build on Vercel fails with "Cannot find module
+  // .../playwright-core/browsers.json". Builds run from /api/build, the
+  // livery.site/<url> catch-all and admin server actions, so ship it to all.
+  outputFileTracingIncludes: {
+    "/**": ["./node_modules/playwright-core/**/*"],
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

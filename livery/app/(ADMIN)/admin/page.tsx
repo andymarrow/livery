@@ -34,7 +34,7 @@ export default async function AdminOverview() {
       </div>
 
       <div className="mt-3 grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        <section className="rounded-[14px] border border-border bg-surface p-5">
+        <section className="flex flex-col rounded-[14px] border border-border bg-surface p-5">
           <div className="flex items-center justify-between">
             <h2 className="text-[13.5px] font-semibold">Builds, last 7 days</h2>
             <span className="flex items-center gap-3 text-[11.5px] text-fg-muted">
@@ -42,7 +42,7 @@ export default async function AdminOverview() {
               <span className="flex items-center gap-1.5"><span className="size-2 rounded-sm bg-danger/70" /> Failed</span>
             </span>
           </div>
-          <div className="mt-6 flex h-44 gap-3">
+          <div className="mt-6 flex min-h-44 flex-1 gap-3">
             {o.days.map((d) => (
               <div key={d.day} className="flex flex-1 flex-col items-center gap-2">
                 <div className="group/bar relative flex w-full flex-1 flex-col justify-end gap-0.5">
@@ -71,7 +71,7 @@ export default async function AdminOverview() {
                 </span>
                 <span className="min-w-0 flex-1">
                   <Link href={kitPath(k.slug, k.latest!.version)} target="_blank" className="block truncate text-[13px] font-medium hover:underline">{k.name}</Link>
-                  <span className="block text-[11.5px] capitalize text-fg-subtle">{k.kind === "site" ? "multi-page" : k.kind} · v{k.latest!.version}</span>
+                  <span className="block text-[11.5px] text-fg-subtle">{k.kind === "site" ? "Multi-page" : k.kind === "taste" ? "Taste" : "Page"} · v{k.latest!.version}</span>
                 </span>
                 <span className="font-mono text-[11px] text-fg-subtle">{when(k.latest!.publishedAt).slice(5)}</span>
               </li>
