@@ -15,6 +15,7 @@ import { DesignGlance } from "./_components/DesignGlance";
 import { FilesPanel } from "./_components/FilesPanel";
 import { FrameViewer } from "./_components/FrameViewer";
 import { KitStats } from "./_components/KitStats";
+import { SaveButton } from "./_components/SaveButton";
 import { getStats } from "@/services/stats";
 import { InstallPanel } from "./_components/InstallPanel";
 import { SourceExplorer } from "./_components/SourceExplorer";
@@ -91,7 +92,10 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
           <KitOrigin view={view} />
           {!withdrawn && (
             <div className="mt-4">
-              <KitStats slug={view.slug} initial={stats} />
+              <div className="flex flex-wrap items-center gap-1.5">
+                <KitStats slug={view.slug} initial={stats} />
+                <SaveButton kitId={view.kitId} />
+              </div>
             </div>
           )}
           {view.analysis?.summary && <p className="mt-5 max-w-2xl text-base leading-relaxed text-fg-muted text-pretty">{view.analysis.summary}</p>}

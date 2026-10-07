@@ -375,3 +375,41 @@ describe("kit stats", () => {
     });
   });
 });
+
+describe("accounts", () => {
+  async function user(meta: object = {}) {
+    const { rows } = await db.query<{ id: string }>(`insert into auth.users (email, raw_user_meta_data) values ('a@example.com', $1) returning id`, [JSON.stringify(meta)]);
+    return rows[0].id;
+  }
+
+  it("creates a profile from the provider's name and avatar", async () => {
+    const id = await user({ full_name: "Andy Marrow", avatar_url: "https://avatars.example.com/a.png" });
+    const { rows } = await db.query(`select display_name, avatar_url from public.profiles where id = $1`, [id]);
+    expect(rows[0]).toEqual({ display_name: "Andy Marrow", avatar_url: "https://avatars.example.com/a.png" });
+  });
+
+  it("refuses a non-https avatar", async () => {
+    const id = await user({ name: "B", avatar_url: "javascript:alert(1)" });
+    const { rows } = await db.query<{ avatar_url: string | null }>(`select avatar_url from public.profiles where id = $1`, [id]);
+    expect(rows[0].avatar_url).toBeNull();
+  });
+
+  it("keeps profiles and saved kits private to their owner", async () => {
+    const [a, b] = [await user({ name: "A" }), await user({ name: "B" })];
+    const lock = await startBuild();
+    await publish(lock.kit_version_id);
+    await asRole(db, "authenticated", async () => {
+      await db.query(`insert into public.saved_kits (user_id, kit_id) values ($1, $2)`, [a, lock.kit_id]);
+      await expect(db.query(`insert into public.saved_kits (user_id, kit_id) values ($1, $2)`, [b, lock.kit_id])).rejects.toThrow();
+      expect((await db.query(`select * from public.profiles`)).rows).toHaveLength(1);
+      expect((await db.query(`select * from public.saved_kits`)).rows).toHaveLength(1);
+    }, a);
+    await asRole(db, "authenticated", async () => {
+      expect((await db.query(`select * from public.saved_kits`)).rows).toHaveLength(0);
+      expect((await db.query<{ display_name: string }>(`select display_name from public.profiles`)).rows).toEqual([{ display_name: "B" }]);
+    }, b);
+    await asRole(db, "anon", async () => {
+      await expect(db.query(`select * from public.profiles`)).rejects.toThrow();
+    });
+  });
+});

@@ -8,9 +8,11 @@ import { ThemeSwitch } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { NAV_LINKS } from "@/constants/options";
+import { useAuth } from "@/app/_context/AuthContext";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
+  const auth = useAuth();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -24,10 +26,17 @@ export function MobileNav() {
           <LogoMark />
           <SheetTitle className="text-[17px] font-semibold tracking-tight">livery</SheetTitle>
         </div>
-        <div className="px-5 pt-2">
+        <div className="grid grid-cols-1 gap-2 px-5 pt-2">
           <Button asChild className="h-11 w-full">
             <Link href="/create" onClick={() => setOpen(false)}>Create a kit</Link>
           </Button>
+          {auth.ready && (
+            <Button asChild variant="secondary" className="h-11 w-full">
+              <Link href={auth.user ? "/me" : "/sign-in"} onClick={() => setOpen(false)}>
+                {auth.user ? "My kits" : "Sign in"}
+              </Link>
+            </Button>
+          )}
         </div>
         <nav aria-label="Mobile" className="flex-1 px-3 pt-2">
           <ul className="flex flex-col">

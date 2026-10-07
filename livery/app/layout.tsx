@@ -1,6 +1,7 @@
 import Script from "next/script";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { AuthProvider } from "@/app/_context/AuthContext";
 import { ThemeProvider, themeInitScript } from "@/app/_context/ThemeContext";
 import { ToastProvider } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -38,9 +39,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="flex min-h-full flex-col">
         <ThemeProvider>
-          <TooltipProvider delayDuration={300}>
-            <ToastProvider>{children}</ToastProvider>
-          </TooltipProvider>
+          <AuthProvider>
+            <TooltipProvider delayDuration={300}>
+              <ToastProvider>{children}</ToastProvider>
+            </TooltipProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

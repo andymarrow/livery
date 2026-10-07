@@ -219,9 +219,9 @@ Phase A:
 Phase F:
 6. Send the zip to your friend; get the extension ID and public key back after the first upload.
 
-## 9. Assumptions to confirm before Phase B
+## 9. Answers (2026-10-07)
 
-1. **Normal public-page builds stay public**, as today ("every pasted URL becomes a kit in the library"), even when signed in. Only kits containing extension captures start private. Should a signed-in user also be able to build private kits from public pages?
-2. **Subdomains:** dashboards often live on `app.example.com` while the marketing site is `example.com`. Decision 4 says same domain only; should `app.` (any subdomain of the same site) count as the same domain?
-3. **Creation-flow pairing (decision 6a):** with accounts, connecting the extension once is enough; the extension then lists your drafts to add to, so no per-build pairing code is needed. A code would only matter for signed-out use, which this plan doesn't support. OK to drop the code?
-4. **Signed-out visitors** keep building public kits exactly as now (no account required). Accounts add private kits, saving and the extension.
+1. **Pasted links stay public**, signed in or not. Only kits containing extension captures start private; the owner can Publish them.
+2. **Subdomains count as the same domain** (`app.example.com` belongs with `example.com`): compared by registrable domain.
+3. **No per-build pairing code.** Connecting the extension once to an account is enough; the extension lists your drafts and kits to add to.
+4. **Signed-out visitors** keep building public kits without an account. Private kits, saving and the extension need sign-in.

@@ -9,6 +9,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { NAV_LINKS } from "@/constants/options";
 import { cn } from "@/lib/utils";
+import { AccountMenu } from "./AccountMenu";
 import { MobileNav } from "./MobileNav";
 import { TasteCounter } from "./TasteCounter";
 
@@ -117,6 +118,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-1.5 justify-self-end">
           <TasteCounter />
           <ThemeToggle />
+          <AccountMenu />
           <Button asChild size="sm" className="group/create h-9 gap-1.5 pl-3 pr-4 text-sm">
             <Link href="/create" aria-current={pathname === "/create" ? "page" : undefined}>
               <Plus strokeWidth={2.5} className="transition-transform duration-300 ease-out-soft group-hover/create:rotate-90" />

@@ -37,6 +37,10 @@ import {
   Paintbrush as LucidePaintbrush,
   Palette as LucidePalette,
   Plus as LucidePlus,
+  MailCheck as LucideMailCheck,
+  Bookmark as LucideBookmark,
+  BookmarkCheck as LucideBookmarkCheck,
+  CircleUser as LucideCircleUser,
   Heart as LucideHeart,
   LayoutDashboard as LucideLayoutDashboard,
   Boxes as LucideBoxes,
@@ -118,6 +122,10 @@ export const Moon = make(LucideMoon, "Moon");
 export const Paintbrush = make(LucidePaintbrush, "Paintbrush");
 export const Palette = make(LucidePalette, "Palette");
 export const Plus = make(LucidePlus, "Plus");
+export const MailCheck = make(LucideMailCheck, "MailCheck");
+export const Bookmark = make(LucideBookmark, "Bookmark");
+export const BookmarkCheck = make(LucideBookmarkCheck, "BookmarkCheck");
+export const CircleUser = make(LucideCircleUser, "CircleUser");
 export const Heart = make(LucideHeart, "Heart");
 export const Globe = make(LucideGlobe, "Globe");
 export const LayoutDashboard = make(LucideLayoutDashboard, "LayoutDashboard");

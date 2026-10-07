@@ -97,6 +97,8 @@ export type Database = {
         domain: string;
         source_version_id: string;
       }>;
+      profiles: Table<{ id: string; display_name: string | null; avatar_url: string | null; created_at: string; updated_at: string }>;
+      saved_kits: Table<{ user_id: string; kit_id: string; created_at: string }, { user_id: string; kit_id: string; created_at?: string }>;
       kit_events: Table<{ kit_id: string; kind: "view" | "like" | "download"; visitor: string; network: string; created_at: string }>;
       kit_stats: Table<{ kit_id: string; views: number; likes: number; downloads: number; updated_at: string }>;
       read_failures: Table<{

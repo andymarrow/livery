@@ -202,6 +202,7 @@ export async function frameUrls(versionId: string) {
 
 export type KitCard = {
   slug: string;
+  kitId: string;
   versionId: string;
   kind: KitKind;
   title: string;
@@ -242,15 +243,16 @@ export async function listKits({
   featuredOnly = false,
   sort = "newest",
   filters = {},
+  kitIds,
   limit = 24,
   offset = 0,
-}: { query?: string; shelf?: KitShelf; curator?: string; featuredOnly?: boolean; sort?: KitSort; filters?: KitFilters; limit?: number; offset?: number } = {}) {
+}: { query?: string; shelf?: KitShelf; curator?: string; featuredOnly?: boolean; sort?: KitSort; filters?: KitFilters; kitIds?: string[]; limit?: number; offset?: number } = {}) {
   // Anon client: RLS already limits it to published versions. kit_library
   // has one row per kit (its newest version) with its totals.
   const db = getPublicClient();
   let request = db
     .from("kit_library")
-    .select("id, version, published_at, data, grant_hash, views, likes, downloads, kits!inner(slug, kind, domain, source_url, curator, curator_slug, display_name, featured, hidden, cover_path)", { count: "exact" })
+    .select("id, kit_id, version, published_at, data, grant_hash, views, likes, downloads, kits!inner(slug, kind, domain, source_url, curator, curator_slug, display_name, featured, hidden, cover_path)", { count: "exact" })
     .order(SORT_COLUMN[sort], { ascending: false })
     .order("published_at", { ascending: false })
     .range(offset, offset + limit - 1);
@@ -262,6 +264,7 @@ export async function listKits({
   if (shelf === "tastes") request = request.eq("kits.kind", "taste");
   if (curator) request = request.eq("kits.curator_slug", curator);
   if (featuredOnly) request = request.eq("kits.featured", true);
+  if (kitIds) request = request.in("kit_id", kitIds.length ? kitIds : ["00000000-0000-0000-0000-000000000000"]);
   if (filters.scheme) request = request.eq("scheme", filters.scheme);
   if (filters.colour) request = request.eq("colour", filters.colour);
   if (filters.font) request = request.eq("font", filters.font);
@@ -282,6 +285,7 @@ export async function listKits({
     published_at: string;
     grant_hash: string | null;
     data: { extraction?: { tokens?: Tokens; fonts?: { family: string }[]; icons?: { library?: { name: string } | null } }; sources?: KitSourceLink[] };
+    kit_id: string;
     kits: { slug: string; kind: KitKind; domain: string | null; source_url: string | null; curator: string | null; curator_slug: string | null; display_name: string | null; featured: boolean; cover_path: string | null };
   };
   for (const row of (data ?? []) as unknown as Row[]) {
@@ -300,6 +304,7 @@ export async function listKits({
       preview: row.kits.cover_path ? coverUrl(row.kits.cover_path) : null,
       stats: { views: row.views, likes: row.likes, downloads: row.downloads },
       featured: row.kits.featured,
+      kitId: row.kit_id,
       versionId: row.id,
       curator: row.kits.curator,
       curatorSlug: row.kits.curator_slug,
