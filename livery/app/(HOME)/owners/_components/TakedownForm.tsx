@@ -11,7 +11,7 @@ export function TakedownForm() {
   if (result?.ok) {
     return (
       <div className="flex items-start gap-3 rounded-2xl border border-border bg-surface p-5">
-        <CheckCircle className="mt-0.5 size-5 shrink-0 text-accent" />
+        <CheckCircle className="mt-0.5 size-5 shrink-0 text-accent-ink" />
         <div>
           <p className="font-medium">Request received for {result.domain}</p>
           <p className="mt-1 text-sm text-fg-muted">We&apos;ll reply by email, usually within two working days. For an immediate opt-out, publish an opt-out file.</p>

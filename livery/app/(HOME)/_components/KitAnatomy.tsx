@@ -16,14 +16,14 @@ function Line({ text, kind }: { text: string; kind: KitFilePreview["kind"] }) {
           /^".*":$/.test(part.trim()) ? (
             <span key={i} className="text-fg-muted">{part}</span>
           ) : /^"#[0-9a-f]{3,8}"$/i.test(part) ? (
-            <span key={i} className="text-accent">
+            <span key={i} className="text-accent-ink">
               <span className="mr-1 inline-block size-2.5 translate-y-px rounded-[3px] border border-border" style={{ background: part.slice(1, -1) }} />
               {part}
             </span>
           ) : /^"/.test(part) ? (
             <span key={i} className="text-fg">{part}</span>
           ) : /^-?\d/.test(part) ? (
-            <span key={i} className="text-accent">{part}</span>
+            <span key={i} className="text-accent-ink">{part}</span>
           ) : (
             <span key={i} className="text-fg-subtle">{part}</span>
           ),
@@ -37,7 +37,7 @@ function Line({ text, kind }: { text: string; kind: KitFilePreview["kind"] }) {
     const [key, ...rest] = text.split(":");
     return (
       <>
-        <span className="text-accent">{key}:</span>
+        <span className="text-accent-ink">{key}:</span>
         <span className="text-fg-muted">{rest.join(":")}</span>
       </>
     );
@@ -51,7 +51,7 @@ function Line({ text, kind }: { text: string; kind: KitFilePreview["kind"] }) {
         ) : part.startsWith("_") ? (
           <span key={i} className="italic text-fg">{part}</span>
         ) : part.startsWith("`") ? (
-          <span key={i} className="text-accent">{part}</span>
+          <span key={i} className="text-accent-ink">{part}</span>
         ) : (
           part
         ),
@@ -81,7 +81,7 @@ export function KitAnatomy() {
     <div className="overflow-hidden rounded-[22px] border border-border bg-surface">
       <div className="flex h-12 items-center justify-between gap-4 border-b border-border px-4">
         <div className="flex min-w-0 items-center gap-2.5 text-[13px]">
-          <CodeFolder className="size-[18px] shrink-0 text-accent" />
+          <CodeFolder className="size-[18px] shrink-0 text-accent-ink" />
           <span className="truncate font-mono text-fg-muted">.claude/skills/</span>
           <span className="-ml-2 truncate font-mono font-medium text-fg">livery-livery-site</span>
         </div>
@@ -122,7 +122,7 @@ export function KitAnatomy() {
                     selected ? "opacity-100" : "opacity-0",
                   )}
                 />
-                <Icon className={cn("size-4 shrink-0", selected && "text-accent")} />
+                <Icon className={cn("size-4 shrink-0", selected && "text-accent-ink")} />
                 <span className="min-w-0">
                   <span className="block font-mono text-[12.5px] font-medium">{entry.path}</span>
                   <span className="hidden truncate text-[11.5px] text-fg-subtle md:block">{entry.description}</span>

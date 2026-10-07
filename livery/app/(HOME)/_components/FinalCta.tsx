@@ -7,7 +7,7 @@ export function FinalCta() {
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1.15fr] lg:items-center">
           <div>
             <p className="label-micro">Start here</p>
-            <h2 className="mt-3 text-3xl font-semibold leading-[1.05] tracking-[-0.035em] text-balance sm:text-5xl">
+            <h2 className="mt-3 text-2xl font-bold leading-tight tracking-tight text-balance sm:text-3xl">
               Found a site you love?
               <span className="block text-fg-subtle">Give your app its livery.</span>
             </h2>

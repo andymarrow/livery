@@ -22,7 +22,7 @@ export function MobileNav() {
       <SheetContent>
         <div className="flex h-16 items-center gap-2 px-5">
           <LogoMark />
-          <SheetTitle className="text-[17px] font-semibold tracking-[-0.03em]">livery</SheetTitle>
+          <SheetTitle className="text-[17px] font-semibold tracking-tight">livery</SheetTitle>
         </div>
         <nav aria-label="Mobile" className="flex-1 px-3 pt-2">
           <ul className="flex flex-col">

@@ -16,9 +16,9 @@ export function FailurePanel({ reason, host }: { reason: ReadFailureReason; host
       <span className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-border bg-surface text-fg-muted">
         <Icon className="size-6" />
       </span>
-      <h1 className="mt-6 text-3xl font-semibold tracking-[-0.035em] text-balance">{copy.title}</h1>
-      <p className="mt-3 text-[15px] leading-relaxed text-fg-muted text-pretty">{copy.body}</p>
-      <p className="mt-2 text-[15px] leading-relaxed text-fg">{copy.next}</p>
+      <h1 className="mt-6 text-3xl font-semibold tracking-tight text-balance">{copy.title}</h1>
+      <p className="mt-3 text-sm leading-relaxed text-fg-muted text-pretty">{copy.body}</p>
+      <p className="mt-2 text-sm leading-relaxed text-fg">{copy.next}</p>
       <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
         <Button asChild variant="secondary">
           <Link href="/#get-a-kit">

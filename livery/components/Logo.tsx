@@ -21,7 +21,7 @@ export function Logo({ className }: { className?: string }) {
       className={cn("group inline-flex items-center gap-2 rounded-lg text-fg", className)}
     >
       <LogoMark className="transition-transform duration-300 ease-out-soft group-hover:-rotate-6" />
-      <span className="text-[17px] font-semibold tracking-[-0.03em]">livery</span>
+      <span className="text-[17px] font-semibold tracking-tight">livery</span>
     </Link>
   );
 }

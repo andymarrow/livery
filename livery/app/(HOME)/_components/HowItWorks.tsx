@@ -27,12 +27,12 @@ export function HowItWorks() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_1fr] md:items-end">
           <div>
             <p className="label-micro">How it works</p>
-            <h2 className="mt-3 text-3xl font-semibold leading-[1.05] tracking-[-0.035em] text-balance sm:text-[44px]">
+            <h2 className="mt-3 text-2xl font-bold leading-tight tracking-tight text-balance sm:text-3xl">
               From any link to your codebase.{" "}
               <span className="text-fg-subtle">Nothing changes until you say so.</span>
             </h2>
           </div>
-          <p className="max-w-md text-[15px] leading-relaxed text-fg-muted md:justify-self-end">
+          <p className="max-w-md text-sm leading-relaxed text-fg-muted md:justify-self-end">
             A kit is plain Markdown and JSON. It carries the reasons behind a design, not just its values, so your agent
             knows what to keep and what to never do.
           </p>
@@ -96,7 +96,7 @@ function InstallPreview() {
           {line.prompt ? (
             <span className="text-fg-subtle">$</span>
           ) : (
-            <Check className="size-3 shrink-0 text-accent" strokeWidth={2.25} />
+            <Check className="size-3 shrink-0 text-accent-ink" strokeWidth={2.25} />
           )}
           <span className={line.prompt ? "truncate text-fg" : "truncate text-fg-muted"}>{line.text}</span>
         </div>

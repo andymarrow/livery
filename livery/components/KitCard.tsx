@@ -23,7 +23,7 @@ export function KitCard({ kit }: { kit: KitCardData }) {
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="truncate text-[15px] font-semibold tracking-tight">{kit.domain}</p>
+            <p className="truncate text-sm font-semibold tracking-tight">{kit.domain}</p>
             <p className="truncate text-[12.5px] text-fg-subtle">{new URL(kit.sourceUrl).pathname === "/" ? "Homepage" : new URL(kit.sourceUrl).pathname}</p>
           </div>
           <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border text-fg-subtle transition-colors duration-200 group-hover:border-accent group-hover:bg-accent group-hover:text-on-accent">

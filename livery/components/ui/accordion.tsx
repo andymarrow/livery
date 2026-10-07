@@ -15,7 +15,7 @@ export function AccordionTrigger({ className, children, ...props }: React.Compon
     <AccordionPrimitive.Header className="flex">
       <AccordionPrimitive.Trigger
         className={cn(
-          "group flex flex-1 items-center justify-between gap-6 py-5 text-left text-[15px] font-medium tracking-tight text-fg transition-colors hover:text-fg-muted",
+          "group flex flex-1 items-center justify-between gap-6 py-5 text-left text-sm font-medium tracking-tight text-fg transition-colors hover:text-fg-muted",
           className,
         )}
         {...props}
@@ -35,7 +35,7 @@ export function AccordionContent({ className, children, ...props }: React.Compon
       className="overflow-hidden data-[state=closed]:animate-[accordion-up_220ms_var(--ease-out-soft)] data-[state=open]:animate-[accordion-down_260ms_var(--ease-out-soft)]"
       {...props}
     >
-      <div className={cn("pb-5 pr-12 text-[15px] leading-relaxed text-fg-muted", className)}>{children}</div>
+      <div className={cn("pb-5 pr-12 text-sm leading-relaxed text-fg-muted", className)}>{children}</div>
     </AccordionPrimitive.Content>
   );
 }

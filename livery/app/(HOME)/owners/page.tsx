@@ -16,8 +16,8 @@ function Block({ id, icon, kicker, title, body, children, wide = false }: { id: 
         <div className={wide ? "max-w-xl" : undefined}>
           <span className="flex size-10 items-center justify-center rounded-xl bg-accent-soft text-accent-soft-fg [&_svg]:size-5">{icon}</span>
           <p className="label-micro mt-5">{kicker}</p>
-          <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em]">{title}</h2>
-          <p className="mt-3 text-[15px] leading-relaxed text-fg-muted">{body}</p>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight">{title}</h2>
+          <p className="mt-3 text-sm leading-relaxed text-fg-muted">{body}</p>
         </div>
         <div className="min-w-0">{children}</div>
       </div>
@@ -29,10 +29,10 @@ export default function OwnersPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-14 sm:px-6 sm:pt-20">
       <p className="label-micro">For site owners</p>
-      <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-[1.02] tracking-[-0.045em] text-balance sm:text-6xl">
+      <h1 className="mt-3 max-w-3xl text-3xl font-bold leading-tight tracking-tight text-balance sm:text-4xl">
         Your site, <span className="text-fg-subtle">your call.</span>
       </h1>
-      <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-fg-muted text-pretty">
+      <p className="mt-5 max-w-2xl text-base leading-relaxed text-fg-muted text-pretty">
         Without a word from you, Livery only describes your design: values and style, never your logo, images, fonts or words. One small file lets you share more, or nothing at all.
       </p>
 

@@ -39,7 +39,7 @@ function Message({ from, children, delay = 0 }: { from: "agent" | "you"; childre
       {agent ? <AgentMark /> : <YouMark />}
       <div className={cn("min-w-0 max-w-[34rem]", agent ? "flex-1" : "text-right")}>
         <p className="mb-1.5 text-[11.5px] font-medium text-fg-subtle">{agent ? "Your agent" : "You"}</p>
-        <div className={cn("text-left text-[14.5px] leading-relaxed", agent ? "block" : "inline-block rounded-2xl rounded-tr-md bg-fg px-4 py-2.5 text-bg")}>
+        <div className={cn("text-left text-sm leading-relaxed", agent ? "block" : "inline-block rounded-2xl rounded-tr-md bg-fg px-4 py-2.5 text-bg")}>
           {children}
         </div>
       </div>
@@ -114,14 +114,14 @@ export function TheFlow() {
                 ["4e8d0f2", "components"],
               ].map(([hash, area]) => (
                 <p key={hash} className="flex items-center gap-2 truncate">
-                  <GitCommit strokeWidth={2.25} className="size-3.5 shrink-0 text-accent" />
+                  <GitCommit strokeWidth={2.25} className="size-3.5 shrink-0 text-accent-ink" />
                   <span className="text-fg-subtle">{hash}</span>
                   <span className="truncate text-fg">livery(example.com v1): {area}</span>
                 </p>
               ))}
             </div>
             <p className="mt-3 flex items-center gap-2 text-fg-muted">
-              <SealCheck className="size-4 shrink-0 text-accent" />
+              <SealCheck className="size-4 shrink-0 text-accent-ink" />
               Contrast checked in both themes. To undo one area: git revert &lt;hash&gt;.
             </p>
           </Message>

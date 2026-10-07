@@ -121,8 +121,8 @@ export function Builder({ url, host }: { url: string; host: string }) {
   return (
     <div className="mx-auto w-full max-w-xl">
       <p className="label-micro text-center">Building a kit</p>
-      <h1 className="mt-3 text-center text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">{host}</h1>
-      <p className="mt-3 text-center text-[15px] text-fg-muted">
+      <h1 className="mt-3 text-center text-3xl font-semibold tracking-tight sm:text-4xl">{host}</h1>
+      <p className="mt-3 text-center text-sm text-fg-muted">
         {state.phase === "waiting" ? "Someone else is building this kit right now. It will open here when it's ready." : "Usually about a minute. You can leave; the kit will be in the library."}
       </p>
 
@@ -135,13 +135,13 @@ export function Builder({ url, host }: { url: string; host: string }) {
               <span
                 className={cn(
                   "flex size-7 shrink-0 items-center justify-center rounded-full border transition-colors duration-300",
-                  done ? "border-accent bg-accent text-on-accent" : active ? "border-accent text-accent" : "border-border text-fg-subtle",
+                  done ? "border-accent bg-accent text-on-accent" : active ? "border-accent text-accent-ink" : "border-border text-fg-subtle",
                 )}
               >
                 {done ? <Check strokeWidth={2.25} className="size-3.5" /> : active ? <CircleNotch strokeWidth={2.25} className="size-3.5 animate-[spin_0.9s_linear_infinite]" /> : <span className="size-1.5 rounded-full bg-current" />}
               </span>
               <span className="min-w-0 flex-1">
-                <span className={cn("block text-[14.5px] font-medium transition-colors", done || active ? "text-fg" : "text-fg-subtle")}>{stage.label}</span>
+                <span className={cn("block text-sm font-medium transition-colors", done || active ? "text-fg" : "text-fg-subtle")}>{stage.label}</span>
                 <span className="block truncate text-[12.5px] text-fg-subtle">{active && state.phase === "running" && state.detail ? state.detail : stage.hint}</span>
               </span>
             </li>
@@ -165,9 +165,9 @@ function Outcome({ icon, title, body, next, code, owners, retry }: { icon: React
   return (
     <div className="mx-auto w-full max-w-lg text-center">
       <span className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-border bg-surface text-fg-muted">{icon}</span>
-      <h1 className="mt-6 text-3xl font-semibold tracking-[-0.035em] text-balance">{title}</h1>
-      <p className="mt-3 text-[15px] leading-relaxed text-fg-muted text-pretty">{body}</p>
-      <p className="mt-2 text-[15px] leading-relaxed text-fg">{next}</p>
+      <h1 className="mt-6 text-3xl font-semibold tracking-tight text-balance">{title}</h1>
+      <p className="mt-3 text-sm leading-relaxed text-fg-muted text-pretty">{body}</p>
+      <p className="mt-2 text-sm leading-relaxed text-fg">{next}</p>
       <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
         {retry && <Button onClick={() => window.location.reload()}>Try again</Button>}
         <Button asChild variant="secondary">

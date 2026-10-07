@@ -27,7 +27,7 @@ export function StyleNeverAssets() {
       <div className="mx-auto max-w-6xl">
         <div className="max-w-2xl">
           <p className="label-micro">Style, never assets</p>
-          <h2 className="mt-3 text-3xl font-semibold leading-[1.05] tracking-[-0.035em] text-balance sm:text-[44px]">
+          <h2 className="mt-3 text-2xl font-bold leading-tight tracking-tight text-balance sm:text-3xl">
             Every item in a kit says what you can ship.
           </h2>
         </div>

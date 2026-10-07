@@ -23,7 +23,7 @@ export function SiteChecker() {
         <ul className="mt-5 divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface" aria-live="polite">
           {result.items.map((item) => (
             <li key={item.label} className="flex items-start gap-3 px-4 py-3">
-              {item.ok ? <CheckCircle className="mt-0.5 size-4 shrink-0 text-accent" /> : <XCircle className="mt-0.5 size-4 shrink-0 text-fg-subtle" />}
+              {item.ok ? <CheckCircle className="mt-0.5 size-4 shrink-0 text-accent-ink" /> : <XCircle className="mt-0.5 size-4 shrink-0 text-fg-subtle" />}
               <span className="min-w-0">
                 <span className="block text-[14px] font-medium">{item.label}</span>
                 <span className="block break-words text-[13px] text-fg-muted">{item.detail}</span>

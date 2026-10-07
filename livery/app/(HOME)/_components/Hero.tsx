@@ -14,7 +14,7 @@ export function Hero({ kitCount }: { kitCount: number }) {
         </Badge>
 
         <h1
-          className="mt-7 text-[44px] font-semibold leading-[0.98] tracking-[-0.045em] text-balance sm:text-6xl md:text-[78px]"
+          className="mt-7 text-3xl font-bold leading-tight tracking-tight text-balance sm:text-4xl"
         >
           Give your app a new{" "}
           <span className="relative inline-block whitespace-nowrap">
@@ -25,7 +25,7 @@ export function Hero({ kitCount }: { kitCount: number }) {
         </h1>
 
         <p
-          className="mt-6 max-w-xl text-[17px] leading-relaxed text-fg-muted text-pretty sm:text-lg"
+          className="mt-6 max-w-xl text-base leading-relaxed text-fg-muted text-pretty"
         >
           Paste any website. Get a design kit your coding agent installs in one step. It audits your project, asks
           before it changes anything, and applies the look one commit at a time.

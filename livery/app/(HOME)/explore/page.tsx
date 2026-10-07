@@ -41,8 +41,8 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
       <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
         <div>
           <p className="label-micro">The library</p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Explore kits</h1>
-          <p className="mt-3 max-w-lg text-[15px] leading-relaxed text-fg-muted">
+          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Explore kits</h1>
+          <p className="mt-3 max-w-lg text-sm leading-relaxed text-fg-muted">
             Every link anyone pastes becomes a kit here. Open one to see its palette, rules and files, then install it in one step.
           </p>
         </div>

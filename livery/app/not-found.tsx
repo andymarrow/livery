@@ -11,8 +11,8 @@ export default function NotFound() {
       </div>
       <div className="mx-auto flex max-w-md flex-1 flex-col items-center justify-center pb-24 text-center">
         <p className="label-micro">404</p>
-        <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em]">Nothing is painted here yet.</h1>
-        <p className="mt-3 text-[15px] leading-relaxed text-fg-muted">
+        <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Nothing is painted here yet.</h1>
+        <p className="mt-3 text-sm leading-relaxed text-fg-muted">
           This page doesn&apos;t exist, or it&apos;s still being built.
         </p>
         <Button asChild variant="secondary" className="mt-8">

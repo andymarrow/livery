@@ -8,7 +8,7 @@ export function OpenAKit() {
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:items-end">
           <SectionHeading kicker="Open a kit" title="Values, and the reasons behind them." />
-          <p className="max-w-md text-[15px] leading-relaxed text-fg-muted md:justify-self-end">
+          <p className="max-w-md text-sm leading-relaxed text-fg-muted md:justify-self-end">
             This is Livery&apos;s own kit, built from this page. Plain Markdown and JSON your agent reads one file at a time, only
             when a step needs it.
           </p>

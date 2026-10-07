@@ -71,13 +71,13 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
                 <UserCheck /> Owner approved
               </Badge>
             )}
-            {withdrawn ? <Badge variant="danger">Withdrawn</Badge> : <Badge variant="neutral"><SealCheck className="text-accent" /> Published {view.publishedAt.slice(0, 10)}</Badge>}
+            {withdrawn ? <Badge variant="danger">Withdrawn</Badge> : <Badge variant="neutral"><SealCheck className="text-accent-ink" /> Published {view.publishedAt.slice(0, 10)}</Badge>}
           </div>
-          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">{view.domain}</h1>
+          <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">{view.domain}</h1>
           <a href={view.sourceUrl} target="_blank" rel="noreferrer noopener" className="mt-2 inline-flex items-center gap-1 text-[14px] text-fg-muted transition-colors hover:text-fg">
             {path === "/" ? "Homepage" : path} <ArrowUpRight className="size-3.5" />
           </a>
-          {view.analysis?.summary && <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-fg-muted text-pretty">{view.analysis.summary}</p>}
+          {view.analysis?.summary && <p className="mt-5 max-w-2xl text-base leading-relaxed text-fg-muted text-pretty">{view.analysis.summary}</p>}
         </div>
         <dl className="grid shrink-0 grid-cols-3 gap-px overflow-hidden rounded-2xl border border-border bg-border text-center">
           {(Object.entries(counts) as [keyof typeof counts, number][]).map(([licence, count]) => (
@@ -91,16 +91,16 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
 
       {view.latestVersion > view.version && (
         <div className="mt-8 flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 text-sm">
-          <Info className="size-4 shrink-0 text-accent" />
+          <Info className="size-4 shrink-0 text-accent-ink" />
           A newer version of this kit exists.
-          <Link href={kitPath(view.slug, view.latestVersion)} className="ml-auto font-medium text-accent hover:underline">Open v{view.latestVersion}</Link>
+          <Link href={kitPath(view.slug, view.latestVersion)} className="ml-auto font-medium text-accent-ink hover:underline">Open v{view.latestVersion}</Link>
         </div>
       )}
 
       {withdrawn ? (
         <div className="mt-10 rounded-[22px] border border-border bg-surface p-8 text-center">
           <h2 className="text-xl font-semibold tracking-tight">Withdrawn by the site owner</h2>
-          <p className="mx-auto mt-2 max-w-md text-[15px] text-fg-muted">This version was withdrawn on {view.withdrawnAt?.slice(0, 10)}. Its files are no longer available.</p>
+          <p className="mx-auto mt-2 max-w-md text-sm text-fg-muted">This version was withdrawn on {view.withdrawnAt?.slice(0, 10)}. Its files are no longer available.</p>
         </div>
       ) : (
         <>
@@ -127,7 +127,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
 
           {view.tokens && (
             <section className="mt-14">
-              <h2 className="mb-5 text-2xl font-semibold tracking-[-0.03em]">The design at a glance</h2>
+              <h2 className="mb-5 text-2xl font-semibold tracking-tight">The design at a glance</h2>
               <DesignGlance tokens={view.tokens} />
             </section>
           )}
@@ -139,7 +139,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
                 <ul className="mt-4 space-y-5">
                   {view.analysis.principles.map((p) => (
                     <li key={p.title}>
-                      <p className="text-[15px] font-semibold tracking-tight">{p.title}</p>
+                      <p className="text-sm font-semibold tracking-tight">{p.title}</p>
                       <p className="mt-1 text-[14px] leading-relaxed text-fg-muted">{p.rule}</p>
                     </li>
                   ))}
@@ -150,7 +150,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
                 <ul className="mt-4 space-y-4">
                   {view.analysis.never.map((n) => (
                     <li key={n.rule} className="border-l-2 border-border-strong pl-4">
-                      <p className="text-[14.5px] font-medium">{n.rule}</p>
+                      <p className="text-sm font-medium">{n.rule}</p>
                       <p className="mt-1 text-[13.5px] leading-relaxed text-fg-muted">{n.why}</p>
                     </li>
                   ))}
@@ -162,7 +162,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
           {frames.some((f) => f.url) && (
             <section className="mt-14">
               <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="text-2xl font-semibold tracking-[-0.03em]">Reference frames</h2>
+                <h2 className="text-2xl font-semibold tracking-tight">Reference frames</h2>
                 <p className="text-[13px] text-fg-subtle">Images became flat blocks and text became bars. Layout, rhythm and colour stay.</p>
               </div>
               <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-[1fr_16rem]">
@@ -191,7 +191,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
 
           {files.length > 0 && (
             <section className="mt-14">
-              <h2 className="mb-5 text-2xl font-semibold tracking-[-0.03em]">Every file in the kit</h2>
+              <h2 className="mb-5 text-2xl font-semibold tracking-tight">Every file in the kit</h2>
               <FilesPanel files={files} />
             </section>
           )}

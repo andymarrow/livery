@@ -17,7 +17,7 @@ export function FilesPanel({ files }: { files: { path: string; text: string }[] 
           <AccordionItem key={file.path} value={file.path}>
             <AccordionTrigger className="py-4">
               <span className="flex items-center gap-3">
-                <Icon className="size-[18px] text-accent" />
+                <Icon className="size-[18px] text-accent-ink" />
                 <span className="font-mono text-[13px]">{file.path}</span>
                 <span className="text-[12px] font-normal text-fg-subtle">{(file.text.length / 1024).toFixed(1)} KB</span>
               </span>

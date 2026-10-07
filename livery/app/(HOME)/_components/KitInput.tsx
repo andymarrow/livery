@@ -185,7 +185,7 @@ function AgentLine({ path }: { path: string }) {
       <code className="min-w-0 flex-1 truncate font-mono text-[13px] text-fg-muted">
         <span className="text-fg-muted select-none">$ </span>
         curl -fsSL {SITE.domain}/
-        <span className={path ? "text-accent" : "text-fg-muted"}>{path || "<any-site>"}</span>
+        <span className={path ? "text-accent-ink" : "text-fg-muted"}>{path || "<any-site>"}</span>
       </code>
       <CopyButton value={command} variant="ghost" size="icon-sm" label="Copy command" disabled={!path} />
     </div>

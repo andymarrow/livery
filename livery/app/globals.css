@@ -21,28 +21,34 @@
 :root {
   color-scheme: light;
 
-  /* Surfaces: soft paper, slightly lifted cards (never pure white), a sunken tone for wells */
-  --bg: #efeee8;
-  --surface: #f8f7f3;
-  --surface-2: #e8e7e0;
-  --surface-3: #dfded6;
+  /* Surfaces (goatrank.lol kit): warm paper with white cards; near-black in dark */
+  --bg: #f4f3ed;
+  --surface: #ffffff;
+  --surface-2: #eceae3;
+  --surface-3: #e2e0d8;
 
   /* Lines */
-  --border: #dddbd3;
-  --border-strong: #cbc8bf;
+  --border: #e8e7e1;
+  --border-strong: #d6d4cc;
 
   /* Text */
-  --fg: #1a1a17;
-  --fg-muted: #55534d;
-  --fg-subtle: #65625b;
+  --fg: #111111;
+  --fg-muted: #636363;
+  --fg-subtle: #636363;
 
-  /* Accent: teal. #0d7268 holds 4.5:1+ on every surface; white on it reads at 5.6:1 */
-  --accent: #0d7268;
-  --accent-hover: #0a6058;
-  --accent-soft: #d5e9e4;
-  --accent-soft-fg: #0a5850;
-  --on-accent: #ffffff;
-  --ring: #0d7268;
+  /* Accent (goatrank.lol kit): orange. Used as a fill; dark text on it reads at 7.2:1 */
+  --accent: #ff7a00;
+  --accent-hover: #ff8a1f;
+  --accent-soft: #fdebd8;
+  --accent-soft-fg: #8f4508;
+  --on-accent: #111111;
+  --ring: #ff7a00;
+  /* Accent as text: darker in light mode so it passes AA on paper */
+  --accent-ink: #a8500a;
+
+  /* Soft, neutral depth (never tinted) */
+  --shadow-card-value: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-raised-value: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 
   /* Status, kept muted so the accent stays the only loud colour */
   --success: #286a43;
@@ -56,21 +62,22 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #161718;
-  --surface: #1d1e20;
-  --surface-2: #242527;
-  --surface-3: #2c2d30;
-  --border: #2d2e31;
-  --border-strong: #3c3d41;
-  --fg: #e6e5e0;
-  --fg-muted: #a3a19b;
-  --fg-subtle: #908e88;
-  --accent: #5fd4c2;
-  --accent-hover: #7cddcd;
-  --accent-soft: #173430;
-  --accent-soft-fg: #7cddcd;
-  --on-accent: #052420;
-  --ring: #5fd4c2;
+  --bg: #030303;
+  --surface: #0a0a0c;
+  --surface-2: #181818;
+  --surface-3: #262626;
+  --border: #1f1f22;
+  --border-strong: #2c2c30;
+  --fg: #fafafa;
+  --fg-muted: #a1a1a1;
+  --fg-subtle: #8f8f8f;
+  --accent: #ff7a00;
+  --accent-hover: #ff8f2e;
+  --accent-soft: #2b1704;
+  --accent-soft-fg: #ffa04d;
+  --on-accent: #030303;
+  --ring: #ff7a00;
+  --accent-ink: #ff7a00;
   --success: #6fcf97;
   --success-soft: #17301f;
   --warning: #e3b45c;
@@ -82,21 +89,22 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: #161718;
-    --surface: #1d1e20;
-    --surface-2: #242527;
-    --surface-3: #2c2d30;
-    --border: #2d2e31;
-    --border-strong: #3c3d41;
-    --fg: #e6e5e0;
-    --fg-muted: #a3a19b;
-    --fg-subtle: #908e88;
-    --accent: #5fd4c2;
-    --accent-hover: #7cddcd;
-    --accent-soft: #173430;
-    --accent-soft-fg: #7cddcd;
-    --on-accent: #052420;
-    --ring: #5fd4c2;
+    --bg: #030303;
+    --surface: #0a0a0c;
+    --surface-2: #181818;
+    --surface-3: #262626;
+    --border: #1f1f22;
+    --border-strong: #2c2c30;
+    --fg: #fafafa;
+    --fg-muted: #a1a1a1;
+    --fg-subtle: #8f8f8f;
+    --accent: #ff7a00;
+    --accent-hover: #ff8f2e;
+    --accent-soft: #2b1704;
+    --accent-soft-fg: #ffa04d;
+    --on-accent: #030303;
+    --ring: #ff7a00;
+    --accent-ink: #ff7a00;
     --success: #6fcf97;
     --success-soft: #17301f;
     --warning: #e3b45c;
@@ -122,6 +130,7 @@
   --color-accent-soft-fg: var(--accent-soft-fg);
   --color-on-accent: var(--on-accent);
   --color-ring: var(--ring);
+  --color-accent-ink: var(--accent-ink);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);
@@ -129,8 +138,11 @@
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
 
-  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --shadow-card: var(--shadow-card-value);
+  --shadow-raised: var(--shadow-raised-value);
 
 }
 
@@ -189,7 +201,7 @@
     background: var(--bg);
     color: var(--fg);
     font-family: var(--font-sans);
-    font-feature-settings: "ss01", "cv11";
+    font-feature-settings: "cv11", "ss03";
   }
 
   ::selection {

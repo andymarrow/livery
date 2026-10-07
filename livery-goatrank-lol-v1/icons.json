@@ -1,0 +1,41 @@
+{
+  "library": {
+    "name": "Lucide",
+    "package": "lucide-react",
+    "licence": "free",
+    "licenceName": "ISC",
+    "alternative": null
+  },
+  "detectedBy": "class-names",
+  "iconsUsed": [
+    "search",
+    "sun",
+    "swords",
+    "log-in",
+    "chevron-left",
+    "chevron-right",
+    "users",
+    "timer",
+    "arrow-up-right",
+    "sparkles",
+    "clock",
+    "trending-down",
+    "sliders-horizontal",
+    "chevron-down",
+    "archive",
+    "crown",
+    "house",
+    "layout-dashboard",
+    "trophy",
+    "ellipsis"
+  ],
+  "style": {
+    "sizePx": 14,
+    "strokeWidth": 2,
+    "linecap": "round",
+    "filled": false,
+    "grid": "0 0 24 24",
+    "colour": "currentColor"
+  },
+  "customIcons": null
+}

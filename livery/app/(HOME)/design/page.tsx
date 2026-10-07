@@ -32,11 +32,11 @@ const SWATCHES = [
 ] as const;
 
 const TYPE_SCALE = [
-  ["Display", "text-[56px] font-semibold leading-none tracking-[-0.045em]"],
-  ["H1", "text-[44px] font-semibold leading-[1.05] tracking-[-0.035em]"],
-  ["H2", "text-3xl font-semibold tracking-[-0.03em]"],
+  ["Display", "text-[56px] font-semibold leading-none tracking-tight"],
+  ["H1", "text-[44px] font-semibold leading-tight tracking-tight"],
+  ["H2", "text-3xl font-semibold tracking-tight"],
   ["H3", "text-lg font-semibold tracking-tight"],
-  ["Body", "text-[15px] leading-relaxed text-fg-muted"],
+  ["Body", "text-sm leading-relaxed text-fg-muted"],
   ["Small", "text-[13px] text-fg-muted"],
 ] as const;
 
@@ -56,8 +56,8 @@ export default function DesignPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6">
       <p className="label-micro">Internal</p>
-      <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em]">Design system</h1>
-      <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-fg-muted">
+      <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Design system</h1>
+      <p className="mt-3 max-w-xl text-sm leading-relaxed text-fg-muted">
         Flat surfaces, hairline borders, one teal accent. No gradients, no coloured shadows, nothing floating. Toggle the
         theme to check every piece in both.
       </p>
@@ -165,7 +165,7 @@ export default function DesignPage() {
           </Card>
           <Card className="p-5">
             <p className="label-micro">Kits built</p>
-            <p className="tabular mt-2 text-4xl font-semibold tracking-tight">1,284</p>
+            <p className="tabular mt-2 text-3xl font-bold tracking-tight sm:text-4xl">1,284</p>
             <p className="mt-1 text-[13px] text-fg-subtle">Stat tile layout</p>
           </Card>
           <Card className="space-y-3 p-5">
