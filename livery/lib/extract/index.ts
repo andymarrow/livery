@@ -77,7 +77,7 @@ async function collectOtherScheme(page: Page, raw: RawDesign, baseIsDark: boolea
   }
 }
 
-function licenceItems(fonts: FontInfo[], icons: IconReport, imagery: Imagery): KitItem[] {
+export function licenceItems(fonts: FontInfo[], icons: IconReport, imagery: Imagery): KitItem[] {
   const items: KitItem[] = fonts.map((f) => ({
     kind: "font",
     name: f.family,

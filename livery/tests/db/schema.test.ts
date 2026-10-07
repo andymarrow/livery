@@ -474,3 +474,62 @@ describe("ownership and private kits", () => {
     });
   });
 });
+
+describe("extension captures", () => {
+  async function user() {
+    const { rows } = await db.query<{ id: string }>(`insert into auth.users (email, raw_user_meta_data) values ('x@example.com', '{}') returning id`);
+    return rows[0].id;
+  }
+  async function capture(owner: string) {
+    const { rows } = await db.query<{ id: string }>(
+      `insert into public.page_captures (owner_id, url, host, domain, viewport_width, viewport_height, data) values ($1, 'https://app.example.com/dashboard', 'app.example.com', 'example.com', 1440, 900, '{}') returning id`,
+      [owner],
+    );
+    return rows[0].id;
+  }
+  async function ownedKit(owner: string) {
+    const { rows } = await db.query<{ kit_id: string; kit_version_id: string }>(`select * from public.start_build('https://example.com/', 'example.com', 'example-com', 1, 1, interval '10 minutes', $1)`, [owner]);
+    await publish(rows[0].kit_version_id);
+    return rows[0];
+  }
+  const ownerVersion = (kitId: string, owner: string, sources: object[]) =>
+    db.query<{ kit_version_id: string; claimed: boolean }>(`select * from public.start_owner_version($1, $2, $3, $4, 1, 1)`, [kitId, owner, JSON.stringify(sources), HASH]);
+
+  it("builds a private next version from the page and the owner's capture", async () => {
+    const owner = await user();
+    const kit = await ownedKit(owner);
+    const cap = await capture(owner);
+    const { rows } = await ownerVersion(kit.kit_id, owner, [
+      { position: 1, source_url: "https://example.com/", domain: "example.com", source_version_id: kit.kit_version_id },
+      { position: 2, source_url: "https://app.example.com/dashboard", domain: "example.com", capture_id: cap },
+    ]);
+    expect(rows[0].claimed).toBe(true);
+    const { rows: v } = await db.query<{ visibility: string; private_key: string }>(`select visibility, private_key from public.kit_versions where id = $1`, [rows[0].kit_version_id]);
+    expect(v[0].visibility).toBe("private");
+    expect(v[0].private_key).toMatch(/^[0-9a-f]{32}$/);
+  });
+
+  it("refuses someone else's kit or someone else's capture", async () => {
+    const [owner, stranger] = [await user(), await user()];
+    const kit = await ownedKit(owner);
+    const theirs = await capture(stranger);
+    await expect(ownerVersion(kit.kit_id, stranger, [{ position: 1, source_url: "https://example.com/", domain: "example.com", source_version_id: kit.kit_version_id }])).rejects.toThrow(/not owned/);
+    await expect(ownerVersion(kit.kit_id, owner, [{ position: 1, source_url: "https://app.example.com/dashboard", domain: "example.com", capture_id: theirs }])).rejects.toThrow(/your own capture/);
+  });
+
+  it("keeps captures and tokens private to their owner", async () => {
+    const [owner, other] = [await user(), await user()];
+    await capture(owner);
+    await db.query(`insert into public.extension_tokens (user_id, token_hash, expires_at) values ($1, $2, now() + interval '90 days')`, [owner, "f".repeat(64)]);
+    await asRole(db, "authenticated", async () => {
+      expect((await db.query(`select * from public.page_captures`)).rows).toHaveLength(0);
+      expect((await db.query(`select * from public.extension_tokens`)).rows).toHaveLength(0);
+    }, other);
+    await asRole(db, "authenticated", async () => {
+      expect((await db.query(`select * from public.page_captures`)).rows).toHaveLength(1);
+    }, owner);
+    await asRole(db, "anon", async () => {
+      await expect(db.query(`select * from public.page_captures`)).rejects.toThrow();
+    });
+  });
+});

@@ -24,7 +24,7 @@ export class KitGuardError extends Error {}
 export type OwnerTerms = { licence: string; commercial: boolean; attribution?: string };
 
 /** One link a combined kit was made from. */
-export type KitSource = { url: string; slug: string; version: number };
+export type KitSource = { url: string; slug: string; version: number; /** Measured in the owner's browser (extension), not a library kit of its own. */ captured?: boolean };
 
 type Meta = {
   slug: string;

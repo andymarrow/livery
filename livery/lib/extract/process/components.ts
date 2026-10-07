@@ -64,22 +64,60 @@ const settle = (style: StyleSnapshot) => {
   return Math.min(600, longest + 60);
 };
 
+/** The most common variants of each kind (at most three per kind), largest groups first. */
+function topVariants(candidates: ComponentCandidate[]) {
+  const groups = new Map<string, ComponentCandidate[]>();
+  for (const candidate of candidates) groups.set(signature(candidate), [...(groups.get(signature(candidate)) ?? []), candidate]);
+  const perKind = new Map<string, number>();
+  const picked: ComponentCandidate[][] = [];
+  for (const members of [...groups.values()].sort((a, b) => b.length - a.length)) {
+    const used = perKind.get(members[0].kind) ?? 0;
+    if (used >= 3) continue;
+    perKind.set(members[0].kind, used + 1);
+    picked.push(members);
+  }
+  return picked;
+}
+
+function toVariant(members: ComponentCandidate[], hover: ComponentState | null, focus: ComponentState | null): ComponentVariant {
+  const sample = members[0];
+  const s = sample.style;
+  return {
+    kind: sample.kind,
+    count: members.length,
+    style: {
+      background: hex(s.bg),
+      text: hex(s.color) ?? s.color,
+      border: s.borderStyle === "none" || parseFloat(s.borderWidth) === 0 ? null : `${s.borderWidth} ${s.borderStyle} ${hex(s.borderColor) ?? s.borderColor}`,
+      radius: parseFloat(s.radius) >= 999 ? "9999px" : s.radius,
+      paddingX: s.paddingX,
+      paddingY: s.paddingY,
+      height: s.height,
+      fontSize: s.fontSize,
+      fontWeight: s.fontWeight,
+      letterSpacing: s.letterSpacing,
+      textTransform: s.textTransform,
+      shadow: s.boxShadow === "none" ? null : visibleShadow(s.boxShadow),
+      transition: s.transition && !/^all 0s ease 0s$/.test(s.transition) ? s.transition : null,
+    },
+    hover,
+    focus,
+  };
+}
+
+/** Variants without hover or focus states: for measurements taken where no browser can be driven (the extension). */
+export function groupComponents(candidates: ComponentCandidate[]): ComponentVariant[] {
+  return topVariants(candidates).map((members) => toVariant(members, null, null));
+}
+
 /**
  * Groups candidates into variants (e.g. "primary button", "ghost button"), then
  * hovers and focuses one real element of each top variant to record its states.
  */
 export async function analyseComponents(page: Page, candidates: ComponentCandidate[]): Promise<ComponentVariant[]> {
-  const groups = new Map<string, ComponentCandidate[]>();
-  for (const candidate of candidates) groups.set(signature(candidate), [...(groups.get(signature(candidate)) ?? []), candidate]);
-
-  const perKind = new Map<string, number>();
   const variants: ComponentVariant[] = [];
-  for (const members of [...groups.values()].sort((a, b) => b.length - a.length)) {
+  for (const members of topVariants(candidates)) {
     const sample = members[0];
-    const used = perKind.get(sample.kind) ?? 0;
-    if (used >= 3) continue;
-    perKind.set(sample.kind, used + 1);
-
     const s = sample.style;
     const base = { bg: s.bg, color: s.color, borderColor: s.borderColor, boxShadow: s.boxShadow, outline: s.outline, transform: "none", opacity: "1" };
     const baseline = await readState(page, sample.probe).catch(() => null);
@@ -101,28 +139,7 @@ export async function analyseComponents(page: Page, candidates: ComponentCandida
     } catch {
       // The element moved or detached; keep the default style only.
     }
-
-    variants.push({
-      kind: sample.kind,
-      count: members.length,
-      style: {
-        background: hex(s.bg),
-        text: hex(s.color) ?? s.color,
-        border: s.borderStyle === "none" || parseFloat(s.borderWidth) === 0 ? null : `${s.borderWidth} ${s.borderStyle} ${hex(s.borderColor) ?? s.borderColor}`,
-        radius: parseFloat(s.radius) >= 999 ? "9999px" : s.radius,
-        paddingX: s.paddingX,
-        paddingY: s.paddingY,
-        height: s.height,
-        fontSize: s.fontSize,
-        fontWeight: s.fontWeight,
-        letterSpacing: s.letterSpacing,
-        textTransform: s.textTransform,
-        shadow: s.boxShadow === "none" ? null : visibleShadow(s.boxShadow),
-        transition: s.transition && !/^all 0s ease 0s$/.test(s.transition) ? s.transition : null,
-      },
-      hover,
-      focus,
-    });
+    variants.push(toVariant(members, hover, focus));
   }
   return variants;
 }

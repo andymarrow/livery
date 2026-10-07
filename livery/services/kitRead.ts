@@ -8,7 +8,7 @@ import type { KitItemKind, KitKind, KitLicence, KitStatus } from "@/lib/supabase
 import type { Tokens } from "@/lib/extract/process/tokens";
 
 /** A link a combined kit was made from. */
-export type KitSourceLink = { url: string; slug: string; version: number };
+export type KitSourceLink = { url: string; slug: string; version: number; /** Measured in the owner's browser (extension). */ captured?: boolean };
 
 /** A source with its own measurements, so a combined kit's page can show each one in place. */
 export type KitSourceView = KitSourceLink & { tokens: Tokens | null; font: string | null; iconSet: string | null };
@@ -121,12 +121,21 @@ type SourceData = { extraction?: { tokens?: Tokens; fonts?: { family: string }[]
 async function sourceViews(versionId: string, links: KitSourceLink[]): Promise<KitSourceView[]> {
   if (!links.length) return [];
   const db = getAdminClient();
-  const { data: rows } = await db.from("kit_sources").select("position, source_version_id").eq("kit_version_id", versionId).order("position");
-  const ids = (rows ?? []).map((r) => r.source_version_id);
-  const { data: versions } = ids.length ? await db.from("kit_versions").select("id, data").in("id", ids) : { data: [] };
-  const byId = new Map((versions ?? []).map((v) => [v.id, (v.data ?? {}) as SourceData]));
+  const { data: rows } = await db.from("kit_sources").select("position, source_version_id, capture_id").eq("kit_version_id", versionId).order("position");
+  const versionIds = (rows ?? []).flatMap((r) => (r.source_version_id ? [r.source_version_id] : []));
+  const captureIds = (rows ?? []).flatMap((r) => (r.capture_id ? [r.capture_id] : []));
+  const [{ data: versions }, { data: captures }] = await Promise.all([
+    versionIds.length ? db.from("kit_versions").select("id, data").in("id", versionIds) : Promise.resolve({ data: [] as { id: string; data: unknown }[] }),
+    captureIds.length ? db.from("page_captures").select("id, data").in("id", captureIds) : Promise.resolve({ data: [] as { id: string; data: unknown }[] }),
+  ]);
+  const byId = new Map([
+    ...(versions ?? []).map((v) => [v.id, (v.data ?? {}) as SourceData] as const),
+    // A capture stores its measurements directly (no "extraction" wrapper).
+    ...(captures ?? []).map((c) => [c.id, { extraction: (c.data ?? {}) as SourceData["extraction"] }] as const),
+  ]);
   return links.map((link, index) => {
-    const d = byId.get(rows?.[index]?.source_version_id ?? "")?.extraction;
+    const row = rows?.[index];
+    const d = byId.get(row?.source_version_id ?? row?.capture_id ?? "")?.extraction;
     return {
       ...link,
       tokens: d?.tokens ?? null,

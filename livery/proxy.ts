@@ -5,7 +5,7 @@ import { type NextRequest, NextResponse } from "next/server";
 // have never signed in carry no auth cookie and skip all of this, so the
 // public site pays nothing for accounts.
 
-const PRIVATE = /^\/(me)(\/|$)/;
+const PRIVATE = /^\/(me|extension\/connect)(\/|$)/;
 
 export async function proxy(request: NextRequest) {
   const hasSession = request.cookies.getAll().some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token"));

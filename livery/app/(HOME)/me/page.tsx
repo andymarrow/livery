@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { disconnectExtension } from "@/app/actions/disconnectExtension";
 import { signOut } from "@/app/actions/signOut";
 import { EmptyState } from "@/components/EmptyState";
 import { KitCard } from "@/components/KitCard";
@@ -26,6 +27,8 @@ export default async function MePage({ searchParams }: PageProps<"/me">) {
     supabase.from("saved_kits").select("kit_id, created_at").order("created_at", { ascending: false }),
   ]);
   const mine = await ownedKits(user.id).catch(() => []);
+  const { data: tokens } = await supabase.from("extension_tokens").select("id, label, created_at, last_used_at, expires_at, revoked_at").order("created_at", { ascending: false });
+  const connections = (tokens ?? []).filter((t) => !t.revoked_at && new Date(t.expires_at) > new Date());
   const savedIds = (saved ?? []).map((s) => s.kit_id);
   const savedCards = savedIds.length ? (await listKits({ kitIds: savedIds, limit: 60 }).catch(() => ({ cards: [] }))).cards : [];
   const order = new Map(savedIds.map((id, i) => [id, i]));
@@ -133,13 +136,40 @@ export default async function MePage({ searchParams }: PageProps<"/me">) {
         </div>
       </section>
 
-      <section className="mt-14 flex flex-col gap-4 rounded-[18px] border border-dashed border-border-strong p-6 sm:flex-row sm:items-center">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-[12px] border border-border bg-surface text-accent-ink">
-          <Puzzle className="size-5" />
-        </span>
-        <div>
-          <p className="font-semibold tracking-tight">The Browser Extension Is Coming</p>
-          <p className="mt-1 text-sm text-fg-muted">Add pages you can only see when signed in (dashboards, settings) to your kits. They stay private until you publish them.</p>
+      <section id="extension" className="mt-14 scroll-mt-24">
+        <h2 className="text-xl font-semibold tracking-tight">Browser Extension</h2>
+        <p className="mt-1 text-sm text-fg-muted">Add pages you can only see when signed in (dashboards, settings) to your kits. They stay private until you publish them.</p>
+        <div className="mt-5 rounded-[18px] border border-border bg-surface shadow-card">
+          {connections.length ? (
+            <ul>
+              {connections.map((c) => (
+                <li key={c.id} className="flex items-center gap-4 border-b border-border px-5 py-3.5 last:border-0">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-surface-2 text-accent-ink">
+                    <Puzzle className="size-4" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[14px] font-medium">{c.label}</span>
+                    <span className="block text-[12px] text-fg-subtle">
+                      Connected {c.created_at.slice(0, 10)}
+                      {c.last_used_at ? ` · last used ${c.last_used_at.slice(0, 10)}` : " · not used yet"}
+                    </span>
+                  </span>
+                  <form action={disconnectExtension.bind(null, c.id)}>
+                    <Button type="submit" variant="ghost" size="sm">
+                      Disconnect
+                    </Button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="px-5 py-4 text-sm text-fg-muted">No browser connected yet.</p>
+          )}
+          <div className="border-t border-border px-5 py-3.5">
+            <Link href="/extension/connect" className="text-[13.5px] font-medium text-accent-ink underline decoration-accent/40 underline-offset-4 hover:decoration-accent">
+              Connect a browser
+            </Link>
+          </div>
         </div>
       </section>
     </div>
