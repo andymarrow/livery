@@ -1,3 +1,4 @@
+import Script from "next/script";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider, themeInitScript } from "@/app/_context/ThemeContext";
@@ -32,7 +33,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} h-full antialiased`}>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        {/* Sets data-theme before first paint (no flash). next/script keeps it out of React's render tree. */}
+        <Script id="theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="flex min-h-full flex-col">
         <ThemeProvider>
