@@ -22,7 +22,7 @@ export default function PrivacyPage() {
         <li><strong>Your account.</strong> Your email address, name and, if you sign in with Google or GitHub, the profile picture they share. Passwords are stored by our authentication provider as salted hashes; we never see them.</li>
         <li><strong>Your kits and saved kits.</strong> Kits you build while signed in are linked to you. Private kits are visible only to you until you publish them.</li>
         <li><strong>Email.</strong> We send only account emails (confirming your address, resetting your password).</li>
-        <li><strong>Deleting it.</strong> Email privacy@livery.site from your account&apos;s address and we delete your account, your private kits and your captures.</li>
+        <li><strong>Deleting it.</strong> Use <strong>Delete account</strong> at the bottom of your account page. It removes your account, your private kits and the pages you measured for them, straight away. Kits you published stay in the library, no longer linked to you. If you can&apos;t sign in, email privacy@livery.site from your account&apos;s address.</li>
       </ul>
 
       <h2 id="extension">The Livery browser extension</h2>

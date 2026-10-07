@@ -11,6 +11,7 @@ import { listKits } from "@/services/kitRead";
 import { ownedKits } from "@/services/myKits";
 import { createClient, currentUser } from "@/utils/supabase/server";
 import { Avatar } from "../_components/AccountMenu";
+import { DeleteAccount } from "./_components/DeleteAccount";
 
 export const metadata: Metadata = { title: "My kits", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -172,6 +173,8 @@ export default async function MePage({ searchParams }: PageProps<"/me">) {
           </div>
         </div>
       </section>
+
+      <DeleteAccount privateKits={mine.filter((k) => k.visibility === "private").length} />
     </div>
   );
 }

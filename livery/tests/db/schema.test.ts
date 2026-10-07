@@ -534,6 +534,58 @@ describe("extension captures", () => {
   });
 });
 
+describe("deleting an account", () => {
+  it("removes private kits and unused captures, keeps what was published (without its owner)", async () => {
+    const { rows: u } = await db.query<{ id: string }>(`insert into auth.users (email, raw_user_meta_data) values ('gone@example.com', '{}') returning id`);
+    const owner = u[0].id;
+    const capture = async () =>
+      (await db.query<{ id: string }>(`insert into public.page_captures (owner_id, url, host, domain, viewport_width, viewport_height, data, frame_path) values ($1, 'https://app.gone.dev/x', 'app.gone.dev', 'gone.dev', 1440, 900, '{}', 'captures/x.webp') returning id`, [owner])).rows[0].id;
+    // A public page kit they built, then two private versions on top of it, the second published.
+    const { rows: base } = await db.query<{ kit_id: string; kit_version_id: string }>(`select * from public.start_build('https://gone.dev/', 'gone.dev', 'gone-dev', 1, 1, interval '10 minutes', $1)`, [owner]);
+    await publish(base[0].kit_version_id);
+    const next = async (cap: string, hash: string) => {
+      const { rows } = await db.query<{ kit_version_id: string }>(`select * from public.start_owner_version($1, $2, $3, $4, 1, 1)`, [base[0].kit_id, owner, JSON.stringify([
+        { position: 1, source_url: "https://gone.dev/", domain: "gone.dev", source_version_id: base[0].kit_version_id },
+        { position: 2, source_url: "https://app.gone.dev/x", domain: "gone.dev", capture_id: cap },
+      ]), hash]);
+      await publish(rows[0].kit_version_id);
+      return rows[0].kit_version_id;
+    };
+    const [privateCap, publicCap] = [await capture(), await capture()];
+    const privateVersion = await next(privateCap, "1".repeat(64));
+    const publishedVersion = await next(publicCap, "2".repeat(64));
+    await db.query(`update public.kit_versions set visibility = 'public' where id = $1`, [publishedVersion]);
+    // A private-only kit, which should disappear entirely.
+    const { rows: mine } = await db.query<{ id: string }>(`insert into public.kits (kind, domain, slug, owner_id, sources_key) values ('site', 'gone.dev', 'gone-dev-mine-abc123', $1, $2) returning id`, [owner, "9".repeat(64)]);
+    const { rows: lone } = await db.query<{ kit_version_id: string }>(`select * from public.start_owner_version($1, $2, $3, $4, 1, 1)`, [mine[0].id, owner, JSON.stringify([{ position: 1, source_url: "https://app.gone.dev/x", domain: "gone.dev", capture_id: privateCap }]), "3".repeat(64)]);
+    await publish(lone[0].kit_version_id);
+
+    const { rows } = await asRole(db, "service_role", () => db.query<{ kit_files: string[]; frame_folders: string[]; frame_files: string[] }>(`select * from public.delete_account($1)`, [owner]));
+    expect(rows[0].frame_folders.sort()).toEqual([privateVersion, lone[0].kit_version_id].sort());
+    expect(rows[0].frame_files).toEqual(["captures/x.webp"]);
+    await db.query(`delete from auth.users where id = $1`, [owner]);
+
+    const left = async (table: string, id: string) => (await db.query(`select 1 from public.${table} where id = $1`, [id])).rows.length;
+    expect(await left("kit_versions", privateVersion)).toBe(0);
+    expect(await left("kit_versions", lone[0].kit_version_id)).toBe(0);
+    expect(await left("kits", mine[0].id)).toBe(0);
+    expect(await left("page_captures", privateCap)).toBe(0);
+    expect(await left("kit_versions", publishedVersion)).toBe(1);
+    expect(await left("kit_versions", base[0].kit_version_id)).toBe(1);
+    expect(await left("page_captures", publicCap)).toBe(1);
+    const { rows: kit } = await db.query<{ owner_id: string | null }>(`select owner_id from public.kits where id = $1`, [base[0].kit_id]);
+    expect(kit[0].owner_id).toBeNull();
+    // The guards are back on.
+    await expect(db.query(`delete from public.kit_versions where id = $1`, [publishedVersion])).rejects.toThrow(/withdraw it/);
+  });
+
+  it("can't be called by signed-in users", async () => {
+    await asRole(db, "authenticated", async () => {
+      await expect(db.query(`select * from public.delete_account(gen_random_uuid())`)).rejects.toThrow(/permission denied/);
+    });
+  });
+});
+
 describe("server role", () => {
   it("can run every build function the server calls (as service_role, not the test superuser)", async () => {
     const page = async (path: string) => {

@@ -102,7 +102,7 @@ export type Database = {
       }>;
       extension_pairings: Table<{ code_hash: string; user_id: string; expires_at: string; used_at: string | null; created_at: string }>;
       extension_tokens: Table<{ id: string; user_id: string; token_hash: string; label: string; created_at: string; last_used_at: string | null; expires_at: string; revoked_at: string | null }>;
-      page_captures: Table<{ id: string; owner_id: string; url: string; host: string; domain: string; viewport_width: number; viewport_height: number; data: Json; frame_path: string | null; created_at: string }>;
+      page_captures: Table<{ id: string; owner_id: string | null; url: string; host: string; domain: string; viewport_width: number; viewport_height: number; data: Json; frame_path: string | null; created_at: string }>;
       profiles: Table<{ id: string; display_name: string | null; avatar_url: string | null; created_at: string; updated_at: string }>;
       saved_kits: Table<{ user_id: string; kit_id: string; created_at: string }, { user_id: string; kit_id: string; created_at?: string }>;
       kit_events: Table<{ kit_id: string; kind: "view" | "like" | "download"; visitor: string; network: string; created_at: string }>;
@@ -197,6 +197,10 @@ export type Database = {
           p_visibility?: "public" | "private";
         };
         Returns: { kit_id: string; kit_version_id: string; claimed: boolean }[];
+      };
+      delete_account: {
+        Args: { p_user: string };
+        Returns: { kit_files: string[]; frame_folders: string[]; frame_files: string[] }[];
       };
       start_owner_version: {
         Args: { p_kit_id: string; p_owner: string; p_sources: Json; p_sources_hash: string; p_extractor_version: number; p_flow_version: number; p_stale_after?: string };
