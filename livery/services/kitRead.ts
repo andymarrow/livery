@@ -228,6 +228,9 @@ export type KitCard = {
 
 export type KitShelf = "all" | "sites" | "tastes";
 export type KitSort = "newest" | "liked" | "downloaded" | "viewed";
+export const COLOUR_FAMILIES = ["red", "orange", "yellow", "green", "teal", "blue", "purple", "pink", "neutral"] as const;
+export type ColourFamily = (typeof COLOUR_FAMILIES)[number];
+export type KitFilters = { scheme?: "light" | "dark"; colour?: ColourFamily; font?: string; icons?: string; approved?: boolean };
 
 const SORT_COLUMN: Record<KitSort, "published_at" | "likes" | "downloads" | "views"> = { newest: "published_at", liked: "likes", downloaded: "downloads", viewed: "views" };
 
@@ -238,9 +241,10 @@ export async function listKits({
   curator,
   featuredOnly = false,
   sort = "newest",
+  filters = {},
   limit = 24,
   offset = 0,
-}: { query?: string; shelf?: KitShelf; curator?: string; featuredOnly?: boolean; sort?: KitSort; limit?: number; offset?: number } = {}) {
+}: { query?: string; shelf?: KitShelf; curator?: string; featuredOnly?: boolean; sort?: KitSort; filters?: KitFilters; limit?: number; offset?: number } = {}) {
   // Anon client: RLS already limits it to published versions. kit_library
   // has one row per kit (its newest version) with its totals.
   const db = getPublicClient();
@@ -252,12 +256,17 @@ export async function listKits({
     .range(offset, offset + limit - 1);
   if (query) {
     const q = query.replace(/[%_,.()"\\]/g, " ").trim();
-    if (q) request = request.or(`domain.ilike.%${q}%,curator.ilike.%${q}%`, { referencedTable: "kits" });
+    if (q) request = request.or(`domain.ilike.%${q}%,curator.ilike.%${q}%,display_name.ilike.%${q}%,slug.ilike.%${q}%`, { referencedTable: "kits" });
   }
   if (shelf === "sites") request = request.in("kits.kind", ["page", "site"]);
   if (shelf === "tastes") request = request.eq("kits.kind", "taste");
   if (curator) request = request.eq("kits.curator_slug", curator);
   if (featuredOnly) request = request.eq("kits.featured", true);
+  if (filters.scheme) request = request.eq("scheme", filters.scheme);
+  if (filters.colour) request = request.eq("colour", filters.colour);
+  if (filters.font) request = request.eq("font", filters.font);
+  if (filters.icons) request = request.eq("icon_set", filters.icons);
+  if (filters.approved) request = request.not("grant_hash", "is", null);
   request = request.eq("kits.hidden", false);
   const { data, count, error } = await request;
   if (error) throw error;
@@ -306,4 +315,24 @@ export async function listKits({
   }
   await attachPreviews(cards);
   return { cards, total: count ?? cards.length };
+}
+
+export type LibraryFacets = { fonts: { name: string; count: number }[]; icons: { name: string; count: number }[]; colours: Partial<Record<ColourFamily, number>>; schemes: { light: number; dark: number } };
+
+/** What the library can be filtered by, with counts, so the filter bar only offers choices that exist. */
+export async function libraryFacets(): Promise<LibraryFacets> {
+  const { data, error } = await getPublicClient().from("kit_library").select("scheme, colour, font, icon_set, kits!inner(hidden)").eq("kits.hidden", false).limit(2000);
+  if (error) throw error;
+  const tally = (values: (string | null)[]) => {
+    const counts = new Map<string, number>();
+    for (const v of values) if (v) counts.set(v, (counts.get(v) ?? 0) + 1);
+    return [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([name, count]) => ({ name, count }));
+  };
+  const rows = data ?? [];
+  return {
+    fonts: tally(rows.map((r) => r.font)),
+    icons: tally(rows.map((r) => r.icon_set)),
+    colours: Object.fromEntries(tally(rows.map((r) => r.colour)).map((c) => [c.name, c.count])) as LibraryFacets["colours"],
+    schemes: { light: rows.filter((r) => r.scheme === "light").length, dark: rows.filter((r) => r.scheme === "dark").length },
+  };
 }

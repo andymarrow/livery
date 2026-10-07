@@ -360,6 +360,11 @@ describe("kit stats", () => {
     });
   });
 
+  it("names colour families for filtering", async () => {
+    const { rows } = await db.query<{ f: string }>(`select public.colour_family(x) as f from unnest(array['#0d7268','#ff7a00','#2563eb','#47ab61','#777777','#e11d48', null]) as x`);
+    expect(rows.map((r) => r.f)).toEqual(["teal", "orange", "blue", "green", "neutral", "red", null]);
+  });
+
   it("shows totals to anon but never the events", async () => {
     const id = await kit();
     await record(id, "view", h("a"), h("1"));

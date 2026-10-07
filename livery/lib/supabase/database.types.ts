@@ -122,7 +122,22 @@ export type Database = {
     };
     Views: {
       kit_library: {
-        Row: { id: string; kit_id: string; version: number; published_at: string; data: Json; grant_hash: string | null; views: number; likes: number; downloads: number };
+        Row: {
+          id: string;
+          kit_id: string;
+          version: number;
+          published_at: string;
+          data: Json;
+          grant_hash: string | null;
+          views: number;
+          likes: number;
+          downloads: number;
+          scheme: "light" | "dark" | null;
+          accent: string | null;
+          colour: string;
+          font: string | null;
+          icon_set: string | null;
+        };
         Relationships: [{ foreignKeyName: "kit_versions_kit_id_fkey"; columns: ["kit_id"]; isOneToOne: false; referencedRelation: "kits"; referencedColumns: ["id"] }];
       };
       blocked_domains: { Row: { domain: string; reason: ReadFailureReason; hits: number; pages: number; last_at: string }; Relationships: [] };

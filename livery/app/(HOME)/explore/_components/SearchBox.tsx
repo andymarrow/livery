@@ -48,7 +48,7 @@ export function SearchBox() {
         type="search"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Search by domain or name"
+        placeholder="Search by site, name or person"
         aria-label="Search kits by domain"
         className="h-11 w-full rounded-[14px] border border-border bg-surface pl-10 pr-12 text-sm text-fg placeholder:text-fg-subtle transition-[border-color] hover:border-border-strong focus-visible:border-accent focus-visible:outline-none [&::-webkit-search-cancel-button]:hidden"
       />

@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Search as MagnifyingGlass, Inbox as Tray, X } from "@/components/icons";
+import { Search as MagnifyingGlass, Inbox as Tray } from "@/components/icons";
 import { EmptyState } from "@/components/EmptyState";
 import { KitCard } from "@/components/KitCard";
 import { Button } from "@/components/ui/button";
 import { logger } from "@/lib/logger";
 import { supabaseConfigured } from "@/lib/supabase/configured";
-import { cn } from "@/lib/utils";
-import { listKits, type KitShelf, type KitSort } from "@/services/kitRead";
+import { COLOUR_FAMILIES, libraryFacets, listKits, type ColourFamily, type KitFilters, type KitShelf, type KitSort, type LibraryFacets } from "@/services/kitRead";
+import { LibraryFilters } from "./_components/LibraryFilters";
 import { SearchBox } from "./_components/SearchBox";
 
 export const metadata: Metadata = {
@@ -26,43 +26,44 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
   const by = typeof params.by === "string" && /^[a-z0-9-]{1,40}$/.test(params.by) ? params.by : undefined;
   const shelf: KitShelf = by ? "tastes" : params.shelf === "sites" || params.shelf === "tastes" ? params.shelf : "all";
   const sort: KitSort = params.sort === "liked" || params.sort === "downloaded" || params.sort === "viewed" ? params.sort : "newest";
+  const text = (key: string) => (typeof params[key] === "string" ? (params[key] as string).slice(0, 80) : undefined);
+  const filters: KitFilters = {
+    scheme: params.scheme === "light" || params.scheme === "dark" ? params.scheme : undefined,
+    colour: COLOUR_FAMILIES.includes(params.colour as ColourFamily) ? (params.colour as ColourFamily) : undefined,
+    font: text("font"),
+    icons: text("icons"),
+    approved: params.approved === "1" || undefined,
+  };
+  const filtering = Boolean(filters.scheme || filters.colour || filters.font || filters.icons || filters.approved);
 
   let result: Awaited<ReturnType<typeof listKits>> = { cards: [], total: 0 };
+  let facets: LibraryFacets | null = null;
   let unavailable = !supabaseConfigured();
   if (!unavailable) {
     try {
-      result = await listKits({ query, shelf, curator: by, sort, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
+      [result, facets] = await Promise.all([
+        listKits({ query, shelf, curator: by, sort, filters, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }),
+        libraryFacets().catch(() => null),
+      ]);
     } catch (error) {
       unavailable = true;
       logger.warn("explore.unavailable", { error: error instanceof Error ? error.message : String(error) });
     }
   }
   const pages = Math.max(1, Math.ceil(result.total / PAGE_SIZE));
-  const href = (p: number, next: { shelf?: KitShelf; by?: string | null; sort?: KitSort } = {}) => {
-    const nextShelf = next.shelf ?? shelf;
-    const nextBy = next.by === undefined ? by : next.by;
-    const nextSort = next.sort ?? sort;
-    const search = new URLSearchParams({
-      ...(query ? { q: query } : {}),
-      ...(nextSort !== "newest" ? { sort: nextSort } : {}),
-      ...(nextShelf !== "all" && !nextBy ? { shelf: nextShelf } : {}),
-      ...(nextBy ? { by: nextBy } : {}),
-      ...(p > 1 ? { page: String(p) } : {}),
-    });
+  // Paging keeps every filter, sort and search in place.
+  const href = (p: number, next: { shelf?: KitShelf; by?: string | null } = {}) => {
+    const search = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) if (typeof value === "string" && key !== "page") search.set(key, value);
+    if (next.shelf) {
+      if (next.shelf === "all") search.delete("shelf");
+      else search.set("shelf", next.shelf);
+    }
+    if (next.by === null) search.delete("by");
+    if (p > 1) search.set("page", String(p));
     return `/explore${search.size ? `?${search}` : ""}`;
   };
   const curatorName = by ? (result.cards.find((c) => c.curatorSlug === by)?.curator ?? by) : null;
-  const SORTS: { id: KitSort; label: string }[] = [
-    { id: "newest", label: "Newest" },
-    { id: "liked", label: "Most liked" },
-    { id: "downloaded", label: "Most downloaded" },
-    { id: "viewed", label: "Most viewed" },
-  ];
-  const SHELVES: { id: KitShelf; label: string }[] = [
-    { id: "all", label: "All kits" },
-    { id: "sites", label: "Sites" },
-    { id: "tastes", label: "Tastes" },
-  ];
 
   return (
     <div className="mx-auto w-full max-w-[80rem] px-4 pb-24 pt-14 sm:px-6 sm:pt-20">
@@ -79,58 +80,26 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
         </Suspense>
       </div>
 
-      <div className="mt-10 flex flex-wrap items-center gap-2">
-        <nav aria-label="Shelves" className="flex items-center gap-0.5 rounded-full border border-border bg-surface p-1">
-          {SHELVES.map((item) => {
-            const active = shelf === item.id && !by;
-            return (
-              <Link
-                key={item.id}
-                href={href(1, { shelf: item.id, by: null })}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "inline-flex h-8 items-center rounded-full px-3.5 text-sm font-medium transition-colors duration-150",
-                  active ? "bg-surface-3 text-fg" : "text-fg-muted hover:text-fg",
-                )}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-        <nav aria-label="Sort" className="flex items-center gap-0.5 overflow-x-auto rounded-full border border-border bg-surface p-1 sm:ml-auto">
-          {SORTS.map((item) => (
-            <Link
-              key={item.id}
-              href={href(1, { sort: item.id })}
-              aria-current={sort === item.id ? "true" : undefined}
-              className={cn(
-                "inline-flex h-8 shrink-0 items-center rounded-full px-3.5 text-sm font-medium transition-colors duration-150",
-                sort === item.id ? "bg-surface-3 text-fg" : "text-fg-muted hover:text-fg",
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        {by && (
-          <Link
-            href={href(1, { shelf: "tastes", by: null })}
-            className="group inline-flex h-10 items-center gap-2 rounded-full border border-accent/40 bg-accent-soft pl-4 pr-3 text-sm font-medium text-accent-soft-fg"
-          >
-            Picked by {curatorName}
-            <span aria-label="Clear" className="flex size-5 items-center justify-center rounded-full transition-colors group-hover:bg-accent group-hover:text-on-accent">
-              <X className="size-3" strokeWidth={2.5} />
-            </span>
-          </Link>
-        )}
-      </div>
+      <Suspense>
+        <LibraryFilters facets={facets} curatorName={curatorName} />
+      </Suspense>
 
       <div className="mt-6">
         {unavailable ? (
           <EmptyState icon={<Tray />} title="The Library Is Resting" description="Kits can't be listed right now. Try again in a moment." />
         ) : result.cards.length === 0 ? (
-          query ? (
+          filtering ? (
+            <EmptyState
+              icon={<MagnifyingGlass />}
+              title="No Kits Match These Filters"
+              description="Try fewer filters, or a different colour or typeface."
+              action={
+                <Button asChild variant="secondary">
+                  <Link href={`/explore${query ? `?q=${encodeURIComponent(query)}` : ""}`}>Clear filters</Link>
+                </Button>
+              }
+            />
+          ) : query ? (
             <EmptyState
               icon={<MagnifyingGlass />}
               title={`No kits for “${query}” yet`}
@@ -169,6 +138,7 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
             <p className="mb-4 text-[13px] text-fg-subtle tabular">
               {result.total.toLocaleString("en-US")} {result.total === 1 ? "kit" : "kits"}
               {query && <> matching “{query}”</>}
+              {filtering && <> with these filters</>}
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {result.cards.map((kit) => (
