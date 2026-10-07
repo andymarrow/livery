@@ -17,6 +17,12 @@ import { normaliseTarget } from "@/lib/url/normalise";
 import { safeFetch } from "@/lib/url/ssrf";
 import { analysis, scriptedWriter } from "../generate/helpers";
 
+if (process.env.LIVE) {
+  try {
+    process.loadEnvFile(".env"); // never overrides variables set on the command line
+  } catch {}
+}
+
 const SITES = (process.env.SITES ?? "rize.roggy.site").split(",");
 const useGemini = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_MODEL);
 

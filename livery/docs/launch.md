@@ -39,11 +39,15 @@ The app also accepts the `https://…/screenshot?token=` form and converts it. `
 | `BROWSER_WS_ENDPOINT` | see above |
 | `GEMINI_API_KEY` | Gemini key |
 | `GEMINI_MODEL` | `gemini-3.8-flash` |
-| `GEMINI_FALLBACK_MODEL` | `gemini-3.7-flash` |
+| `GEMINI_FALLBACK_MODEL` | `gemini-3-flash-preview,gemini-2.5-flash` (comma-separated, tried in order) |
 | `IP_HASH_SECRET` | long random string (`openssl rand -hex 32`) |
 | `CRON_SECRET` | long random string; Vercel Cron sends it automatically |
 | `ADMIN_SECRET` | long random string, for takedowns |
 | `EXTRACTOR_VERSION` | `1` (bump to rebuild kits after extraction changes) |
+
+## Gemini reliability
+
+Busy models answer 503 and quota limits answer 429; both are retried once, then the next model in the chain is tried, all within a 190s budget. `writer.answered` and `writer.model_failed` log lines show which model wrote each kit. Repeated 429s mean the key is on the free tier: enabling billing on the Google AI project raises the limits.
 
 ## 4. Smoke test after deploy
 
