@@ -1,0 +1,79 @@
+<!doctype html>
+<!-- A made-up app dashboard (example.com) used only for the store screenshots. -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Overview · Example Analytics</title>
+<style>
+  :root { --bg: #f6f7fb; --card: #ffffff; --line: #e6e8f0; --ink: #171a2c; --muted: #6b7088; --brand: #4f46e5; --brand-soft: #eef0ff; --good: #15803d; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 Inter, -apple-system, "Segoe UI", sans-serif; display: grid; grid-template-columns: 232px minmax(0, 1fr); min-height: 100vh; }
+  aside { background: var(--card); border-right: 1px solid var(--line); padding: 22px 16px; display: flex; flex-direction: column; gap: 4px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; margin: 0 8px 22px; }
+  .logo i { width: 26px; height: 26px; border-radius: 8px; background: var(--brand); display: block; }
+  aside a { display: block; padding: 8px 10px; border-radius: 8px; color: var(--muted); text-decoration: none; font-weight: 500; }
+  aside a.on { background: var(--brand-soft); color: var(--brand); }
+  aside h6 { margin: 18px 10px 6px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #9aa0b6; }
+  main { padding: 28px 36px; }
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  h1 { margin: 0; font-size: 24px; letter-spacing: -.02em; }
+  header p { margin: 2px 0 0; color: var(--muted); }
+  .btn { background: var(--brand); color: #fff; border: 0; border-radius: 10px; padding: 9px 16px; font: inherit; font-weight: 600; }
+  .ghost { background: var(--card); color: var(--ink); border: 1px solid var(--line); margin-right: 8px; }
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+  .stat small { color: var(--muted); font-weight: 500; }
+  .stat b { display: block; font-size: 26px; letter-spacing: -.02em; margin: 4px 0 2px; }
+  .stat span { color: var(--good); font-size: 12.5px; font-weight: 600; }
+  .row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; margin-bottom: 20px; }
+  .card h2 { margin: 0 0 16px; font-size: 15px; }
+  .chart { display: flex; align-items: flex-end; gap: 10px; height: 190px; border-bottom: 1px solid var(--line); }
+  .chart i { flex: 1; background: var(--brand); border-radius: 6px 6px 0 0; opacity: .85; }
+  .chart i:nth-child(odd) { background: #a5a1f5; }
+  .list div { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .list div:last-child { border: 0; }
+  .list span { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 500; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  td { padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; background: #e7f6ec; color: var(--good); font-size: 12px; font-weight: 600; }
+  .pill.wait { background: #fff4e0; color: #b45309; }
+</style>
+</head>
+<body>
+  <aside>
+    <div class="logo"><i></i>Example</div>
+    <a class="on" href="#">Overview</a><a href="#">Reports</a><a href="#">Customers</a><a href="#">Invoices</a>
+    <h6>Workspace</h6>
+    <a href="#">Team</a><a href="#">Integrations</a><a href="#">Settings</a>
+  </aside>
+  <main>
+    <header>
+      <div><h1>Good morning, Jordan</h1><p>Here's how this month is going so far.</p></div>
+      <div><button class="btn ghost">Export</button><button class="btn">New report</button></div>
+    </header>
+    <section class="stats">
+      <div class="card stat"><small>Revenue</small><b>$48,210</b><span>+12.4% vs last month</span></div>
+      <div class="card stat"><small>Active customers</small><b>1,284</b><span>+3.1%</span></div>
+      <div class="card stat"><small>Average order</small><b>$37.55</b><span>+0.8%</span></div>
+      <div class="card stat"><small>Refund rate</small><b>1.2%</b><span>-0.4%</span></div>
+    </section>
+    <section class="row">
+      <div class="card"><h2>Revenue by week</h2><div class="chart">
+        <i style="height:42%"></i><i style="height:55%"></i><i style="height:48%"></i><i style="height:63%"></i><i style="height:58%"></i><i style="height:71%"></i><i style="height:66%"></i><i style="height:80%"></i><i style="height:74%"></i><i style="height:88%"></i><i style="height:83%"></i><i style="height:95%"></i>
+      </div></div>
+      <div class="card list"><h2>Top channels</h2>
+        <div>Direct<span>38%</span></div><div>Search<span>27%</span></div><div>Referral<span>19%</span></div><div>Email<span>11%</span></div><div>Social<span>5%</span></div>
+      </div>
+    </section>
+    <section class="card"><h2>Recent invoices</h2>
+      <table>
+        <tr><th>Customer</th><th>Date</th><th>Amount</th><th>Status</th></tr>
+        <tr><td>Northfield Co.</td><td>Oct 6</td><td>$1,240.00</td><td><span class="pill">Paid</span></td></tr>
+        <tr><td>Harbor &amp; Pine</td><td>Oct 5</td><td>$860.00</td><td><span class="pill wait">Pending</span></td></tr>
+        <tr><td>Bluebird Studio</td><td>Oct 4</td><td>$2,105.00</td><td><span class="pill">Paid</span></td></tr>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

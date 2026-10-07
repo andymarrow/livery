@@ -21,3 +21,6 @@ export const RATE_LIMITS = {
 // Bump when extraction changes; part of the kit cache key, so old kits rebuild on next request.
 export const EXTRACTOR_VERSION = Number(process.env.EXTRACTOR_VERSION ?? 1);
 export const FLOW_VERSION = 1;
+
+/** The extension's Chrome Web Store page, once it's published (NEXT_PUBLIC_CHROME_EXTENSION_URL). */
+export const EXTENSION_STORE_URL = process.env.NEXT_PUBLIC_CHROME_EXTENSION_URL || null;

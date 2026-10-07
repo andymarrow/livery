@@ -80,9 +80,17 @@ Send `extension/livery-extension-<version>.zip` (made by `npm run extension:zip`
 
 ### Screenshots and promo tile
 
-The store asks for at least one 1280×800 screenshot and a 440×280 promo tile. Use the popup's three steps (choose a kit, check before sending, added) on a real dashboard.
+Ready in `extension/store/`: three 1280×800 screenshots (`01-choose-a-kit.png`, `02-check-before-sending.png`, `03-private-until-you-publish.png`) and the 440×280 promo tile (`promo-440x280.png`). They show the real popup on a made-up dashboard (`store/dashboard.html`, on example.com). The measurements and the content-removed picture are real. Regenerate after popup changes:
 
-### Extension ID
+```
+npm run extension:build && npm run extension:store
+```
+
+### After it's published
+
+Set `NEXT_PUBLIC_CHROME_EXTENSION_URL` to the store page in Vercel and redeploy. The install buttons on `/extension`, Create and kit pages then link to it (until then they say "Coming soon").
+
+## Extension ID
 
 The store assigns the ID on the first upload. Livery doesn't depend on it (connecting works through the code on the connect page), so nothing needs changing after upload.
 
@@ -90,4 +98,5 @@ The store assigns the ID on the first upload. Livery doesn't depend on it (conne
 
 - [ ] Bump `version` in `static/manifest.json`.
 - [ ] `npm run extension:zip`, then load `extension/dist` unpacked and run the steps under "Try it locally" against the live site.
+- [ ] Regenerate the store images if the popup changed (`npm run extension:store`).
 - [ ] The manifest lists only `activeTab`, `scripting`, `storage` and the livery.site hosts (no `<all_urls>`).

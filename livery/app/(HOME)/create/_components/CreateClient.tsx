@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check, CircleAlert, FileText, Globe, LoaderCircle, Plus, User, X } from "@/components/icons";
+import { ArrowLeft, ArrowRight, Check, CircleAlert, FileText, Globe, LoaderCircle, LockKeyhole, Plus, User, X } from "@/components/icons";
+import { ExtensionSteps } from "@/components/ExtensionSteps";
 import { Button } from "@/components/ui/button";
 import type { BuildEvent } from "@/app/api/build/route";
 import type { CombineEvent } from "@/app/api/combine/route";
@@ -15,7 +16,7 @@ import { useExistingKit } from "@/lib/kit/useExistingKit";
 import { toShortcut } from "@/lib/url/shortcut";
 import { cn } from "@/lib/utils";
 
-export type CreateKind = "single" | "site" | "taste";
+export type CreateKind = "single" | "site" | "taste" | "login";
 type Kind = CreateKind;
 const MIN = 2;
 const MAX = 5;
@@ -24,10 +25,12 @@ const KINDS: { id: Kind; label: string; body: string; icon: React.ReactNode }[] 
   { id: "single", label: "One website", body: "Paste a link, get its kit. The quickest way in.", icon: <Globe /> },
   { id: "site", label: "Pages of one site", body: "Home, pricing, docs. More context, one kit.", icon: <FileText /> },
   { id: "taste", label: "A person's taste", body: "Sites by one designer, under their name.", icon: <User /> },
+  { id: "login", label: "Pages behind a login", body: "Your app's dashboard or settings, with the extension.", icon: <LockKeyhole /> },
 ];
 
 const PLACEHOLDERS: Record<Kind, string[]> = {
   single: ["linear.app"],
+  login: [],
   site: ["linear.app", "linear.app/pricing", "linear.app/changelog", "linear.app/method", "linear.app/customers"],
   taste: ["rize.roggy.site", "goatrank.lol", "another-project.com", "a-fourth.site", "and-one-more.dev"],
 };
@@ -302,7 +305,7 @@ export function CreateClient({ initialKind }: { initialKind: Kind }) {
     >
       <fieldset>
         <legend className="label-micro">What do you want a kit of?</legend>
-        <div role="radiogroup" className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div role="radiogroup" className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {KINDS.map((option) => {
             const active = kind === option.id;
             return (
@@ -335,6 +338,8 @@ export function CreateClient({ initialKind }: { initialKind: Kind }) {
         </div>
       </fieldset>
 
+      {kind !== "login" ? (
+        <>
       <div className={cn("grid transition-[grid-template-rows,opacity,margin] duration-300 ease-out-soft", kind === "taste" ? "mt-7 grid-rows-[1fr] opacity-100" : "mt-0 grid-rows-[0fr] opacity-0")} aria-hidden={kind !== "taste"}>
         <div className="overflow-hidden">
           <label htmlFor="curator" className="label-micro">Whose taste is it? (optional)</label>
@@ -452,6 +457,16 @@ export function CreateClient({ initialKind }: { initialKind: Kind }) {
           How kits are measured
         </Link>
       </p>
+        </>
+      ) : (
+        <div className="mt-8">
+          <p className="mb-4 text-sm leading-relaxed text-fg-muted">
+            Livery&apos;s own browser can&apos;t sign in to your app. The extension measures pages in your browser instead, sends only measurements and a picture with all text removed, and keeps the result private until you publish it.{" "}
+            <Link href="/extension" className="font-medium text-fg underline decoration-border-strong underline-offset-4 hover:decoration-accent">How it works</Link>
+          </p>
+          <ExtensionSteps compact />
+        </div>
+      )}
     </form>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowUpRight, Info, LockKeyhole, BadgeCheck as SealCheck, UserCheck } from "@/components/icons";
+import { ArrowRight, ArrowUpRight, Info, LockKeyhole, BadgeCheck as SealCheck, UserCheck } from "@/components/icons";
 import { AddToTaste } from "@/components/AddToTaste";
+import { ExtensionSteps } from "@/components/ExtensionSteps";
 import { LicenceBadge } from "@/components/LicenceBadge";
 import { Badge } from "@/components/ui/badge";
 import { skillNameFor } from "@/lib/generate/flow";
@@ -236,6 +237,25 @@ export async function KitView({ view, mode }: { view: KitVersionView; mode: "pub
               <FilesPanel files={files} />
             </section>
           )}
+
+          {view.kind !== "taste" && (mode === "owner" ? (
+            <section className="mt-14">
+              <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
+                <h2 className="text-2xl font-semibold tracking-tight">Add Pages Behind a Login</h2>
+                <p className="text-[13px] text-fg-subtle">Each page you measure makes the next private version of this kit.</p>
+              </div>
+              <ExtensionSteps kitTitle={view.title} />
+            </section>
+          ) : (
+            <Link href="/extension" className="group mt-14 flex items-center gap-4 rounded-[18px] border border-border bg-surface p-5 shadow-card transition-colors hover:border-border-strong sm:p-6">
+              <LockKeyhole className="size-5 shrink-0 text-accent-ink" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-[14.5px] font-semibold tracking-tight">Using {view.title} yourself?</span>
+                <span className="block text-[13px] text-fg-muted">Make your own private version with the pages behind your login, using the Livery browser extension.</span>
+              </span>
+              <ArrowRight className="size-4 shrink-0 text-fg-subtle transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          ))}
         </>
       )}
     </div>

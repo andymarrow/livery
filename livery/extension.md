@@ -121,7 +121,7 @@ No passwords or cookies of the measured site ever reach Livery; the token only l
   - validates the payload size and shape (zod), and that the domain matches the target kit's domain (decision 4);
   - stores the measurements and the frame (WebP in the private `screenshots` bucket);
   - checks the frame really is content-removed by comparing it against the declared structure, as a size and shape sanity check.
-- `GET /api/extension/targets?domain=…` lists what this page can be added to: the user's kits on that domain, their drafts in progress, and "Start a new kit".
+- `GET /api/extension/targets?domain=…` lists what this page can be added to: the user's kits on that domain, public kits they could copy, and "Start a new kit".
 
 ### 5.3 Merging into a kit
 
@@ -129,10 +129,9 @@ No passwords or cookies of the measured site ever reach Livery; the token only l
 - Captures contribute desktop measurements only, since the extension sees the user's real window (section 6.3). Phone and tablet tokens come from the kit's public pages.
 - Adding to an existing kit publishes its next version as **private** (decision 1 + 2). The owner can then Publish it.
 
-### 5.4 Drafts (the creation flow)
+### 5.4 Drafts (dropped)
 
-- `kit_drafts`: owner, domain, the public links added so far, the captures added so far, status. A draft is what Create builds when the user wants logged-in pages too.
-- The Create page shows the draft; captures sent from the extension appear in it live, by polling.
+Drafts were dropped: every capture already makes a private version of a kit, which works as the draft. Public links still go through Create; logged-in pages are added from the extension to the same kit.
 
 ### Done when
 
@@ -174,9 +173,9 @@ Limits to know:
 ### 6.4 Popup screens
 
 1. **Not connected**: "Connect Livery" (opens 5.1).
-2. **Ready**: page + domain, a target picker (a kit on this domain, a draft, or a new kit), and **Measure**.
+2. **Ready**: page + domain, a target picker (a kit on this domain, a private copy of a public one, or a new kit), and **Measure**.
 3. **Measuring**: progress, then a preview.
-4. **Sent**: a link to the kit or draft.
+4. **Sent**: a link to the kit.
 5. **Not allowed here**: browser pages (`chrome://`), the Web Store, PDFs, and domains that don't match the chosen kit.
 
 The UI is built in Livery's style (teal accent, light/dark following the system) and fits the store's 800×600 popup limit.
@@ -191,21 +190,27 @@ The UI is built in Livery's style (teal accent, light/dark following the system)
 
 ### E. Integration in the site
 
-- **Create page:** a third option, "Pages behind a login", with a short explainer, install and connect buttons, and the live draft list.
-- **Kit page (owner):** "Add pages behind a login", which opens a panel explaining the extension, with the kit preselected as the target.
-- **Kit page (others):** "Make your own version with your logged-in pages", which leads to the private-copy flow (4.3).
+- **Create page:** a fourth option, "Pages behind a login", with a short explainer and the install, connect and measure steps (`components/ExtensionSteps.tsx`).
+- **Kit page (owner):** "Add Pages Behind a Login", the same steps naming the kit to pick in the extension.
+- **Kit page (others):** "Using … yourself?", linking to `/extension`; adding a page to someone else's kit makes a private copy (4.3).
+- **`/extension`:** the public page: the steps, what's sent and never sent, the rules. Linked from the footer.
+- The install button reads `NEXT_PUBLIC_CHROME_EXTENSION_URL`; until it's set, it says "Coming soon".
+
+### Done when
+
+- [x] Create, kit pages (owner and public), `/extension` and the footer link, in light and dark, phone and desktop.
 
 ### F. Store package (for your friend's developer account)
 
-- [ ] `extension/manifest.json`: name, description (single purpose: "Measure the design of a page you're signed into and add it to your Livery kit"), version, icons 16/32/48/128, action popup, `externally_connectable: { matches: ["https://livery.site/*"] }`.
-- [ ] All code bundled. No remote scripts, no `eval`, no obfuscation (the store rejects these).
-- [ ] Privacy policy at `livery.site/legal/privacy#extension`: what's collected (measurements, content-removed image, voice statistics), what's never collected (text, images, cookies, passwords, browsing history), when (only on click), and where it goes.
-- [ ] Store listing text, one-line summary, category (Developer Tools), 1280×800 screenshots, 440×280 promo tile.
-- [ ] Data-use disclosures for the store form: "Website content" (measurements only, user-initiated), not sold, not used for anything else.
-- [ ] `npm run extension:zip` produces `livery-extension-<version>.zip` with `manifest.json` at the root.
-- [ ] Review checklist run before sending the zip.
+- [x] `extension/manifest.json`: name, description (single purpose: "Measure the design of a page you're signed into and add it to your Livery kit"), version, icons 16/32/48/128, action popup. No `externally_connectable`: connecting goes through the content script on the connect page.
+- [x] All code bundled. No remote scripts, no `eval`, no obfuscation (the store rejects these).
+- [x] Privacy policy at `livery.site/legal/privacy#extension`: what's collected (measurements, content-removed image, voice statistics), what's never collected (text, images, cookies, passwords, browsing history), when (only on click), and where it goes.
+- [x] Store listing text, one-line summary, category (Developer Tools), 1280×800 screenshots and a 440×280 promo tile (`extension/store/`, made by `node extension/store/make-store-assets.mjs`).
+- [x] Data-use disclosures for the store form: "Website content" (measurements only, user-initiated), not sold, not used for anything else.
+- [x] `npm run extension:zip` produces `livery-extension-<version>.zip` with `manifest.json` at the root.
+- [x] Review checklist run before sending the zip.
 
-**The extension ID:** the site must know the extension's ID for `externally_connectable` and messaging. The store assigns it on the first upload. Plan: your friend uploads the first version as a draft (it doesn't need to be published), sends us the ID and the item's public key, and we add both to the manifest and the site. Every later upload keeps that ID.
+**The extension ID:** not needed. Connecting reads a one-time code from the connect page, so nothing in the site or the manifest depends on the ID the store assigns.
 
 ## 8. What you'll need to do (I'll walk you through each step when we get there)
 
@@ -217,7 +222,7 @@ Phase A:
 5. Run the new migrations.
 
 Phase F:
-6. Send the zip to your friend; get the extension ID and public key back after the first upload.
+6. Send your friend the zip, `extension/README.md` (listing text, permission justifications, data-use answers) and the images in `extension/store/`. Once the store publishes it, set `NEXT_PUBLIC_CHROME_EXTENSION_URL` to its store page in Vercel and redeploy.
 
 ## 9. Answers (2026-10-07)
 

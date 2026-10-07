@@ -11,7 +11,8 @@
     "test": "vitest run",
     "extension:build": "node extension/build.mjs",
     "extension:dev": "node extension/build.mjs --dev",
-    "extension:zip": "node extension/build.mjs --zip"
+    "extension:zip": "node extension/build.mjs --zip",
+    "extension:store": "node extension/store/make-store-assets.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
