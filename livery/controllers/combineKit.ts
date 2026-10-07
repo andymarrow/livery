@@ -38,7 +38,7 @@ export type CombineOutcome =
  */
 export async function combineKit(
   request: CombineRequest,
-  options: { ip: string; onProgress?: Progress; /** Admin: not counted against a visitor's limit. */ skipRate?: boolean; /** Admin: publish as the next version of this combined kit. */ kitId?: string },
+  options: { ip: string; onProgress?: Progress; /** Admin: not counted against a visitor's limit. */ skipRate?: boolean; /** Admin: publish as the next version of this combined kit. */ kitId?: string; /** The signed-in builder: owns the kit if it's new. */ ownerId?: string | null },
 ): Promise<CombineOutcome> {
   const progress: Progress = options.onProgress ?? (() => {});
   const { kind } = request;
@@ -89,6 +89,7 @@ export async function combineKit(
   const lock = existing
     ? await startCombinedVersion({ kitId: existing.id, sourcesKey: key, sources: sourceRows, sourcesHash: hash, extractorVersion: EXTRACTOR_VERSION, flowVersion: FLOW_VERSION })
     : await startCombinedBuild({
+        ownerId: options.ownerId ?? null,
     kind,
     sourcesKey: key,
     domain: kind === "site" ? domains[0] : null,

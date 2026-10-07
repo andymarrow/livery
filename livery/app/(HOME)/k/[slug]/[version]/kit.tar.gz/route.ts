@@ -9,7 +9,7 @@ export async function GET(request: Request, ctx: RouteContext<"/k/[slug]/[versio
   return withKitVersion(slug, version, async (view) => {
     const archive = view.tarPath ? await downloadArtefact(view.tarPath) : null;
     if (!archive) return new Response("Archive unavailable", { status: 503 });
-    after(() => countDownload(request.headers, cookieValue(request.headers, VISITOR_COOKIE), view.kitId));
-    return uncachedAtCdn(immutableFile(Buffer.from(archive), "application/gzip", `${skillNameFor(view.slug)}-v${view.version}.tar.gz`));
-  });
+    if (view.visibility === "public") after(() => countDownload(request.headers, cookieValue(request.headers, VISITOR_COOKIE), view.kitId));
+    return uncachedAtCdn(immutableFile(Buffer.from(archive), "application/gzip", `${skillNameFor(view.slug)}-v${view.version}.tar.gz`, view.visibility === "private"));
+  }, request);
 }

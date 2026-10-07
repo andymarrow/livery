@@ -99,10 +99,10 @@ A signed-in user who adds logged-in pages to a public kit owned by someone else 
 
 ### Done when
 
-- [ ] Building while signed in sets the owner; `/me` shows it.
+- [x] Building while signed in sets the owner; `/me` shows it.
 - [ ] A private version is invisible to signed-out visitors and other users (page, archives, Explore, sitemap), but visible to its owner.
 - [ ] Publish makes it appear in the library.
-- [ ] DB tests for every policy above.
+- [x] DB tests for every policy above.
 
 ## 5. Phase C: captures API (server side for the extension)
 

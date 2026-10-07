@@ -74,6 +74,8 @@ export type Database = {
         grant_snapshot: Json | null;
         grant_hash: string | null;
         sources_hash: string | null;
+        visibility: "public" | "private";
+        private_key: string | null;
         error: string | null;
         build_started_at: string;
         published_at: string | null;
@@ -157,6 +159,7 @@ export type Database = {
           p_extractor_version: number;
           p_flow_version: number;
           p_stale_after?: string;
+          p_owner?: string | null;
         };
         Returns: { kit_id: string; kit_version_id: string; claimed: boolean }[];
       };
@@ -173,6 +176,8 @@ export type Database = {
           p_extractor_version: number;
           p_flow_version: number;
           p_stale_after?: string;
+          p_owner?: string | null;
+          p_visibility?: "public" | "private";
         };
         Returns: { kit_id: string; kit_version_id: string; claimed: boolean }[];
       };
@@ -185,6 +190,7 @@ export type Database = {
           p_extractor_version: number;
           p_flow_version: number;
           p_stale_after?: string;
+          p_visibility?: "public" | "private";
         };
         Returns: { kit_id: string; kit_version_id: string; claimed: boolean }[];
       };

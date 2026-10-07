@@ -413,3 +413,64 @@ describe("accounts", () => {
     });
   });
 });
+
+describe("ownership and private kits", () => {
+  const KEY = "e".repeat(64);
+  async function user() {
+    const { rows } = await db.query<{ id: string }>(`insert into auth.users (email, raw_user_meta_data) values ('u@example.com', '{}') returning id`);
+    return rows[0].id;
+  }
+  async function page(path: string, owner: string | null = null) {
+    const { rows } = await db.query<{ kit_id: string; kit_version_id: string }>(
+      `select * from public.start_build($1, 'example.com', $2, 1, 1, interval '10 minutes', $3)`,
+      [`https://example.com${path}`, `example-com${path.replace(/\//g, "-").replace(/-$/, "")}`, owner],
+    );
+    await publish(rows[0].kit_version_id);
+    return { url: `https://example.com${path}`, versionId: rows[0].kit_version_id, kitId: rows[0].kit_id };
+  }
+  async function privateCombined(owner: string) {
+    const sources = [await page("/a"), await page("/b")];
+    const { rows } = await db.query<{ kit_id: string; kit_version_id: string }>(
+      `select * from public.start_combined_build('site', $1, 'example.com', 'example-com-pages-eeeeee', null, null, $2, $3, 1, 1, interval '10 minutes', $4, 'private')`,
+      [KEY, JSON.stringify(sources.map((s, i) => ({ position: i + 1, source_url: s.url, domain: "example.com", source_version_id: s.versionId }))), HASH, owner],
+    );
+    await publish(rows[0].kit_version_id);
+    return rows[0];
+  }
+
+  it("gives a kit to whoever builds it first, and never changes that", async () => {
+    const [a, b] = [await user(), await user()];
+    const first = await page("/", a);
+    await db.query(`select * from public.start_build('https://example.com/', 'example.com', 'example-com', 1, 1, interval '10 minutes', $1)`, [b]);
+    const { rows } = await db.query<{ owner_id: string }>(`select owner_id from public.kits where id = $1`, [first.kitId]);
+    expect(rows[0].owner_id).toBe(a);
+  });
+
+  it("hides a private version from everyone but its owner, and from the library", async () => {
+    const [owner, other] = [await user(), await user()];
+    const kit = await privateCombined(owner);
+    const { rows: key } = await db.query<{ private_key: string }>(`select private_key from public.kit_versions where id = $1`, [kit.kit_version_id]);
+    expect(key[0].private_key).toMatch(/^[0-9a-f]{32}$/);
+    const visible = () => db.query(`select id from public.kit_versions where id = $1`, [kit.kit_version_id]).then((r) => r.rows.length);
+    await asRole(db, "anon", async () => {
+      expect(await visible()).toBe(0);
+      expect((await db.query(`select * from public.kit_library where kit_id = $1`, [kit.kit_id])).rows).toHaveLength(0);
+    });
+    await asRole(db, "authenticated", async () => expect(await visible()).toBe(0), other);
+    await asRole(db, "authenticated", async () => {
+      expect(await visible()).toBe(1);
+      expect((await db.query(`select * from public.kit_library where kit_id = $1`, [kit.kit_id])).rows).toHaveLength(0);
+    }, owner);
+  });
+
+  it("publishes one way only, changing nothing else", async () => {
+    const owner = await user();
+    const kit = await privateCombined(owner);
+    await expect(db.query(`update public.kit_versions set visibility = 'public', skill_md = 'changed' where id = $1`, [kit.kit_version_id])).rejects.toThrow(/cannot be changed/);
+    await db.query(`update public.kit_versions set visibility = 'public' where id = $1`, [kit.kit_version_id]);
+    await expect(db.query(`update public.kit_versions set visibility = 'private' where id = $1`, [kit.kit_version_id])).rejects.toThrow(/cannot be changed/);
+    await asRole(db, "anon", async () => {
+      expect((await db.query(`select * from public.kit_library where kit_id = $1`, [kit.kit_id])).rows).toHaveLength(1);
+    });
+  });
+});

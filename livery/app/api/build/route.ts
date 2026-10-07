@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { resolveKit, type BuildOutcome } from "@/controllers/buildKit";
 import type { BuildStage } from "@/lib/extract/types";
 import { clientIp } from "@/lib/http";
+import { currentUser } from "@/utils/supabase/server";
 import { kitPath } from "@/lib/kit/urls";
 import { WriterError } from "@/lib/generate/writer";
 import { logger } from "@/lib/logger";
@@ -38,6 +39,7 @@ export async function POST(request: NextRequest) {
   if (!body || typeof body.url !== "string" || body.url.length > 2048) return Response.json({ error: "url is required" }, { status: 400 });
   const url = body.url;
   const ip = clientIp(request.headers);
+  const ownerId = (await currentUser().catch(() => null))?.id ?? null;
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({
@@ -50,7 +52,7 @@ export async function POST(request: NextRequest) {
         }
       };
       try {
-        const outcome = await resolveKit(url, { ip, onProgress: (stage, detail) => send({ type: "stage", stage, detail }) });
+        const outcome = await resolveKit(url, { ip, ownerId, onProgress: (stage, detail) => send({ type: "stage", stage, detail }) });
         send(toEvent(outcome));
       } catch (error) {
         logger.error("build.stream_error", { url, error: error instanceof Error ? error.message : String(error) });

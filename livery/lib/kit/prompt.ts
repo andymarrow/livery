@@ -1,18 +1,18 @@
 import { kitUrl } from "./urls";
 
-export type PromptInput = { siteName: string; slug: string; version: number; sha256: string; skillName: string };
+export type PromptInput = { siteName: string; slug: string; version: number; sha256: string; skillName: string; /** Private versions: the key that lets the agent download it. */ key?: string | null };
 
 /**
  * The copy-paste prompt. It downloads with curl (an agent's web-fetch tool may
  * summarise instead of returning bytes), verifies the sha256, extracts with tar
  * (present on macOS, Linux and Windows 10+) and hands over to SKILL.md.
  */
-export function installPrompt({ siteName, slug, version, sha256, skillName }: PromptInput) {
+export function installPrompt({ siteName, slug, version, sha256, skillName, key }: PromptInput) {
   const dir = `.claude/skills/${skillName}`;
   return `Install the "${siteName}" design kit (v${version}) from Livery, then run it on this project.
 
 1. mkdir -p ${dir}
-2. curl -fsSL ${kitUrl(slug, version, "kit.tar.gz")} -o /tmp/${skillName}.tar.gz
+2. curl -fsSL "${kitUrl(slug, version, "kit.tar.gz", key)}" -o /tmp/${skillName}.tar.gz
 3. Verify: the sha256 of /tmp/${skillName}.tar.gz must be ${sha256}. If it doesn't match, stop and tell me.
 4. tar -xzf /tmp/${skillName}.tar.gz -C ${dir}
 5. Read ${dir}/SKILL.md and follow it. It will audit my project and ask me before changing anything.

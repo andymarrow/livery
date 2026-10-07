@@ -101,7 +101,7 @@ export type BuildOutcome =
  */
 export async function resolveKit(
   raw: string,
-  options: { ip: string; writer?: DesignWriter; onProgress?: Progress; /** Admin: build a new version even when one is cached. */ force?: boolean; /** Admin: not counted against a visitor's limit. */ skipRate?: boolean },
+  options: { ip: string; writer?: DesignWriter; onProgress?: Progress; /** Admin: build a new version even when one is cached. */ force?: boolean; /** Admin: not counted against a visitor's limit. */ skipRate?: boolean; /** The signed-in builder: owns the kit if it's new. */ ownerId?: string | null },
 ): Promise<BuildOutcome> {
   const progress: Progress = options.onProgress ?? (() => {});
   const screened = await screenTarget(raw, { ignoreRemembered: options.force });
@@ -119,7 +119,7 @@ export async function resolveKit(
     if (!rate.allowed) return { status: "rate_limited", resetAt: rate.resetAt };
   }
 
-  const lock = await startBuild(target, EXTRACTOR_VERSION, FLOW_VERSION);
+  const lock = await startBuild(target, EXTRACTOR_VERSION, FLOW_VERSION, options.ownerId ?? null);
   if (!lock.claimed) return { status: "building", slug: target.slug };
 
   const started = Date.now();

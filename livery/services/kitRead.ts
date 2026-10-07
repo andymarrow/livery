@@ -52,8 +52,12 @@ export type KitVersionView = {
   analysis: Analysis | null;
   items: { kind: KitItemKind; name: string; licence: KitLicence; licence_name: string | null; alternative: string | null }[];
   latestVersion: number;
-  /** Every published version, newest first (withdrawn ones excluded). */
-  versions: { version: number; publishedAt: string }[];
+  /** Every published version, newest first (withdrawn ones excluded). Private ones only for their owner's view. */
+  versions: { version: number; publishedAt: string; visibility: "public" | "private" }[];
+  visibility: "public" | "private";
+  /** Private versions: the secret that lets an agent install it. Never shown to anyone but the owner. */
+  privateKey: string | null;
+  ownerId: string | null;
   /** Built under the site owner's livery.json grant. */
   ownerApproved: boolean;
   frameSizes: Record<string, { width: number; height: number }>;
@@ -62,11 +66,11 @@ export type KitVersionView = {
 /** A published or withdrawn version. Building and failed builds are never visible. */
 export async function getKitVersion(slug: string, version: number): Promise<KitVersionView | null> {
   const db = getAdminClient();
-  const { data: kit } = await db.from("kits").select("id, slug, kind, source_url, domain, curator, curator_slug, display_name").eq("slug", slug).maybeSingle();
+  const { data: kit } = await db.from("kits").select("id, slug, kind, source_url, domain, curator, curator_slug, display_name, owner_id").eq("slug", slug).maybeSingle();
   if (!kit) return null;
   const { data: v } = await db
     .from("kit_versions")
-    .select("id, version, status, levels, skill_md, tar_path, zip_path, manifest, content_hash, published_at, withdrawn_at, data, grant_hash")
+    .select("id, version, status, levels, skill_md, tar_path, zip_path, manifest, content_hash, published_at, withdrawn_at, data, grant_hash, visibility, private_key")
     .eq("kit_id", kit.id)
     .eq("version", version)
     .in("status", ["ready", "withdrawn"])
@@ -102,8 +106,11 @@ export async function getKitVersion(slug: string, version: number): Promise<KitV
     tokens: data.extraction?.tokens ?? null,
     analysis: data.analysis ?? null,
     items: items ?? [],
-    latestVersion: versions[0]?.version ?? v.version,
+    latestVersion: versions.find((x) => x.visibility === "public")?.version ?? v.version,
     versions,
+    visibility: v.visibility,
+    privateKey: v.private_key,
+    ownerId: kit.owner_id,
     ownerApproved: v.grant_hash !== null,
     frameSizes: Object.fromEntries((data.extraction?.frames ?? []).map((f) => [f.name, { width: f.width, height: f.height }])),
   };
@@ -132,19 +139,21 @@ async function sourceViews(versionId: string, links: KitSourceLink[]): Promise<K
 async function publishedVersions(kitId: string) {
   const { data } = await getAdminClient()
     .from("kit_versions")
-    .select("version, published_at")
+    .select("version, published_at, visibility")
     .eq("kit_id", kitId)
     .eq("status", "ready")
     .order("version", { ascending: false });
-  return (data ?? []).filter((v) => v.version && v.published_at).map((v) => ({ version: v.version!, publishedAt: v.published_at! }));
+  return (data ?? []).filter((v) => v.version && v.published_at).map((v) => ({ version: v.version!, publishedAt: v.published_at!, visibility: v.visibility }));
 }
 
+/** The newest public version: what /k/<slug> opens for everyone. */
 async function latestVersion(kitId: string) {
   const { data } = await getAdminClient()
     .from("kit_versions")
     .select("version")
     .eq("kit_id", kitId)
     .eq("status", "ready")
+    .eq("visibility", "public")
     .order("version", { ascending: false })
     .limit(1)
     .maybeSingle();

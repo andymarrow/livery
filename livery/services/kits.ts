@@ -35,13 +35,15 @@ export async function findReadyKit(sourceUrl: string, extractorVersion: number):
   };
 }
 
-export async function startBuild(target: { sourceUrl: string; domain: string; slug: string }, extractorVersion: number, flowVersion: number) {
+/** Takes the build lock. A new kit belongs to `ownerId` (when signed in); an existing kit keeps its owner. */
+export async function startBuild(target: { sourceUrl: string; domain: string; slug: string }, extractorVersion: number, flowVersion: number, ownerId: string | null = null) {
   const { data, error } = await getAdminClient().rpc("start_build", {
     p_source_url: target.sourceUrl,
     p_domain: target.domain,
     p_slug: target.slug,
     p_extractor_version: extractorVersion,
     p_flow_version: flowVersion,
+    p_owner: ownerId,
   });
   if (error) throw error;
   return data[0];

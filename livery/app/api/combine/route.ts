@@ -3,6 +3,7 @@ import { combineKit, type CombineOutcome } from "@/controllers/combineKit";
 import type { BuildEvent } from "@/app/api/build/route";
 import { COMBINE_LIMITS } from "@/lib/combine/identity";
 import { clientIp } from "@/lib/http";
+import { currentUser } from "@/utils/supabase/server";
 import { kitPath } from "@/lib/kit/urls";
 import { logger } from "@/lib/logger";
 import { supabaseConfigured } from "@/lib/supabase/configured";
@@ -51,6 +52,7 @@ export async function POST(request: NextRequest) {
   }
   const input = { kind: body.kind as "site" | "taste", urls, curator: (body.curator as string | undefined) ?? null };
   const ip = clientIp(request.headers);
+  const ownerId = (await currentUser().catch(() => null))?.id ?? null;
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({
@@ -63,7 +65,7 @@ export async function POST(request: NextRequest) {
         }
       };
       try {
-        const outcome = await combineKit(input, { ip, onProgress: (stage, detail) => send({ type: "stage", stage, detail }) });
+        const outcome = await combineKit(input, { ip, ownerId, onProgress: (stage, detail) => send({ type: "stage", stage, detail }) });
         send(toEvent(outcome));
       } catch (error) {
         logger.error("combine.stream_error", { kind: input.kind, error: error instanceof Error ? error.message : String(error) });

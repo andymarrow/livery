@@ -47,6 +47,8 @@ export async function startCombinedBuild(input: {
   sourcesHash: string;
   extractorVersion: number;
   flowVersion: number;
+  ownerId?: string | null;
+  visibility?: "public" | "private";
 }) {
   const { data, error } = await getAdminClient().rpc("start_combined_build", {
     p_kind: input.kind,
@@ -59,6 +61,8 @@ export async function startCombinedBuild(input: {
     p_sources_hash: input.sourcesHash,
     p_extractor_version: input.extractorVersion,
     p_flow_version: input.flowVersion,
+    p_owner: input.ownerId ?? null,
+    p_visibility: input.visibility ?? "public",
   });
   if (error) throw error;
   return data[0];
@@ -97,7 +101,7 @@ export async function getCombinedKit(kitId: string) {
   return data;
 }
 
-export async function startCombinedVersion(input: { kitId: string; sourcesKey: string; sources: CombinedSourceRow[]; sourcesHash: string; extractorVersion: number; flowVersion: number }) {
+export async function startCombinedVersion(input: { kitId: string; sourcesKey: string; sources: CombinedSourceRow[]; sourcesHash: string; extractorVersion: number; flowVersion: number; visibility?: "public" | "private" }) {
   const { data, error } = await getAdminClient().rpc("start_combined_version", {
     p_kit_id: input.kitId,
     p_sources_key: input.sourcesKey,
@@ -105,6 +109,7 @@ export async function startCombinedVersion(input: { kitId: string; sourcesKey: s
     p_sources_hash: input.sourcesHash,
     p_extractor_version: input.extractorVersion,
     p_flow_version: input.flowVersion,
+    p_visibility: input.visibility ?? "public",
   });
   if (error) throw error;
   return data[0];
