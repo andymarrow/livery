@@ -1,142 +1,129 @@
-import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Add01Icon,
-  Alert02Icon,
-  AlertCircleIcon,
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
-  ArrowTurnBackwardIcon,
-  ArrowUpRight01Icon,
-  Cancel01Icon,
-  CancelCircleIcon,
-  CheckmarkBadge01Icon,
-  CheckmarkCircle02Icon,
-  CommandLineIcon,
-  ComputerIcon,
-  Copy01Icon,
-  Download04Icon,
-  File01Icon,
-  FingerPrintIcon,
-  Folder01Icon,
-  GitCommitIcon,
-  HandIcon,
-  HourglassIcon,
-  Image01Icon,
-  InboxIcon,
-  InformationCircleIcon,
-  Key01Icon,
-  Loading03Icon,
-  LockKeyIcon,
-  Menu01Icon,
-  Moon02Icon,
-  PaintBoardIcon,
-  PaintBrush01Icon,
-  Refresh01Icon,
-  RoboticIcon,
-  Search01Icon,
-  SourceCodeIcon,
-  Sun03Icon,
-  Tick02Icon,
-  UnavailableIcon,
-  UserIcon,
-  BookOpenTextIcon,
-  CodeFolderIcon,
-  CreditCardNotAcceptIcon,
-  FileCodeIcon,
-  FileRemoveIcon,
-  FingerPrintCheckIcon,
-  LicenseIcon,
-  PuzzleIcon,
-  QuoteDownIcon,
-  ShieldCheckIcon,
-  SquareTerminalIcon,
-  StoreVerified01Icon,
-  SwatchIcon,
-  UserCheck01Icon,
-  WandSparklesIcon,
-  WebValidationIcon,
-} from "@hugeicons/core-free-icons";
+  ArrowLeft as LucideArrowLeft,
+  ArrowRight as LucideArrowRight,
+  ArrowUpRight as LucideArrowUpRight,
+  BadgeCheck as LucideBadgeCheck,
+  Ban as LucideBan,
+  BookOpenText as LucideBookOpenText,
+  Bot as LucideBot,
+  Braces as LucideBraces,
+  Check as LucideCheck,
+  CircleAlert as LucideCircleAlert,
+  CircleCheck as LucideCircleCheck,
+  CircleX as LucideCircleX,
+  Copy as LucideCopy,
+  CornerDownLeft as LucideCornerDownLeft,
+  CreditCard as LucideCreditCard,
+  Download as LucideDownload,
+  FileCode as LucideFileCode,
+  FileText as LucideFileText,
+  FileX as LucideFileX,
+  Fingerprint as LucideFingerprint,
+  Folder as LucideFolder,
+  FolderCode as LucideFolderCode,
+  GitCommitHorizontal as LucideGitCommitHorizontal,
+  Hand as LucideHand,
+  Hourglass as LucideHourglass,
+  Image as LucideImage,
+  Inbox as LucideInbox,
+  Info as LucideInfo,
+  KeyRound as LucideKeyRound,
+  LoaderCircle as LucideLoaderCircle,
+  LockKeyhole as LucideLockKeyhole,
+  Menu as LucideMenu,
+  Monitor as LucideMonitor,
+  MonitorCheck as LucideMonitorCheck,
+  Moon as LucideMoon,
+  Paintbrush as LucidePaintbrush,
+  Palette as LucidePalette,
+  Plus as LucidePlus,
+  Puzzle as LucidePuzzle,
+  Quote as LucideQuote,
+  RotateCw as LucideRotateCw,
+  ScrollText as LucideScrollText,
+  Search as LucideSearch,
+  ShieldCheck as LucideShieldCheck,
+  SquareTerminal as LucideSquareTerminal,
+  Store as LucideStore,
+  Sun as LucideSun,
+  SwatchBook as LucideSwatchBook,
+  Terminal as LucideTerminal,
+  TriangleAlert as LucideTriangleAlert,
+  User as LucideUser,
+  UserCheck as LucideUserCheck,
+  WandSparkles as LucideWandSparkles,
+  X as LucideX,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-// The site's icon set: Hugeicons (stroke rounded, free). Every icon goes through
-// here so weight and sizing stay consistent. Size with CSS (`size-4`); the
-// default stroke is a light 1.5, and the heaviest allowed is 2 for tiny icons.
-type IconSvg = Parameters<typeof HugeiconsIcon>[0]["icon"];
+// The site's icon set. On this branch (goatrank.lol kit): Lucide, 2px stroke,
+// round caps, as measured on the source site. Every icon goes through here,
+// so the rest of the site keeps the same names. Size with CSS (`size-4`).
 export type IconProps = Omit<React.ComponentProps<"svg">, "ref" | "strokeWidth"> & { strokeWidth?: number };
 
-function make(icon: IconSvg, name: string) {
-  function Icon({ strokeWidth, className, ...props }: IconProps) {
-    return (
-      <HugeiconsIcon
-        icon={icon}
-        size="1em"
-        strokeWidth={Math.min(strokeWidth ?? 1.5, 2)}
-        className={className}
-        aria-hidden={props["aria-label"] ? undefined : true}
-        {...props}
-      />
-    );
+function make(Icon: LucideIcon, name: string) {
+  function Wrapped({ strokeWidth, ...props }: IconProps) {
+    return <Icon strokeWidth={strokeWidth ?? 2} aria-hidden={props["aria-label"] ? undefined : true} {...props} />;
   }
-  Icon.displayName = name;
-  return Icon;
+  Wrapped.displayName = name;
+  return Wrapped;
 }
 
-export const ArrowLeft = make(ArrowLeft01Icon, "ArrowLeft");
-export const ArrowRight = make(ArrowRight01Icon, "ArrowRight");
-export const ArrowUpRight = make(ArrowUpRight01Icon, "ArrowUpRight");
-export const BadgeCheck = make(CheckmarkBadge01Icon, "BadgeCheck");
-export const Ban = make(UnavailableIcon, "Ban");
-export const Bot = make(RoboticIcon, "Bot");
-export const Braces = make(SourceCodeIcon, "Braces");
-export const Check = make(Tick02Icon, "Check");
-export const CircleAlert = make(AlertCircleIcon, "CircleAlert");
-export const CircleCheck = make(CheckmarkCircle02Icon, "CircleCheck");
-export const CircleX = make(CancelCircleIcon, "CircleX");
-export const Copy = make(Copy01Icon, "Copy");
-export const CornerDownLeft = make(ArrowTurnBackwardIcon, "CornerDownLeft");
-export const Download = make(Download04Icon, "Download");
-export const FileText = make(File01Icon, "FileText");
-export const Fingerprint = make(FingerPrintIcon, "Fingerprint");
-export const Folder = make(Folder01Icon, "Folder");
-export const GitCommitHorizontal = make(GitCommitIcon, "GitCommitHorizontal");
-export const Hand = make(HandIcon, "Hand");
-export const Hourglass = make(HourglassIcon, "Hourglass");
-export const Image = make(Image01Icon, "Image");
-export const Inbox = make(InboxIcon, "Inbox");
-export const Info = make(InformationCircleIcon, "Info");
-export const KeyRound = make(Key01Icon, "KeyRound");
-export const LoaderCircle = make(Loading03Icon, "LoaderCircle");
-export const LockKeyhole = make(LockKeyIcon, "LockKeyhole");
-export const Menu = make(Menu01Icon, "Menu");
-export const Monitor = make(ComputerIcon, "Monitor");
-export const Moon = make(Moon02Icon, "Moon");
-export const Paintbrush = make(PaintBrush01Icon, "Paintbrush");
-export const Palette = make(PaintBoardIcon, "Palette");
-export const Plus = make(Add01Icon, "Plus");
-export const RotateCw = make(Refresh01Icon, "RotateCw");
-export const Search = make(Search01Icon, "Search");
-export const ShieldCheck = make(ShieldCheckIcon, "ShieldCheck");
-export const Sun = make(Sun03Icon, "Sun");
-export const Terminal = make(CommandLineIcon, "Terminal");
-export const TriangleAlert = make(Alert02Icon, "TriangleAlert");
-export const User = make(UserIcon, "User");
-export const X = make(Cancel01Icon, "X");
-
-// Section-specific glyphs, chosen for what each place means.
-export const BookOpen = make(BookOpenTextIcon, "BookOpen");
-export const CardBlocked = make(CreditCardNotAcceptIcon, "CardBlocked");
-export const CodeFolder = make(CodeFolderIcon, "CodeFolder");
-export const FileCode = make(FileCodeIcon, "FileCode");
-export const FileRemove = make(FileRemoveIcon, "FileRemove");
-export const FingerprintCheck = make(FingerPrintCheckIcon, "FingerprintCheck");
-export const License = make(LicenseIcon, "License");
-export const Puzzle = make(PuzzleIcon, "Puzzle");
-export const Quote = make(QuoteDownIcon, "Quote");
-export const SquareTerminal = make(SquareTerminalIcon, "SquareTerminal");
-export const StoreVerified = make(StoreVerified01Icon, "StoreVerified");
-export const Swatch = make(SwatchIcon, "Swatch");
-export const UserCheck = make(UserCheck01Icon, "UserCheck");
-export const WandSparkles = make(WandSparklesIcon, "WandSparkles");
-export const WebValidation = make(WebValidationIcon, "WebValidation");
+export const ArrowLeft = make(LucideArrowLeft, "ArrowLeft");
+export const ArrowRight = make(LucideArrowRight, "ArrowRight");
+export const ArrowUpRight = make(LucideArrowUpRight, "ArrowUpRight");
+export const BadgeCheck = make(LucideBadgeCheck, "BadgeCheck");
+export const Ban = make(LucideBan, "Ban");
+export const Bot = make(LucideBot, "Bot");
+export const Braces = make(LucideBraces, "Braces");
+export const Check = make(LucideCheck, "Check");
+export const CircleAlert = make(LucideCircleAlert, "CircleAlert");
+export const CircleCheck = make(LucideCircleCheck, "CircleCheck");
+export const CircleX = make(LucideCircleX, "CircleX");
+export const Copy = make(LucideCopy, "Copy");
+export const CornerDownLeft = make(LucideCornerDownLeft, "CornerDownLeft");
+export const Download = make(LucideDownload, "Download");
+export const FileText = make(LucideFileText, "FileText");
+export const Fingerprint = make(LucideFingerprint, "Fingerprint");
+export const Folder = make(LucideFolder, "Folder");
+export const GitCommitHorizontal = make(LucideGitCommitHorizontal, "GitCommitHorizontal");
+export const Hand = make(LucideHand, "Hand");
+export const Hourglass = make(LucideHourglass, "Hourglass");
+export const Image = make(LucideImage, "Image");
+export const Inbox = make(LucideInbox, "Inbox");
+export const Info = make(LucideInfo, "Info");
+export const KeyRound = make(LucideKeyRound, "KeyRound");
+export const LoaderCircle = make(LucideLoaderCircle, "LoaderCircle");
+export const LockKeyhole = make(LucideLockKeyhole, "LockKeyhole");
+export const Menu = make(LucideMenu, "Menu");
+export const Monitor = make(LucideMonitor, "Monitor");
+export const Moon = make(LucideMoon, "Moon");
+export const Paintbrush = make(LucidePaintbrush, "Paintbrush");
+export const Palette = make(LucidePalette, "Palette");
+export const Plus = make(LucidePlus, "Plus");
+export const RotateCw = make(LucideRotateCw, "RotateCw");
+export const Search = make(LucideSearch, "Search");
+export const ShieldCheck = make(LucideShieldCheck, "ShieldCheck");
+export const Sun = make(LucideSun, "Sun");
+export const Terminal = make(LucideTerminal, "Terminal");
+export const TriangleAlert = make(LucideTriangleAlert, "TriangleAlert");
+export const User = make(LucideUser, "User");
+export const X = make(LucideX, "X");
+export const BookOpen = make(LucideBookOpenText, "BookOpen");
+export const CardBlocked = make(LucideCreditCard, "CardBlocked");
+export const CodeFolder = make(LucideFolderCode, "CodeFolder");
+export const FileCode = make(LucideFileCode, "FileCode");
+export const FileRemove = make(LucideFileX, "FileRemove");
+export const FingerprintCheck = make(LucideFingerprint, "FingerprintCheck");
+export const License = make(LucideScrollText, "License");
+export const Puzzle = make(LucidePuzzle, "Puzzle");
+export const Quote = make(LucideQuote, "Quote");
+export const SquareTerminal = make(LucideSquareTerminal, "SquareTerminal");
+export const StoreVerified = make(LucideStore, "StoreVerified");
+export const Swatch = make(LucideSwatchBook, "Swatch");
+export const UserCheck = make(LucideUserCheck, "UserCheck");
+export const WandSparkles = make(LucideWandSparkles, "WandSparkles");
+export const WebValidation = make(LucideMonitorCheck, "WebValidation");
 
 /** Each kit file gets an icon that says what it holds. */
 export function fileIcon(path: string) {
