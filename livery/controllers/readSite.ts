@@ -20,7 +20,7 @@ export type ScreenedTarget = Target & {
  * Step 1: everything we can decide before rendering. Ordered cheapest first.
  * The only request to the site is the owner's livery.json, at most once a day.
  */
-export async function screenTarget(raw: string): Promise<ReadResult<ScreenedTarget>> {
+export async function screenTarget(raw: string, options: { /** Admin refresh: try again even if this page failed recently. */ ignoreRemembered?: boolean } = {}): Promise<ReadResult<ScreenedTarget>> {
   const normalised = normaliseTarget(raw);
   if (!normalised.ok) return normalised;
   const target = normalised.value;
@@ -29,7 +29,7 @@ export async function screenTarget(raw: string): Promise<ReadResult<ScreenedTarg
   if (category) return fail("sensitive_page", `${target.domain} is a ${category} site`);
   if (isSensitivePath(target.url.pathname)) return fail("sensitive_page", `${target.url.pathname} is a sign-in or payment page`);
 
-  const remembered = await getActiveFailure(target.sourceUrl);
+  const remembered = options.ignoreRemembered ? null : await getActiveFailure(target.sourceUrl);
   if (remembered) return remembered;
 
   const grant = await getSiteGrant(target.domain);

@@ -3,7 +3,6 @@
 import { useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { adminBuildKit } from "@/app/actions/adminBuildKit";
 import { adminRemoveCover, adminSetCover } from "@/app/actions/adminSetCover";
 import { adminUpdateKit } from "@/app/actions/adminUpdateKit";
 import { adminWithdrawVersion } from "@/app/actions/adminWithdrawVersion";
@@ -15,6 +14,7 @@ import { kitPath } from "@/lib/kit/urls";
 import type { AdminKit } from "@/services/admin";
 import { ConfirmAction } from "./ConfirmAction";
 import { Field, inputClass, KindBadge, Switch } from "./Controls";
+import { refreshKit } from "./refreshKit";
 
 // Everything an admin can change about one kit. Published files are permanent
 // (agents pin them by sha256), so content changes publish a new version.
@@ -36,6 +36,7 @@ function EditorBody({ kit, onClose, onAddToTaste }: { kit: AdminKit; onClose: ()
   const [saving, startSave] = useTransition();
   const [uploading, startUpload] = useTransition();
   const [rebuilding, startRebuild] = useTransition();
+  const [step, setStep] = useState("");
   const file = useRef<HTMLInputElement>(null);
   const live = kit.latest?.status === "ready";
   const dirty = displayName !== (kit.displayName ?? "") || curator !== (kit.curator ?? "") || featured !== kit.featured || hidden !== kit.hidden;
@@ -134,25 +135,32 @@ function EditorBody({ kit, onClose, onAddToTaste }: { kit: AdminKit; onClose: ()
             >
               <Layers className="size-4 text-fg-muted" /> Add to a taste
             </button>
-            <button
-              type="button"
-              disabled={rebuilding}
-              onClick={() =>
-                startRebuild(async () => {
-                  toast({ title: "Rebuilding", description: "Rendering the site again. This takes a minute or two." });
-                  const result = await adminBuildKit(kit.sourceUrl!, true);
-                  if (result.ok) {
-                    toast({ title: "New version published", description: result.path, tone: "success" });
-                    router.refresh();
-                  } else toast({ title: "Rebuild failed", description: result.error, tone: "danger" });
-                })
-              }
-              className="flex h-10 w-full items-center gap-2.5 rounded-[10px] border border-border px-3 text-[13px] font-medium transition-colors hover:border-border-strong disabled:opacity-60"
-            >
-              <RotateCw className={rebuilding ? "size-4 animate-[spin_1s_linear_infinite] text-accent-ink" : "size-4 text-fg-muted"} />
-              {rebuilding ? "Rebuilding… keep this open" : "Rebuild as a new version"}
-            </button>
           </>
+        )}
+        {live && (
+          <button
+            type="button"
+            disabled={rebuilding}
+            onClick={() =>
+              startRebuild(async () => {
+                const result = await refreshKit(kit, setStep);
+                setStep("");
+                if (result.ok) {
+                  toast({ title: "Refreshed", description: `New version: ${result.path}`, tone: "success" });
+                  router.refresh();
+                } else toast({ title: "Refresh failed", description: result.error, tone: "danger" });
+              })
+            }
+            className="flex min-h-10 w-full items-center gap-2.5 rounded-[10px] border border-border px-3 py-2 text-left text-[13px] font-medium transition-colors hover:border-border-strong disabled:opacity-80"
+          >
+            <RotateCw className={rebuilding ? "size-4 shrink-0 animate-[spin_1s_linear_infinite] text-accent-ink" : "size-4 shrink-0 text-fg-muted"} />
+            <span>
+              {rebuilding ? step || "Refreshing…" : "Refresh: analyse again"}
+              <span className="block text-[12px] font-normal text-fg-subtle">
+                {rebuilding ? "Keep this open until it finishes." : kit.kind === "page" ? "Renders the site again and publishes a new version." : "Re-analyses every site, then publishes a new version."}
+              </span>
+            </span>
+          </button>
         )}
         {kit.kind !== "page" && (
           <Link href={`/admin/tastes?edit=${kit.id}`} onClick={onClose} className="flex h-10 items-center gap-2.5 rounded-[10px] border border-border px-3 text-[13px] font-medium transition-colors hover:border-border-strong">

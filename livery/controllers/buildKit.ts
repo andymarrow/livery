@@ -103,7 +103,7 @@ export async function resolveKit(
   options: { ip: string; writer?: DesignWriter; onProgress?: Progress; /** Admin: build a new version even when one is cached. */ force?: boolean; /** Admin: not counted against a visitor's limit. */ skipRate?: boolean },
 ): Promise<BuildOutcome> {
   const progress: Progress = options.onProgress ?? (() => {});
-  const screened = await screenTarget(raw);
+  const screened = await screenTarget(raw, { ignoreRemembered: options.force });
   if (!screened.ok) return { status: "failed", failure: screened };
   const target = screened.value;
 

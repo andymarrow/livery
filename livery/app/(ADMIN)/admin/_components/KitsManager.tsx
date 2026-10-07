@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { adminBuildKit } from "@/app/actions/adminBuildKit";
 import { adminUpdateKit } from "@/app/actions/adminUpdateKit";
-import { EyeOff, Layers, Plus, Search, Star, X } from "@/components/icons";
+import { EyeOff, Layers, Plus, RotateCw, Search, Star, X } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toaster";
@@ -13,6 +13,7 @@ import type { AdminKit } from "@/services/admin";
 import { when } from "./AdminPage";
 import { Field, inputClass, KindBadge } from "./Controls";
 import { KitEditor } from "./KitEditor";
+import { refreshKit } from "./refreshKit";
 import { TasteDialog } from "./TasteDialog";
 
 type KindFilter = "all" | "page" | "site" | "taste";
@@ -29,6 +30,29 @@ export function KitsManager({ kits }: { kits: AdminKit[] }) {
   const [combining, setCombining] = useState<AdminKit[] | null>(null);
   const [adding, setAdding] = useState(false);
   const [, startStar] = useTransition();
+  // Kits being analysed again, with what each is doing right now.
+  const [refreshing, setRefreshing] = useState<Record<string, string>>({});
+
+  const refresh = async (k: AdminKit) => {
+    const step = (text: string) => setRefreshing((r) => ({ ...r, [k.id]: text }));
+    step("Starting");
+    const result = await refreshKit(k, step);
+    setRefreshing((r) => {
+      const next = { ...r };
+      delete next[k.id];
+      return next;
+    });
+    if (result.ok) toast({ title: `${k.name} refreshed`, description: `New version: ${result.path}`, tone: "success" });
+    else toast({ title: `Couldn't refresh ${k.name}`, description: result.error, tone: "danger" });
+    router.refresh();
+    return result.ok;
+  };
+
+  // One at a time: each refresh renders a live site.
+  const refreshMany = async (list: AdminKit[]) => {
+    setSelected(new Set());
+    for (const k of list) await refresh(k);
+  };
 
   const tastes = kits.filter((k) => k.kind === "taste" && k.latest?.status === "ready");
   const editing = kits.find((k) => k.id === editingId) ?? null;
@@ -82,6 +106,9 @@ export function KitsManager({ kits }: { kits: AdminKit[] }) {
             <Button size="sm" onClick={() => setCombining(pickedKits)}>
               <Layers /> Make a taste
             </Button>
+            <Button size="sm" variant="secondary" onClick={() => void refreshMany(pickedKits)}>
+              <RotateCw /> Refresh {selected.size === 1 ? "it" : `all ${selected.size}`}
+            </Button>
             <button type="button" onClick={() => setSelected(new Set())} className="ml-auto inline-flex items-center gap-1 text-[12.5px] hover:underline">
               <X className="size-3.5" /> Clear
             </button>
@@ -107,7 +134,7 @@ export function KitsManager({ kits }: { kits: AdminKit[] }) {
               <th className="px-3 font-medium">Version</th>
               <th className="px-3 font-medium">State</th>
               <th className="px-3 font-medium">Published</th>
-              <th className="w-28 px-4" />
+              <th className="w-36 px-4" />
             </tr>
           </thead>
           <tbody>
@@ -124,7 +151,13 @@ export function KitsManager({ kits }: { kits: AdminKit[] }) {
                     </span>
                     <span className="min-w-0">
                       <span className="block truncate font-medium hover:underline">{k.name}</span>
-                      <span className="block truncate font-mono text-[11px] text-fg-subtle">{k.slug}</span>
+                      {refreshing[k.id] ? (
+                        <span className="flex items-center gap-1.5 truncate text-[11.5px] font-medium text-accent-ink">
+                          <span className="size-1.5 shrink-0 animate-pulse rounded-full bg-accent" /> {refreshing[k.id]}
+                        </span>
+                      ) : (
+                        <span className="block truncate font-mono text-[11px] text-fg-subtle">{k.slug}</span>
+                      )}
                     </span>
                   </button>
                 </td>
@@ -140,6 +173,18 @@ export function KitsManager({ kits }: { kits: AdminKit[] }) {
                 <td className="px-3 font-mono text-[12px] text-fg-muted">{when(k.latest?.publishedAt)}</td>
                 <td className="px-4">
                   <span className="flex items-center justify-end gap-1">
+                    {k.latest?.status === "ready" && (
+                      <button
+                        type="button"
+                        onClick={() => void refresh(k)}
+                        disabled={Boolean(refreshing[k.id])}
+                        aria-label={`Refresh ${k.name}`}
+                        title={k.kind === "page" ? "Analyse the site again (new version)" : "Re-analyse every site, then recombine (new version)"}
+                        className="flex size-8 items-center justify-center rounded-[8px] text-fg-subtle transition-colors hover:bg-surface-2 hover:text-fg disabled:text-accent-ink"
+                      >
+                        <RotateCw className={cn("size-4", refreshing[k.id] && "animate-[spin_1s_linear_infinite]")} />
+                      </button>
+                    )}
                     <button type="button" onClick={() => star(k)} aria-label={k.featured ? "Unfeature" : "Feature"} title={k.featured ? "Unfeature" : "Feature on the homepage"} className={cn("flex size-8 items-center justify-center rounded-[8px] transition-colors hover:bg-surface-2", k.featured ? "text-accent-ink" : "text-fg-subtle")}>
                       <Star className={cn("size-4", k.featured && "fill-current")} />
                     </button>
@@ -154,7 +199,9 @@ export function KitsManager({ kits }: { kits: AdminKit[] }) {
         </table>
         {!shown.length && <p className="px-4 py-14 text-center text-sm text-fg-muted">No kits match.</p>}
       </div>
-      <p className="mt-3 text-[12px] text-fg-subtle">{shown.length} of {kits.length} kits. Tick page kits to combine them into a taste.</p>
+      <p className="mt-3 text-[12px] text-fg-subtle">
+        {shown.length} of {kits.length} kits. Tick page kits to combine or refresh them. Refreshing renders the site again and publishes a new version; keep this tab open until it finishes.
+      </p>
 
       <KitEditor
         kit={editing}
