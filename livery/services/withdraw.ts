@@ -58,3 +58,25 @@ export async function withdrawVersions(domain: string, { all, keepHash = null }:
   if (targets.length) logger.info("withdraw.done", { domain, count: targets.length, all });
   return targets.length;
 }
+
+/** Withdraws one published version (admin). Same file clean-up as above. */
+export async function withdrawVersion(versionId: string) {
+  const db = getAdminClient();
+  const { data: version, error } = await db.from("kit_versions").select("id, version, kits!inner(slug)").eq("id", versionId).eq("status", "ready").single();
+  if (error) throw error;
+  const { data: paths, error: withdrawError } = await db.rpc("withdraw_version", { p_kit_version_id: versionId });
+  if (withdrawError) throw withdrawError;
+  const artefacts = paths?.[0] ?? { zip_path: null, tar_path: null };
+  const files = [artefacts.zip_path, artefacts.tar_path].filter((p): p is string => Boolean(p));
+  if (artefacts.tar_path) files.push(artefacts.tar_path.replace(/kit\.tar\.gz$/, "manifest.json"));
+  if (files.length) await db.storage.from("kits").remove(files);
+  const { data: frames } = await db.storage.from("screenshots").list(versionId);
+  if (frames?.length) await db.storage.from("screenshots").remove(frames.map((f) => `${versionId}/${f.name}`));
+  const kit = version.kits as unknown as { slug: string };
+  try {
+    if (version.version) revalidatePath(kitPath(kit.slug, version.version));
+    revalidatePath("/explore");
+  } catch {
+    // Outside a request: nothing cached to clear.
+  }
+}
