@@ -10,7 +10,7 @@ export function TakedownForm() {
   const [result, action, pending] = useActionState<TakedownResult | null, FormData>(submitTakedown, null);
   if (result?.ok) {
     return (
-      <div className="flex items-start gap-3 rounded-2xl border border-border bg-surface p-5">
+      <div className="flex items-start gap-3 rounded-[18px] border border-border bg-surface p-5 shadow-card">
         <CheckCircle className="mt-0.5 size-5 shrink-0 text-accent-ink" />
         <div>
           <p className="font-medium">Request received for {result.domain}</p>
@@ -49,7 +49,7 @@ export function TakedownForm() {
           required
           rows={4}
           placeholder="Withdraw every kit built from our site, and stop building new ones."
-          className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-fg placeholder:text-fg-subtle hover:border-border-strong focus-visible:border-accent focus-visible:outline-none"
+          className="w-full rounded-[14px] border border-border bg-surface px-3.5 py-2.5 text-sm text-fg placeholder:text-fg-subtle hover:border-border-strong focus-visible:border-accent focus-visible:outline-none"
         />
       </label>
       {result && !result.ok && <p role="alert" className="text-sm text-danger">{result.error}</p>}

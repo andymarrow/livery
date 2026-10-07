@@ -18,7 +18,7 @@ function PaletteRow({ palette }: { palette: Palette }) {
           const value = palette[key] as string | null;
           if (!value) return null;
           return (
-            <div key={key} className="overflow-hidden rounded-xl border border-border">
+            <div key={key} className="overflow-hidden rounded-[14px] border border-border">
               <div className="h-14" style={{ background: value }} />
               <div className="border-t border-border bg-surface px-2.5 py-2">
                 <p className="text-[12px] font-medium">{label}</p>
@@ -36,7 +36,7 @@ function PaletteRow({ palette }: { palette: Palette }) {
 export function DesignGlance({ tokens }: { tokens: Tokens }) {
   const { typography, radii, spacing, palette, alternatePalette } = tokens;
   return (
-    <div className="space-y-8 rounded-[22px] border border-border bg-surface p-5 sm:p-7">
+    <div className="space-y-8 rounded-[18px] border border-border bg-surface p-5 sm:p-7 shadow-card">
       <PaletteRow palette={palette} />
       {alternatePalette && <PaletteRow palette={alternatePalette} />}
 

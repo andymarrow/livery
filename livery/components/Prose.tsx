@@ -14,7 +14,7 @@ export function Prose({ kicker, title, updated, children, className }: { kicker:
           "[&_p]:my-4 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5 [&_li]:marker:text-fg-subtle",
           "[&_strong]:font-semibold [&_strong]:text-fg [&_a]:font-medium [&_a]:text-accent-ink [&_a]:underline-offset-4 hover:[&_a]:underline",
           "[&_code]:rounded-md [&_code]:bg-surface-2 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[13px] [&_code]:text-fg",
-          "[&_pre]:my-5 [&_pre]:overflow-x-auto [&_pre]:rounded-xl [&_pre]:border [&_pre]:border-border [&_pre]:bg-surface [&_pre]:p-4 [&_pre]:font-mono [&_pre]:text-[13px] [&_pre]:leading-[1.7] [&_pre]:text-fg [&_pre_code]:bg-transparent [&_pre_code]:p-0",
+          "[&_pre]:my-5 [&_pre]:overflow-x-auto [&_pre]:rounded-[14px] [&_pre]:border [&_pre]:border-border [&_pre]:bg-surface [&_pre]:p-4 [&_pre]:font-mono [&_pre]:text-[13px] [&_pre]:leading-[1.7] [&_pre]:text-fg [&_pre_code]:bg-transparent [&_pre_code]:p-0",
         )}
       >
         {children}

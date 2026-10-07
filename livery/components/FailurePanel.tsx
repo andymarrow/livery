@@ -13,7 +13,7 @@ export function FailurePanel({ reason, host }: { reason: ReadFailureReason; host
   const Icon = refused ? Prohibit : WarningCircle;
   return (
     <div className="mx-auto w-full max-w-lg text-center">
-      <span className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-border bg-surface text-fg-muted">
+      <span className="mx-auto flex size-12 items-center justify-center rounded-[18px] border border-border bg-surface text-fg-muted shadow-card">
         <Icon className="size-6" />
       </span>
       <h1 className="mt-6 text-3xl font-semibold tracking-tight text-balance">{copy.title}</h1>

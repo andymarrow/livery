@@ -20,7 +20,7 @@ export function SiteChecker() {
       </form>
       {result && "error" in result && <p role="alert" className="mt-3 text-sm text-danger">{result.error}</p>}
       {result && "items" in result && (
-        <ul className="mt-5 divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface" aria-live="polite">
+        <ul className="mt-5 divide-y divide-border overflow-hidden rounded-[18px] border border-border bg-surface shadow-card" aria-live="polite">
           {result.items.map((item) => (
             <li key={item.label} className="flex items-start gap-3 px-4 py-3">
               {item.ok ? <CheckCircle className="mt-0.5 size-4 shrink-0 text-accent-ink" /> : <XCircle className="mt-0.5 size-4 shrink-0 text-fg-subtle" />}

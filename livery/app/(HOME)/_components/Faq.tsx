@@ -33,7 +33,7 @@ export function Faq() {
     <section className="border-t border-border px-4 py-20 sm:px-6 sm:py-28">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-20">
         <SectionHeading kicker="Questions" title="The short answers." />
-        <Accordion type="single" collapsible className="rounded-[22px] border border-border bg-surface px-5 sm:px-7">
+        <Accordion type="single" collapsible className="rounded-[18px] border border-border bg-surface px-5 sm:px-7 shadow-card">
           {QUESTIONS.map(({ q, a }) => (
             <AccordionItem key={q} value={q}>
               <AccordionTrigger>{q}</AccordionTrigger>

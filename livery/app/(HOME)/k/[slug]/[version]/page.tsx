@@ -79,7 +79,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
           </a>
           {view.analysis?.summary && <p className="mt-5 max-w-2xl text-base leading-relaxed text-fg-muted text-pretty">{view.analysis.summary}</p>}
         </div>
-        <dl className="grid shrink-0 grid-cols-3 gap-px overflow-hidden rounded-2xl border border-border bg-border text-center">
+        <dl className="grid shrink-0 grid-cols-3 gap-px overflow-hidden rounded-[18px] border border-border bg-border text-center">
           {(Object.entries(counts) as [keyof typeof counts, number][]).map(([licence, count]) => (
             <div key={licence} className="bg-surface px-5 py-3">
               <dt className="flex justify-center"><LicenceBadge licence={licence} compact /></dt>
@@ -90,7 +90,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
       </header>
 
       {view.latestVersion > view.version && (
-        <div className="mt-8 flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 text-sm">
+        <div className="mt-8 flex items-center gap-3 rounded-[18px] border border-border bg-surface px-4 py-3 text-sm shadow-card">
           <Info className="size-4 shrink-0 text-accent-ink" />
           A newer version of this kit exists.
           <Link href={kitPath(view.slug, view.latestVersion)} className="ml-auto font-medium text-accent-ink hover:underline">Open v{view.latestVersion}</Link>
@@ -98,7 +98,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
       )}
 
       {withdrawn ? (
-        <div className="mt-10 rounded-[22px] border border-border bg-surface p-8 text-center">
+        <div className="mt-10 rounded-[18px] border border-border bg-surface p-8 text-center shadow-card">
           <h2 className="text-xl font-semibold tracking-tight">Withdrawn by the site owner</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-fg-muted">This version was withdrawn on {view.withdrawnAt?.slice(0, 10)}. Its files are no longer available.</p>
         </div>
@@ -106,7 +106,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
         <>
           <section className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[1.25fr_1fr]">
             <InstallPanel prompt={prompt} zipUrl={kitPath(view.slug, view.version) + "/kit.zip"} tarUrl={kitPath(view.slug, view.version) + "/kit.tar.gz"} skillName={skillName} sha256={view.contentHash} />
-            <div className="rounded-[22px] border border-border bg-surface p-5 sm:p-6">
+            <div className="rounded-[18px] border border-border bg-surface p-5 sm:p-6 shadow-card">
               <p className="label-micro">Levels in this kit</p>
               <ul className="mt-4 space-y-3">
                 {(view.levels as Level[]).map((level) => (
@@ -134,7 +134,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
 
           {view.analysis && (
             <section className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <div className="rounded-[22px] border border-border bg-surface p-5 sm:p-7">
+              <div className="rounded-[18px] border border-border bg-surface p-5 sm:p-7 shadow-card">
                 <p className="label-micro">Principles</p>
                 <ul className="mt-4 space-y-5">
                   {view.analysis.principles.map((p) => (
@@ -145,7 +145,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
                   ))}
                 </ul>
               </div>
-              <div className="rounded-[22px] border border-border bg-surface p-5 sm:p-7">
+              <div className="rounded-[18px] border border-border bg-surface p-5 sm:p-7 shadow-card">
                 <p className="label-micro">Never</p>
                 <ul className="mt-4 space-y-4">
                   {view.analysis.never.map((n) => (
@@ -168,7 +168,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
               <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-[1fr_16rem]">
                 {frames.map((frame) =>
                   frame.url ? (
-                    <div key={frame.name} className="overflow-hidden rounded-2xl border border-border bg-surface">
+                    <div key={frame.name} className="overflow-hidden rounded-[18px] border border-border bg-surface shadow-card">
                       <div className="max-h-[36rem] overflow-y-auto">
                         {/* eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL from private storage */}
                         <img

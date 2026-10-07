@@ -126,7 +126,7 @@ export function Builder({ url, host }: { url: string; host: string }) {
         {state.phase === "waiting" ? "Someone else is building this kit right now. It will open here when it's ready." : "Usually about a minute. You can leave; the kit will be in the library."}
       </p>
 
-      <ol className="mt-10 overflow-hidden rounded-[22px] border border-border bg-surface">
+      <ol className="mt-10 overflow-hidden rounded-[18px] border border-border bg-surface shadow-card">
         {STAGES.map((stage, index) => {
           const done = activeIndex > index;
           const active = activeIndex === index && state.phase === "running";
@@ -164,7 +164,7 @@ export function Builder({ url, host }: { url: string; host: string }) {
 function Outcome({ icon, title, body, next, code, owners, retry }: { icon: React.ReactNode; title: string; body: string; next: string; code?: string; owners?: boolean; retry?: boolean }) {
   return (
     <div className="mx-auto w-full max-w-lg text-center">
-      <span className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-border bg-surface text-fg-muted">{icon}</span>
+      <span className="mx-auto flex size-12 items-center justify-center rounded-[18px] border border-border bg-surface text-fg-muted shadow-card">{icon}</span>
       <h1 className="mt-6 text-3xl font-semibold tracking-tight text-balance">{title}</h1>
       <p className="mt-3 text-sm leading-relaxed text-fg-muted text-pretty">{body}</p>
       <p className="mt-2 text-sm leading-relaxed text-fg">{next}</p>

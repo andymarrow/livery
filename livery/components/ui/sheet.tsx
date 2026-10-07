@@ -24,7 +24,7 @@ export function SheetContent({ className, children, ...props }: React.ComponentP
         {...props}
       >
         {children}
-        <SheetPrimitive.Close className="absolute right-4 top-4 inline-flex size-9 items-center justify-center rounded-xl text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg">
+        <SheetPrimitive.Close className="absolute right-4 top-4 inline-flex size-9 items-center justify-center rounded-[14px] text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg">
           <X className="size-[18px]" />
           <span className="sr-only">Close menu</span>
         </SheetPrimitive.Close>

@@ -10,7 +10,7 @@ const ORDER = ["SKILL.md", "rules.md", "tokens.json", "components.md", "layout.m
 export function FilesPanel({ files }: { files: { path: string; text: string }[] }) {
   const sorted = [...files].sort((a, b) => ORDER.indexOf(a.path) - ORDER.indexOf(b.path));
   return (
-    <Accordion type="multiple" defaultValue={["SKILL.md"]} className="rounded-[22px] border border-border bg-surface px-4 sm:px-6">
+    <Accordion type="multiple" defaultValue={["SKILL.md"]} className="rounded-[18px] border border-border bg-surface px-4 sm:px-6 shadow-card">
       {sorted.map((file) => {
         const Icon = fileIcon(file.path);
         return (
@@ -23,7 +23,7 @@ export function FilesPanel({ files }: { files: { path: string; text: string }[] 
               </span>
             </AccordionTrigger>
             <AccordionContent className="pr-0">
-              <div className="relative rounded-xl border border-border bg-bg">
+              <div className="relative rounded-[14px] border border-border bg-bg">
                 <pre className="max-h-[32rem] overflow-auto p-4 pr-14 font-mono text-[12px] leading-[1.7] text-fg whitespace-pre-wrap break-words" tabIndex={0}>
                   {file.text}
                 </pre>

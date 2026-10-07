@@ -22,7 +22,7 @@ export function Tooltip({
           side={side}
           sideOffset={6}
           className={cn(
-            "z-50 rounded-lg bg-fg px-2.5 py-1.5 text-xs font-medium text-bg",
+            "z-50 rounded-[10px] bg-fg px-2.5 py-1.5 text-xs font-medium text-bg",
             "data-[state=delayed-open]:animate-[fade-in_120ms_ease-out]",
           )}
         >

@@ -18,7 +18,7 @@ export function Logo({ className }: { className?: string }) {
     <Link
       href="/"
       aria-label="Livery home"
-      className={cn("group inline-flex items-center gap-2 rounded-lg text-fg", className)}
+      className={cn("group inline-flex items-center gap-2 rounded-[10px] text-fg", className)}
     >
       <LogoMark className="transition-transform duration-300 ease-out-soft group-hover:-rotate-6" />
       <span className="text-[17px] font-semibold tracking-tight">livery</span>

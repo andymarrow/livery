@@ -83,7 +83,7 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
         </label>
         <div
           className={cn(
-            "group flex flex-col gap-2 rounded-[20px] border bg-surface p-2 transition-[border-color] duration-200 sm:flex-row sm:items-center",
+            "group flex flex-col gap-2 rounded-[18px] border bg-surface p-2 transition-[border-color] duration-200 sm:flex-row sm:items-center",
             invalid ? "border-danger" : "border-border-strong focus-within:border-accent hover:border-fg-subtle/50",
           )}
         >
@@ -133,7 +133,7 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
               variant="ghost"
               size="icon"
               disabled={!result.ok}
-              className="hidden size-12 rounded-[14px] sm:inline-flex sm:size-14"
+              className="hidden size-12 sm:inline-flex sm:size-14"
             />
             <Button type="submit" size="lg" className="group/build h-12 w-full rounded-[14px] sm:h-14 sm:w-auto sm:px-6">
               Build kit
@@ -159,7 +159,7 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
                 className={cn(
                   "h-7 rounded-full border px-3 text-[13px] font-medium transition-colors duration-150",
                   path === site
-                    ? "border-accent bg-accent-soft text-accent-soft-fg"
+                    ? "border-accent bg-accent font-semibold text-on-accent"
                     : "border-border bg-surface text-fg-muted hover:border-border-strong hover:text-fg",
                 )}
               >
@@ -179,7 +179,7 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
 function AgentLine({ path }: { path: string }) {
   const command = `curl -fsSL ${SITE.domain}/${path || "<any-site>"}`;
   return (
-    <div className="mx-auto mt-8 flex max-w-xl items-center gap-3 text-left rounded-xl border border-border bg-surface-2 py-1.5 pl-4 pr-1.5">
+    <div className="mx-auto mt-8 flex max-w-xl items-center gap-3 text-left rounded-[14px] border border-border bg-surface-2 py-1.5 pl-4 pr-1.5">
       <span className="label-micro hidden shrink-0 sm:inline">Agents</span>
       <span aria-hidden className="hidden h-4 w-px bg-border-strong sm:inline-block" />
       <code className="min-w-0 flex-1 truncate font-mono text-[13px] text-fg-muted">

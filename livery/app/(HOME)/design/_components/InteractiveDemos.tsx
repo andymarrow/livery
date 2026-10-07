@@ -14,7 +14,7 @@ export function InteractiveDemos() {
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-      <div className="rounded-2xl border border-border bg-surface p-5">
+      <div className="rounded-[18px] border border-border bg-surface p-5 shadow-card">
         <p className="label-micro mb-4">Inputs</p>
         <div className="space-y-3">
           <Input placeholder="MagnifyingGlass kits" />
@@ -27,7 +27,7 @@ export function InteractiveDemos() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-surface p-5">
+      <div className="rounded-[18px] border border-border bg-surface p-5 shadow-card">
         <p className="label-micro mb-4">Tabs</p>
         <Tabs defaultValue="skill">
           <TabsList>
@@ -41,7 +41,7 @@ export function InteractiveDemos() {
         </Tabs>
       </div>
 
-      <div className="rounded-2xl border border-border bg-surface p-5">
+      <div className="rounded-[18px] border border-border bg-surface p-5 shadow-card">
         <p className="label-micro mb-4">Overlays</p>
         <div className="flex flex-wrap items-center gap-2">
           <Dialog>
@@ -76,7 +76,7 @@ export function InteractiveDemos() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-surface p-5">
+      <div className="rounded-[18px] border border-border bg-surface p-5 shadow-card">
         <p className="label-micro mb-4">Theme</p>
         <div className="flex items-center justify-between gap-4">
           <p className="text-sm text-fg-muted">System by default, saved per browser, no flash on load.</p>

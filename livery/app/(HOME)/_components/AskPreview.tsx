@@ -16,7 +16,7 @@ export function AskPreview() {
   const [approved, setApproved] = useState<Record<string, boolean>>({ Colours: true, Typography: true, Motion: false });
 
   return (
-    <ul className="w-full max-w-[17rem] divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
+    <ul className="w-full max-w-[17rem] divide-y divide-border overflow-hidden rounded-[14px] border border-border bg-surface">
       {AREAS.map((area) => {
         const on = approved[area.name];
         return (

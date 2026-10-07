@@ -12,7 +12,7 @@ type CodeBlockProps = {
 // A quiet code panel: file name on the left, copy on the right, monospace body.
 export function CodeBlock({ code, title, language, className, maxHeight }: CodeBlockProps) {
   return (
-    <div className={cn("overflow-hidden rounded-2xl border border-border bg-surface", className)}>
+    <div className={cn("overflow-hidden rounded-[18px] border border-border bg-surface", className)}>
       <div className="flex h-11 items-center justify-between gap-3 border-b border-border pl-4 pr-2">
         <div className="flex min-w-0 items-center gap-2">
           <span className="truncate font-mono text-xs text-fg-muted">{title ?? "snippet"}</span>

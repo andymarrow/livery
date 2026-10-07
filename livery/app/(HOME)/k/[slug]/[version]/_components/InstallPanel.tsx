@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function InstallPanel({ prompt, zipUrl, tarUrl, skillName, sha256 }: { prompt: string; zipUrl: string; tarUrl: string; skillName: string; sha256: string }) {
   return (
-    <div className="overflow-hidden rounded-[22px] border border-border bg-surface">
+    <div className="overflow-hidden rounded-[18px] border border-border bg-surface shadow-card">
       <Tabs defaultValue="prompt">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
           <TabsList>
@@ -25,7 +25,7 @@ export function InstallPanel({ prompt, zipUrl, tarUrl, skillName, sha256 }: { pr
 
         <TabsContent value="prompt" className="mt-0 p-4 sm:p-5">
           <p className="text-sm text-fg-muted">Paste this into Claude Code in your project. It downloads the kit, checks its hash and asks before changing anything.</p>
-          <div className="relative mt-4 rounded-xl border border-border bg-bg">
+          <div className="relative mt-4 rounded-[14px] border border-border bg-bg">
             <pre className="max-h-80 overflow-auto p-4 pr-14 font-mono text-[12.5px] leading-[1.75] text-fg whitespace-pre-wrap" tabIndex={0}>
               {prompt}
             </pre>

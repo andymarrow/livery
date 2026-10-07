@@ -65,7 +65,7 @@ export default function DesignPage() {
       <Section title="Colour tokens">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
           {SWATCHES.map(([name, className]) => (
-            <div key={name} className="overflow-hidden rounded-xl border border-border bg-surface">
+            <div key={name} className="overflow-hidden rounded-[14px] border border-border bg-surface">
               <div className={`h-14 border-b border-border ${className}`} />
               <p className="px-3 py-2 font-mono text-[11px] text-fg-muted">{name}</p>
             </div>

@@ -22,7 +22,7 @@ function Toggle({ on, onClick, children }: { on: boolean; onClick: () => void; c
       aria-checked={on}
       onClick={onClick}
       className={cn(
-        "inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-[13px] font-medium transition-colors duration-150",
+        "inline-flex h-9 items-center gap-2 rounded-[14px] border px-3 text-[13px] font-medium transition-colors duration-150",
         on ? "border-accent bg-accent-soft text-accent-soft-fg" : "border-border bg-surface text-fg-muted hover:border-border-strong hover:text-fg",
       )}
     >
@@ -75,7 +75,7 @@ export function OptInGenerator() {
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <div className="min-w-0 space-y-6">
-        <div role="radiogroup" aria-label="Opt in or out" className="inline-flex rounded-xl border border-border bg-surface-2 p-0.5">
+        <div role="radiogroup" aria-label="Opt in or out" className="inline-flex rounded-[14px] border border-border bg-surface-2 p-0.5">
           {(["in", "out"] as const).map((value) => (
             <button
               key={value}
@@ -91,7 +91,7 @@ export function OptInGenerator() {
         </div>
 
         {mode === "out" ? (
-          <p className="rounded-2xl border border-border bg-surface p-4 text-sm leading-relaxed text-fg-muted">
+          <p className="rounded-[18px] border border-border bg-surface p-4 text-sm leading-relaxed text-fg-muted shadow-card">
             An empty <code className="font-mono text-[12.5px] text-fg">levels</code> list means “don&apos;t build kits from this site”. New builds stop, and published versions are withdrawn.
           </p>
         ) : (
@@ -126,7 +126,7 @@ export function OptInGenerator() {
                 <Input value={contact} onChange={(e) => setContact(e.target.value)} placeholder="design@example.com" />
               </Field>
               <Field label="Licence">
-                <select value={licence} onChange={(e) => setLicence(e.target.value)} className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-fg focus-visible:border-accent focus-visible:outline-none">
+                <select value={licence} onChange={(e) => setLicence(e.target.value)} className="h-10 w-full rounded-[14px] border border-border bg-surface px-3 text-sm text-fg focus-visible:border-accent focus-visible:outline-none">
                   {LICENCES.map((l) => (
                     <option key={l}>{l}</option>
                   ))}
@@ -147,7 +147,7 @@ export function OptInGenerator() {
       </div>
 
       <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
-        <div className="overflow-hidden rounded-2xl border border-border bg-surface">
+        <div className="overflow-hidden rounded-[18px] border border-border bg-surface shadow-card">
           <div className="flex h-11 items-center justify-between border-b border-border pl-4 pr-2">
             <span className="font-mono text-xs text-fg-muted">/.well-known/livery.json</span>
             <CopyButton value={json} variant="ghost" size="sm" />

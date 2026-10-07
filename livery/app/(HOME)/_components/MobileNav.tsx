@@ -31,7 +31,7 @@ export function MobileNav() {
                 <Link
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="flex h-12 items-center justify-between rounded-xl px-3 text-[17px] font-medium tracking-tight text-fg transition-colors hover:bg-surface-2"
+                  className="flex h-12 items-center justify-between rounded-[14px] px-3 text-[17px] font-medium tracking-tight text-fg transition-colors hover:bg-surface-2"
                 >
                   {link.label}
                   <ArrowUpRight className="size-4 text-fg-subtle" />

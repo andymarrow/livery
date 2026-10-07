@@ -12,18 +12,18 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-accent text-on-accent hover:bg-accent-hover disabled:bg-surface-3 disabled:text-fg-subtle disabled:opacity-100",
-        secondary: "border border-border bg-surface text-fg hover:border-border-strong hover:bg-surface-2",
-        ghost: "text-fg-muted hover:bg-surface-2 hover:text-fg",
+        primary: "bg-accent font-semibold text-on-accent shadow-card hover:bg-accent-hover disabled:bg-surface-3 disabled:text-fg-subtle disabled:opacity-100 disabled:shadow-none",
+        secondary: "border border-border bg-surface text-fg shadow-card hover:border-border-strong hover:bg-surface-2",
+        ghost: "text-fg-muted hover:bg-surface-3/60 hover:text-fg",
         inverse: "bg-fg text-bg hover:opacity-90",
         soft: "bg-accent-soft text-accent-soft-fg hover:bg-accent-soft/70",
       },
       size: {
-        sm: "h-8 rounded-lg px-3 text-[13px] [&_svg]:size-3.5",
-        md: "h-10 rounded-xl px-4 text-sm [&_svg]:size-4",
-        lg: "h-12 rounded-xl px-5 text-sm [&_svg]:size-4",
-        icon: "size-9 rounded-xl [&_svg]:size-[17px]",
-        "icon-sm": "size-8 rounded-lg [&_svg]:size-4",
+        sm: "h-8 rounded-full px-3.5 text-xs [&_svg]:size-3.5",
+        md: "h-9 rounded-full px-4 text-sm [&_svg]:size-4",
+        lg: "h-11 rounded-full px-5 text-sm [&_svg]:size-4",
+        icon: "size-9 rounded-full [&_svg]:size-[17px]",
+        "icon-sm": "size-8 rounded-full [&_svg]:size-4",
       },
     },
     defaultVariants: { variant: "primary", size: "md" },

@@ -78,7 +78,7 @@ export function KitAnatomy() {
   }
 
   return (
-    <div className="overflow-hidden rounded-[22px] border border-border bg-surface">
+    <div className="overflow-hidden rounded-[18px] border border-border bg-surface shadow-card">
       <div className="flex h-12 items-center justify-between gap-4 border-b border-border px-4">
         <div className="flex min-w-0 items-center gap-2.5 text-[13px]">
           <CodeFolder className="size-[18px] shrink-0 text-accent-ink" />
@@ -111,7 +111,7 @@ export function KitAnatomy() {
                 tabIndex={selected ? 0 : -1}
                 onClick={() => setActive(index)}
                 className={cn(
-                  "group relative flex shrink-0 items-center gap-2.5 rounded-xl px-3 py-2 text-left transition-colors duration-150 md:py-2.5",
+                  "group relative flex shrink-0 items-center gap-2.5 rounded-[14px] px-3 py-2 text-left transition-colors duration-150 md:py-2.5",
                   selected ? "bg-surface-2 text-fg" : "text-fg-muted hover:bg-surface-2/60 hover:text-fg",
                 )}
               >

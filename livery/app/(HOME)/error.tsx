@@ -14,7 +14,7 @@ export default function HomeError({ error, retry }: { error: Error & { digest?: 
   return (
     <div className="flex flex-1 items-center px-4 py-24 sm:px-6">
       <div className="mx-auto max-w-md text-center">
-        <span className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-border bg-surface text-fg-muted">
+        <span className="mx-auto flex size-12 items-center justify-center rounded-[18px] border border-border bg-surface text-fg-muted shadow-card">
           <TriangleAlert className="size-5" />
         </span>
         <h1 className="mt-6 text-3xl font-semibold tracking-tight">Something broke on our side</h1>

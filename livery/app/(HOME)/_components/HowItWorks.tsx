@@ -42,9 +42,9 @@ export function HowItWorks() {
           {STEPS.map((step, index) => (
             <li
               key={step.title}
-              className="group flex min-w-0 flex-col rounded-2xl border border-border bg-surface p-2 transition-[border-color] duration-200 hover:border-border-strong"
+              className="group flex min-w-0 flex-col rounded-[18px] border border-border bg-surface p-2 transition-[border-color] duration-200 hover:border-border-strong shadow-card"
             >
-              <div className="flex h-48 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface-2 p-5">
+              <div className="flex h-48 items-center justify-center overflow-hidden rounded-[14px] border border-border bg-surface-2 p-5">
                 {step.visual}
               </div>
               <div className="px-3 pb-4 pt-5">
@@ -63,7 +63,7 @@ export function HowItWorks() {
 function PastePreview() {
   return (
     <div className="w-full max-w-[17rem]">
-      <div className="flex h-11 items-center rounded-xl border border-border-strong bg-surface px-3.5 text-[14px] font-medium">
+      <div className="flex h-11 items-center rounded-[14px] border border-border-strong bg-surface px-3.5 text-[14px] font-medium">
         <span className="text-fg-muted">{SITE.domain}/</span>
         <span className="text-fg">example.com</span>
         <span className="ml-px h-4 w-[2px] rounded-full bg-accent animate-caret" />
@@ -90,7 +90,7 @@ function InstallPreview() {
     { done: true, text: "SKILL.md · tokens.json · rules.md" },
   ];
   return (
-    <div className="w-full max-w-[18rem] rounded-xl border border-border bg-surface p-3.5 font-mono text-[11.5px] leading-[1.9]">
+    <div className="w-full max-w-[18rem] rounded-[14px] border border-border bg-surface p-3.5 font-mono text-[11.5px] leading-[1.9]">
       {lines.map((line) => (
         <div key={line.text} className="flex items-center gap-2 truncate">
           {line.prompt ? (

@@ -39,7 +39,7 @@ function Message({ from, children, delay = 0 }: { from: "agent" | "you"; childre
       {agent ? <AgentMark /> : <YouMark />}
       <div className={cn("min-w-0 max-w-[34rem]", agent ? "flex-1" : "text-right")}>
         <p className="mb-1.5 text-[11.5px] font-medium text-fg-subtle">{agent ? "Your agent" : "You"}</p>
-        <div className={cn("text-left text-sm leading-relaxed", agent ? "block" : "inline-block rounded-2xl rounded-tr-md bg-fg px-4 py-2.5 text-bg")}>
+        <div className={cn("text-left text-sm leading-relaxed", agent ? "block" : "inline-block rounded-[18px] rounded-tr-md bg-fg px-4 py-2.5 text-bg")}>
           {children}
         </div>
       </div>
@@ -67,7 +67,7 @@ export function TheFlow() {
           </ol>
         </div>
 
-        <ol className="flex min-w-0 flex-col gap-7 rounded-[22px] border border-border bg-surface p-5 sm:p-8">
+        <ol className="flex min-w-0 flex-col gap-7 rounded-[18px] border border-border bg-surface p-5 sm:p-8 shadow-card">
           <Message from="agent">
             <p className="text-fg-muted">
               Audited your project. <span className="text-fg">Tailwind v4</span>, tokens in{" "}
@@ -78,7 +78,7 @@ export function TheFlow() {
 
           <Message from="agent" delay={60}>
             <p className="mb-3 text-fg-muted">Here is how far your design is from this kit:</p>
-            <div className="overflow-hidden rounded-xl border border-border">
+            <div className="overflow-hidden rounded-[14px] border border-border">
               {GAP.map((row) => (
                 <div key={row.area} className="flex items-center justify-between gap-6 border-b border-border px-3.5 py-2 last:border-b-0">
                   <span className="text-[13.5px] text-fg">{row.area}</span>
@@ -100,7 +100,7 @@ export function TheFlow() {
 
           <Message from="agent">
             <p className="mb-3 text-fg-muted">One conflict with your project rules:</p>
-            <div className="rounded-xl border border-border bg-bg p-3.5">
+            <div className="rounded-[14px] border border-border bg-bg p-3.5">
               <p className="font-mono text-[11.5px] text-fg-subtle">CLAUDE.md:14</p>
               <p className="mt-1 text-[13.5px] text-fg">“Primary buttons are blue (#2563eb).”</p>
             </div>
@@ -108,7 +108,7 @@ export function TheFlow() {
           </Message>
 
           <Message from="agent">
-            <div className="rounded-xl border border-border bg-bg p-3.5 font-mono text-[12px] leading-[1.9]">
+            <div className="rounded-[14px] border border-border bg-bg p-3.5 font-mono text-[12px] leading-[1.9]">
               {[
                 ["9f2c1ab", "tokens"],
                 ["4e8d0f2", "components"],

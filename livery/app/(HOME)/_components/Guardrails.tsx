@@ -30,10 +30,10 @@ export function Guardrails() {
     <section className="border-t border-border px-4 py-20 sm:px-6 sm:py-28">
       <div className="mx-auto max-w-6xl">
         <SectionHeading kicker="Guardrails" title="Built to be trusted," muted="by you and by the sites you love." />
-        <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-[22px] border border-border bg-border sm:grid-cols-2">
+        <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-[18px] border border-border bg-border sm:grid-cols-2">
           {ITEMS.map(({ Icon, title, body }, index) => (
             <Reveal key={title} delay={index * 60} className="bg-surface p-6 sm:p-8">
-              <span className="flex size-10 items-center justify-center rounded-xl bg-accent-soft text-accent-soft-fg">
+              <span className="flex size-10 items-center justify-center rounded-[14px] bg-accent-soft text-accent-soft-fg">
                 <Icon className="size-5" />
               </span>
               <h3 className="mt-5 text-lg font-semibold tracking-tight">{title}</h3>

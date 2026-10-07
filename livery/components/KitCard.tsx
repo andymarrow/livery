@@ -9,7 +9,7 @@ export function KitCard({ kit }: { kit: KitCardData }) {
   return (
     <Link
       href={kitPath(kit.slug, kit.version)}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface transition-[border-color,transform] duration-200 ease-out-soft hover:-translate-y-0.5 hover:border-border-strong"
+      className="group flex flex-col overflow-hidden rounded-[18px] border border-border bg-surface transition-[border-color,transform] duration-200 ease-out-soft hover:-translate-y-0.5 hover:border-border-strong shadow-card"
     >
       <div className="flex h-24 border-b border-border" aria-hidden>
         {swatches.map((colour, index) => (

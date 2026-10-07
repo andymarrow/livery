@@ -43,7 +43,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <li
               key={toast.id}
               role="status"
-              className="pointer-events-auto flex w-full max-w-sm animate-[toast-in_240ms_var(--ease-out-soft)] items-start gap-3 rounded-xl border border-border-strong bg-surface p-3.5"
+              className="pointer-events-auto flex w-full max-w-sm animate-[toast-in_240ms_var(--ease-out-soft)] items-start gap-3 rounded-[14px] border border-border-strong bg-surface p-3.5"
             >
               <Icon className={cn("mt-px size-4 shrink-0", ICON_COLOURS[toast.tone])} />
               <div className="min-w-0 flex-1">

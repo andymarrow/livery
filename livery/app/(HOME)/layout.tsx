@@ -6,7 +6,7 @@ export default function HomeLayout({ children }: LayoutProps<"/">) {
     <>
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-fg focus:px-3 focus:py-2 focus:text-sm focus:text-bg"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-50 focus:rounded-[10px] focus:bg-fg focus:px-3 focus:py-2 focus:text-sm focus:text-bg"
       >
         Skip to content
       </a>
