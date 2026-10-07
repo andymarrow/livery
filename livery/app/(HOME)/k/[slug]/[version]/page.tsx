@@ -33,8 +33,8 @@ export async function generateMetadata({ params }: PageProps<"/k/[slug]/[version
   const view = await load(params);
   if (!view) return { title: "Kit not found" };
   return {
-    title: `${view.domain} design kit · v${view.version}`,
-    description: view.analysis?.summary ?? `An installable design kit built from ${view.domain}.`,
+    title: `${view.title} design kit · v${view.version}`,
+    description: view.analysis?.summary ?? `An installable design kit built from ${view.title}.`,
     alternates: { canonical: kitPath(view.slug, view.version) },
   };
 }
@@ -51,21 +51,28 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
     licence_required: view.items.filter((i) => i.licence === "licence_required").length,
     style_only: view.items.filter((i) => i.licence === "style_only").length,
   };
-  const prompt = installPrompt({ siteName: view.domain, slug: view.slug, version: view.version, sha256: view.contentHash, skillName });
-  const path = new URL(view.sourceUrl).pathname;
+  const prompt = installPrompt({ siteName: view.title, slug: view.slug, version: view.version, sha256: view.contentHash, skillName });
 
   return (
     <div className="mx-auto w-full max-w-[80rem] px-4 pb-24 pt-10 sm:px-6 sm:pt-14">
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-[13px] text-fg-subtle">
         <Link href="/explore" className="transition-colors hover:text-fg">Library</Link>
         <span aria-hidden>/</span>
-        <span className="text-fg-muted">{view.domain}</span>
+        {view.kind === "taste" && (
+          <>
+            <Link href="/explore?shelf=tastes" className="transition-colors hover:text-fg">Tastes</Link>
+            <span aria-hidden>/</span>
+          </>
+        )}
+        <span className="truncate text-fg-muted">{view.title}</span>
       </nav>
 
       <header className="mt-6 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="accent">v{view.version}</Badge>
+            {view.kind === "taste" && <Badge variant="neutral">Taste · {view.sources.length} sites</Badge>}
+            {view.kind === "site" && <Badge variant="neutral">{view.sources.length} pages</Badge>}
             {view.ownerApproved && !withdrawn && (
               <Badge variant="accent" title="Built under the site owner's livery.json">
                 <UserCheck /> Owner approved
@@ -73,10 +80,8 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
             )}
             {withdrawn ? <Badge variant="danger">Withdrawn</Badge> : <Badge variant="neutral"><SealCheck className="text-accent-ink" /> Published {view.publishedAt.slice(0, 10)}</Badge>}
           </div>
-          <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">{view.domain}</h1>
-          <a href={view.sourceUrl} target="_blank" rel="noreferrer noopener" className="mt-2 inline-flex items-center gap-1 text-[14px] text-fg-muted transition-colors hover:text-fg">
-            {path === "/" ? "Homepage" : path} <ArrowUpRight className="size-3.5" />
-          </a>
+          <h1 className="mt-4 text-3xl font-bold tracking-tight text-balance sm:text-4xl">{view.title}</h1>
+          <KitOrigin view={view} />
           {view.analysis?.summary && <p className="mt-5 max-w-2xl text-base leading-relaxed text-fg-muted text-pretty">{view.analysis.summary}</p>}
         </div>
         <dl className="grid shrink-0 grid-cols-3 gap-px overflow-hidden rounded-[18px] border border-border bg-border text-center">
@@ -173,7 +178,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
                         {/* eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL from private storage */}
                         <img
                           src={frame.url}
-                          alt={`${frame.name} layout of ${view.domain} with content removed`}
+                          alt={`${frame.name} layout of ${view.title} with content removed`}
                           width={view.frameSizes[frame.name]?.width}
                           height={view.frameSizes[frame.name]?.height}
                           loading="lazy"
@@ -197,6 +202,42 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
           )}
         </>
       )}
+    </div>
+  );
+}
+
+const hostOf = (url: string) => new URL(url).hostname.replace(/^www\./, "");
+const pathOf = (url: string) => {
+  const path = new URL(url).pathname;
+  return path === "/" ? "Homepage" : path;
+};
+
+// Where a kit came from: the page it was measured on, or each link of a combined kit.
+function KitOrigin({ view }: { view: NonNullable<Awaited<ReturnType<typeof getKitVersion>>> }) {
+  if (view.kind === "page" && view.sourceUrl) {
+    return (
+      <a href={view.sourceUrl} target="_blank" rel="noreferrer noopener" className="mt-2 inline-flex items-center gap-1 text-[14px] text-fg-muted transition-colors hover:text-fg">
+        {pathOf(view.sourceUrl)} <ArrowUpRight className="size-3.5" />
+      </a>
+    );
+  }
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[13px]">
+      {view.kind === "taste" && view.curator && view.curatorSlug && (
+        <Link href={`/explore?by=${view.curatorSlug}`} className="mr-1 text-fg-muted transition-colors hover:text-fg">
+          Picked by <span className="font-medium text-fg underline decoration-border-strong underline-offset-4">{view.curator}</span>
+        </Link>
+      )}
+      {view.sources.map((source, index) => (
+        <Link
+          key={source.url}
+          href={kitPath(source.slug, source.version)}
+          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-2.5 py-1 text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+        >
+          <span className="font-mono text-[10.5px] text-fg-subtle">{String(index + 1).padStart(2, "0")}</span>
+          {view.kind === "site" ? pathOf(source.url) : hostOf(source.url)}
+        </Link>
+      ))}
     </div>
   );
 }

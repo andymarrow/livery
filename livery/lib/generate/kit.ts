@@ -23,8 +23,15 @@ export class KitGuardError extends Error {}
 
 export type OwnerTerms = { licence: string; commercial: boolean; attribution?: string };
 
+/** One link a combined kit was made from. */
+export type KitSource = { url: string; slug: string; version: number };
+
 type Meta = {
   slug: string;
+  /** Overrides the host as the kit's display name (combined kits). */
+  siteName?: string;
+  /** Combined kits: the page kits this one was made from, in order. */
+  sources?: KitSource[];
   version: number;
   levels?: Level[];
   attribution?: string | null;
@@ -87,7 +94,7 @@ function stripCopied(a: Analysis, index: Set<string>): Analysis {
  * renders every kit file.
  */
 export async function generateKit(extraction: Extraction, writer: DesignWriter, meta: Meta): Promise<Kit> {
-  const siteName = new URL(extraction.source.finalUrl).hostname.replace(/^www\./, "");
+  const siteName = meta.siteName ?? new URL(extraction.source.finalUrl).hostname.replace(/^www\./, "");
   const skillName = skillNameFor(meta.slug);
   const levels = meta.levels ?? DEFAULT_LEVELS;
   const notes: string[] = [];
@@ -131,8 +138,8 @@ export async function generateKit(extraction: Extraction, writer: DesignWriter, 
     renderSkill({ skillName, siteName, version: meta.version, levels, summary: analysis.summary, licenceRequired, styleOnly, attribution: meta.attribution ?? null, files: dataFiles }),
   );
   if (ownerRules) add("owner-rules.md", `# ${siteName}: the owner's design rules\n\nWritten by the site's owner and shared through their livery.json. Where these disagree with rules.md, these win.\n\n---\n\n${ownerRules}`);
-  add("rules.md", rulesMd(extraction, analysis, siteName, Boolean(ownerRules)));
-  if (included.has("tokens.json")) add("tokens.json", tokensJson(extraction));
+  add("rules.md", rulesMd(extraction, analysis, siteName, Boolean(ownerRules), meta.sources));
+  if (included.has("tokens.json")) add("tokens.json", tokensJson(extraction, meta.sources));
   if (included.has("fonts.json")) add("fonts.json", fontsJson(extraction));
   if (included.has("icons.json")) add("icons.json", iconsJson(extraction));
   if (included.has("components.md")) add("components.md", componentsMd(extraction, analysis));
@@ -148,7 +155,7 @@ export async function generateKit(extraction: Extraction, writer: DesignWriter, 
 }
 
 const ALLOWED =
-  /^(SKILL\.md|rules\.md|owner-rules\.md|tokens\.json|fonts\.json|icons\.json|components\.md|layout\.md|motion\.md|voice\.md|licences\.md|frames\/(desktop|tablet|mobile)\.webp|assets\/(icons|illustrations)\/[a-z0-9-]+\.svg|assets\/photos\/[a-z0-9-]+\.(jpg|png|webp|avif))$/;
+  /^(SKILL\.md|rules\.md|owner-rules\.md|tokens\.json|fonts\.json|icons\.json|components\.md|layout\.md|motion\.md|voice\.md|licences\.md|frames\/([0-9]{2}-)?(desktop|tablet|mobile)\.webp|assets\/(icons|illustrations)\/[a-z0-9-]+\.svg|assets\/photos\/[a-z0-9-]+\.(jpg|png|webp|avif))$/;
 const FONT_MAGIC = [Buffer.from("wOFF"), Buffer.from("wOF2"), Buffer.from([0x00, 0x01, 0x00, 0x00]), Buffer.from("OTTO")];
 const IMAGE_MAGIC: Record<string, (b: Buffer) => boolean> = {
   jpg: (b) => b[0] === 0xff && b[1] === 0xd8,

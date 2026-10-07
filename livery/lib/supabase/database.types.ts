@@ -7,6 +7,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type KitStatus = "building" | "ready" | "failed" | "withdrawn";
 export type KitItemKind = "font" | "icon_set" | "icon" | "image" | "logo" | "illustration";
 export type KitLicence = "free" | "licence_required" | "style_only";
+export type KitKind = "page" | "site" | "taste";
 export type SiteOptIn = "none" | "granted" | "forbidden";
 export type ReadFailureReason =
   | "bot_protection"
@@ -39,8 +40,15 @@ export type Database = {
       }>;
       kits: Table<{
         id: string;
-        source_url: string;
-        domain: string;
+        kind: KitKind;
+        /** Page kits only. */
+        source_url: string | null;
+        /** Page and site kits; null for a taste. */
+        domain: string | null;
+        /** Site and taste kits: sha256 of what they combine. */
+        sources_key: string | null;
+        curator: string | null;
+        curator_slug: string | null;
         slug: string;
         owner_id: string | null;
         created_at: string;
@@ -61,6 +69,7 @@ export type Database = {
         content_hash: string | null;
         grant_snapshot: Json | null;
         grant_hash: string | null;
+        sources_hash: string | null;
         error: string | null;
         build_started_at: string;
         published_at: string | null;
@@ -76,6 +85,13 @@ export type Database = {
         licence: KitLicence;
         licence_name: string | null;
         alternative: string | null;
+      }>;
+      kit_sources: Table<{
+        kit_version_id: string;
+        position: number;
+        source_url: string;
+        domain: string;
+        source_version_id: string;
       }>;
       read_failures: Table<{
         source_url: string;
@@ -111,6 +127,22 @@ export type Database = {
           p_source_url: string;
           p_domain: string;
           p_slug: string;
+          p_extractor_version: number;
+          p_flow_version: number;
+          p_stale_after?: string;
+        };
+        Returns: { kit_id: string; kit_version_id: string; claimed: boolean }[];
+      };
+      start_combined_build: {
+        Args: {
+          p_kind: "site" | "taste";
+          p_sources_key: string;
+          p_domain: string | null;
+          p_slug: string;
+          p_curator: string | null;
+          p_curator_slug: string | null;
+          p_sources: Json;
+          p_sources_hash: string;
           p_extractor_version: number;
           p_flow_version: number;
           p_stale_after?: string;

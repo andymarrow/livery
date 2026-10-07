@@ -29,7 +29,9 @@ export function SearchBox() {
     const current = params.get("q") ?? "";
     if (value.trim() === current) return;
     const id = setTimeout(() => {
-      const next = new URLSearchParams();
+      const next = new URLSearchParams(params);
+      next.delete("q");
+      next.delete("page");
       if (value.trim()) next.set("q", value.trim());
       startTransition(() => router.replace(`${pathname}${next.size ? `?${next}` : ""}`, { scroll: false }));
     }, 250);
@@ -46,7 +48,7 @@ export function SearchBox() {
         type="search"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Search by domain"
+        placeholder="Search by domain or name"
         aria-label="Search kits by domain"
         className="h-11 w-full rounded-[14px] border border-border bg-surface pl-10 pr-12 text-sm text-fg placeholder:text-fg-subtle transition-[border-color] hover:border-border-strong focus-visible:border-accent focus-visible:outline-none [&::-webkit-search-cancel-button]:hidden"
       />

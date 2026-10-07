@@ -1,5 +1,6 @@
 import type { Extraction } from "@/lib/extract";
 import type { Analysis } from "./analysis";
+import type { KitSource } from "./kit";
 
 // Each kit file, rendered deterministically from measurements (values) and
 // the analysis (reasons). Markdown stays plain so any agent can read it.
@@ -7,7 +8,7 @@ import type { Analysis } from "./analysis";
 const bullets = (items: string[]) => items.map((i) => `- ${i}`).join("\n");
 const px = (n: number | null | undefined) => (n == null ? "n/a" : `${n}px`);
 
-export function tokensJson(e: Extraction) {
+export function tokensJson(e: Extraction, sources?: KitSource[]) {
   const { palette, alternatePalette, typography, spacing, radii, shadows, borderWidths, breakpoints, layout, motion } = e.tokens;
   const colourRoles = (p: typeof palette) => ({
     scheme: p.scheme,
@@ -26,6 +27,7 @@ export function tokensJson(e: Extraction) {
     {
       $schema: "https://livery.site/schema/tokens-v1.json",
       source: { url: e.source.url, extractedAt: e.source.extractedAt, extractorVersion: e.source.extractorVersion },
+      ...(sources?.length ? { sources: sources.map((s) => ({ url: s.url, kit: `${s.slug}/v${s.version}` })) } : {}),
       colour: { [palette.scheme]: colourRoles(palette), ...(alternatePalette ? { [alternatePalette.scheme]: colourRoles(alternatePalette) } : {}) },
       typography: {
         families: { body: typography.families.body, display: typography.families.display, mono: typography.families.mono },
@@ -152,11 +154,11 @@ ${bullets(a.voice.rules)}
 ${examples ? `\n## Examples (new sentences in this voice)\n\n${examples}\n` : ""}`;
 }
 
-export function rulesMd(e: Extraction, a: Analysis, siteName: string, hasOwnerRules = false) {
+export function rulesMd(e: Extraction, a: Analysis, siteName: string, hasOwnerRules = false, sources?: KitSource[]) {
   return `# ${siteName}: design rules
 ${hasOwnerRules ? "\n> The site's owner shared their own rules in `owner-rules.md`. Read them first; where they disagree with this file, they win.\n" : ""}
 ${a.summary}
-
+${sources?.length ? `\nMeasured from ${sources.length} links; values in \`tokens.json\` start from the first one:\n\n${sources.map((s, i) => `${i + 1}. ${s.url}`).join("\n")}\n` : ""}
 ## Principles
 
 ${a.principles.map((p) => `### ${p.title}\n\n${p.rule}\n\n_Why:_ ${p.why}`).join("\n\n")}

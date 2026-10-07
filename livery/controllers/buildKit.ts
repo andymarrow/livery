@@ -9,7 +9,7 @@ import { fetchOwnerRules } from "@/lib/optin/ownerRules";
 import type { Progress, ReadFailure } from "@/lib/extract/types";
 import { generateKit } from "@/lib/generate/kit";
 import { packageKit } from "@/lib/generate/package";
-import { measuredWriter } from "@/lib/generate/measured";
+import { measuredWriter, voiceProfile } from "@/lib/generate/measured";
 import type { DesignWriter } from "@/lib/generate/writer";
 import { logger } from "@/lib/logger";
 import { checkBuildRate } from "@/lib/rateLimit";
@@ -70,7 +70,8 @@ function withOwnerAssets(items: KitItem[], files: KitFile[], terms: OwnerTerms |
   return [...kept, ...granted];
 }
 
-// Stored data: measurements only. Never the site's text, and frames live in storage.
+// Stored data: measurements only. Never the site's text (voice is kept as
+// numbers, so combined kits can use it), and frames live in storage.
 function storedExtraction(extraction: Extraction) {
   return {
     source: extraction.source,
@@ -80,6 +81,7 @@ function storedExtraction(extraction: Extraction) {
     components: extraction.components,
     imagery: extraction.imagery,
     items: extraction.items,
+    voice: voiceProfile(extraction.text),
     // Sizes only, so the kit page can reserve space for the frames.
     frames: extraction.frames.map(({ name, width, height }) => ({ name, width, height })),
   };

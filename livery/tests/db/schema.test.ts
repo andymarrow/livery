@@ -215,3 +215,79 @@ describe("storage", () => {
     ]);
   });
 });
+
+describe("combined kits", () => {
+  const KEY = "b".repeat(64);
+  const SOURCES_HASH = "c".repeat(64);
+
+  async function publishedPage(path: string) {
+    const lock = await startBuild(`https://example.com${path}`, `example-com${path.replace(/\//g, "-").replace(/-$/, "")}`);
+    await publish(lock.kit_version_id);
+    return { url: `https://example.com${path}`, versionId: lock.kit_version_id };
+  }
+
+  async function startCombined(kind: string, sources: { url: string; versionId: string }[], key = KEY, curator: string | null = null) {
+    const { rows } = await db.query<{ kit_id: string; kit_version_id: string; claimed: boolean }>(
+      `select * from public.start_combined_build($1, $2, $3, $4, $5, $6, $7, $8, 1, 1)`,
+      [
+        kind,
+        key,
+        kind === "site" ? "example.com" : null,
+        `${kind}-${key.slice(0, 6)}`,
+        curator,
+        curator ? curator.toLowerCase() : null,
+        JSON.stringify(sources.map((s, i) => ({ position: i + 1, source_url: s.url, domain: "example.com", source_version_id: s.versionId }))),
+        SOURCES_HASH,
+      ],
+    );
+    return rows[0];
+  }
+
+  it("builds a site kit from published pages and records its sources", async () => {
+    const sources = [await publishedPage("/"), await publishedPage("/pricing")];
+    const lock = await startCombined("site", sources);
+    expect(lock.claimed).toBe(true);
+    expect((await startCombined("site", sources)).claimed).toBe(false);
+    expect(await publish(lock.kit_version_id)).toBe(1);
+    const { rows } = await db.query<{ position: number; source_url: string }>(
+      `select position, source_url from public.kit_sources where kit_version_id = $1 order by position`,
+      [lock.kit_version_id],
+    );
+    expect(rows.map((r) => r.source_url)).toEqual(["https://example.com/", "https://example.com/pricing"]);
+  });
+
+  it("refuses unpublished or single sources", async () => {
+    const page = await publishedPage("/");
+    const unpublished = await startBuild("https://example.com/draft", "example-com-draft");
+    await expect(startCombined("site", [page, { url: "https://example.com/draft", versionId: unpublished.kit_version_id }])).rejects.toThrow(/published page kit/);
+    await expect(startCombined("site", [page])).rejects.toThrow(/published page kit/);
+  });
+
+  it("keeps a taste kit's curator and needs no domain", async () => {
+    const sources = [await publishedPage("/"), await publishedPage("/work")];
+    const lock = await startCombined("taste", sources, KEY, "Andy");
+    await publish(lock.kit_version_id);
+    const { rows } = await db.query<{ kind: string; domain: string | null; curator: string }>(`select kind, domain, curator from public.kits where id = $1`, [lock.kit_id]);
+    expect(rows[0]).toEqual({ kind: "taste", domain: null, curator: "Andy" });
+  });
+
+  it("rejects a page kit without a source url and a taste with a half-set curator", async () => {
+    await expect(db.query(`insert into public.kits (kind, domain, slug) values ('page', 'example.com', 'x')`)).rejects.toThrow();
+    await db.query(`insert into public.sites (domain) values ('example.com') on conflict do nothing`);
+    await expect(db.query(`insert into public.kits (kind, sources_key, slug, curator) values ('taste', $1, 'y', 'Andy')`, [KEY])).rejects.toThrow();
+  });
+
+  it("freezes sources with their version and shows them to anon once published", async () => {
+    const sources = [await publishedPage("/"), await publishedPage("/about")];
+    const lock = await startCombined("site", sources);
+    await asRole(db, "anon", async () => {
+      expect((await db.query(`select * from public.kit_sources`)).rows).toHaveLength(0);
+    });
+    await publish(lock.kit_version_id);
+    await expect(db.query(`delete from public.kit_sources where kit_version_id = $1`, [lock.kit_version_id])).rejects.toThrow(/cannot be changed/);
+    await asRole(db, "anon", async () => {
+      expect((await db.query(`select * from public.kit_sources`)).rows).toHaveLength(2);
+      await expect(db.query(`select * from public.start_combined_build('site', $1, null, 's', null, null, '[]', $2, 1, 1)`, [KEY, SOURCES_HASH])).rejects.toThrow();
+    });
+  });
+});

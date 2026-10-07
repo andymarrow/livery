@@ -23,14 +23,16 @@ export function KitCard({ kit }: { kit: KitCardData }) {
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold tracking-tight">{kit.domain}</p>
-            <p className="truncate text-[12.5px] text-fg-subtle">{new URL(kit.sourceUrl).pathname === "/" ? "Homepage" : new URL(kit.sourceUrl).pathname}</p>
+            <p className="truncate text-sm font-semibold tracking-tight">{kit.title}</p>
+            <p className="truncate text-[12.5px] text-fg-subtle">{kit.detail}</p>
           </div>
           <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border text-fg-subtle transition-colors duration-150 group-hover:border-accent group-hover:bg-accent group-hover:text-on-accent">
             <ArrowUpRight strokeWidth={2.25} className="size-3.5" />
           </span>
         </div>
         <div className="mt-auto flex flex-wrap items-center gap-1.5 text-[11.5px] text-fg-muted">
+          {kit.kind === "taste" && <span className="rounded-full border border-accent/40 px-2 py-0.5 font-medium text-accent-ink">Taste</span>}
+          {kit.kind === "site" && <span className="rounded-full border border-border-strong px-2 py-0.5 font-medium text-fg">Multi-page</span>}
           {kit.ownerApproved && <span className="rounded-full bg-accent-soft px-2 py-0.5 font-medium text-accent-soft-fg">Owner approved</span>}
           {kit.scheme && <span className="rounded-full bg-surface-2 px-2 py-0.5 capitalize">{kit.scheme}</span>}
           {kit.font && <span className="max-w-[10rem] truncate rounded-full bg-surface-2 px-2 py-0.5">{kit.font}</span>}

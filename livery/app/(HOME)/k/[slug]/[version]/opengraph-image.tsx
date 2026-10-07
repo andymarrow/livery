@@ -23,7 +23,7 @@ export default async function KitOgImage({ params }: { params: Promise<{ slug: s
           ))}
         </div>
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", flexGrow: 1, padding: "48px 64px" }}>
-          <span style={{ fontSize: 76, fontWeight: 600, color: "#1a1a17", letterSpacing: -3 }}>{view?.domain ?? slug}</span>
+          <span style={{ fontSize: 76, fontWeight: 600, color: "#1a1a17", letterSpacing: -3 }}>{view?.title ?? slug}</span>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 28, color: "#55534d" }}>
             <span>Design kit · v{number ?? 1}</span>
             <span style={{ color: "#0d7268", fontWeight: 600 }}>livery.site</span>

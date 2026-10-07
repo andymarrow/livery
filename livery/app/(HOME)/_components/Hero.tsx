@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { HeroFigure } from "./HeroFigure";
 import { KitInput } from "./KitInput";
 import { MeasureField } from "./MeasureField";
@@ -34,7 +35,18 @@ export function Hero() {
             <KitInput />
           </div>
 
-          <p className="animate-rise mt-7 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[13px] text-fg-subtle" style={{ animationDelay: "240ms" }}>
+          <p className="animate-rise mt-6 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] text-fg-muted" style={{ animationDelay: "210ms" }}>
+            More than one link?
+            <Link href="/combine" className="group inline-flex items-center gap-1 font-medium text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent">
+              Combine pages of a site
+            </Link>
+            <span aria-hidden className="text-fg-subtle">or</span>
+            <Link href="/combine?kind=taste" className="group inline-flex items-center gap-1 font-medium text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent">
+              capture someone&apos;s taste
+            </Link>
+          </p>
+
+          <p className="animate-rise mt-5 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[13px] text-fg-subtle" style={{ animationDelay: "240ms" }}>
             Works with
             {AGENTS.map((agent) => (
               <span key={agent} className="rounded-full border border-border bg-surface px-2.5 py-0.5 text-xs text-fg-muted transition-colors hover:border-border-strong hover:text-fg">

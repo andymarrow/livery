@@ -4,15 +4,36 @@ import type { Manifest } from "@/lib/generate/package";
 import { untarGz } from "@/lib/generate/untar";
 import { getAdminClient } from "@/lib/supabase/admin";
 import { getPublicClient } from "@/lib/supabase/public";
-import type { KitItemKind, KitLicence, KitStatus } from "@/lib/supabase/database.types";
+import type { KitItemKind, KitKind, KitLicence, KitStatus } from "@/lib/supabase/database.types";
 import type { Tokens } from "@/lib/extract/process/tokens";
+
+/** A link a combined kit was made from. */
+export type KitSourceLink = { url: string; slug: string; version: number };
+
+const hostOf = (url: string) => new URL(url).hostname.replace(/^www\./, "");
+
+/** How a kit is named on the site: its host, or whose taste it is. */
+export function kitTitle(kit: { kind: KitKind; domain: string | null; curator: string | null }, sources: KitSourceLink[] = []) {
+  if (kit.kind !== "taste") return kit.domain ?? "Untitled kit";
+  if (kit.curator) return `${kit.curator}'s taste`;
+  const hosts = [...new Set(sources.map((s) => hostOf(s.url)))];
+  return hosts.length ? `A taste across ${hosts.slice(0, 2).join(", ")}${hosts.length > 2 ? ` +${hosts.length - 2}` : ""}` : "A shared taste";
+}
 
 export type KitVersionView = {
   kitId: string;
   versionId: string;
   slug: string;
-  sourceUrl: string;
-  domain: string;
+  kind: KitKind;
+  /** Display name: the host, or "Andy's taste". */
+  title: string;
+  curator: string | null;
+  curatorSlug: string | null;
+  /** Combined kits: the page kits they were made from, in order. */
+  sources: KitSourceLink[];
+  /** Page kits only. */
+  sourceUrl: string | null;
+  domain: string | null;
   version: number;
   status: KitStatus;
   levels: number[];
@@ -35,7 +56,7 @@ export type KitVersionView = {
 /** A published or withdrawn version. Building and failed builds are never visible. */
 export async function getKitVersion(slug: string, version: number): Promise<KitVersionView | null> {
   const db = getAdminClient();
-  const { data: kit } = await db.from("kits").select("id, slug, source_url, domain").eq("slug", slug).maybeSingle();
+  const { data: kit } = await db.from("kits").select("id, slug, kind, source_url, domain, curator, curator_slug").eq("slug", slug).maybeSingle();
   if (!kit) return null;
   const { data: v } = await db
     .from("kit_versions")
@@ -49,11 +70,17 @@ export async function getKitVersion(slug: string, version: number): Promise<KitV
     db.from("kit_items").select("kind, name, licence, licence_name, alternative").eq("kit_version_id", v.id).order("id"),
     latestVersion(kit.id),
   ]);
-  const data = (v.data ?? {}) as { extraction?: { tokens?: Tokens; frames?: { name: string; width: number; height: number }[] }; analysis?: Analysis };
+  const data = (v.data ?? {}) as { extraction?: { tokens?: Tokens; frames?: { name: string; width: number; height: number }[] }; analysis?: Analysis; sources?: KitSourceLink[] };
+  const sources = data.sources ?? [];
   return {
     kitId: kit.id,
     versionId: v.id,
     slug: kit.slug,
+    kind: kit.kind,
+    title: kitTitle(kit, sources),
+    curator: kit.curator,
+    curatorSlug: kit.curator_slug,
+    sources,
     sourceUrl: kit.source_url,
     domain: kit.domain,
     version: v.version,
@@ -118,8 +145,12 @@ export async function frameUrls(versionId: string) {
 
 export type KitCard = {
   slug: string;
-  domain: string;
-  sourceUrl: string;
+  kind: KitKind;
+  title: string;
+  /** "Homepage", "/pricing", "4 pages" or "3 sites". */
+  detail: string;
+  curator: string | null;
+  curatorSlug: string | null;
   version: number;
   publishedAt: string;
   swatches: string[];
@@ -130,31 +161,57 @@ export type KitCard = {
   ownerApproved: boolean;
 };
 
+export type KitShelf = "all" | "sites" | "tastes";
+
 /** Newest published kits for the library, newest version per kit. */
-export async function listKits({ query, limit = 24, offset = 0 }: { query?: string; limit?: number; offset?: number } = {}) {
+export async function listKits({
+  query,
+  shelf = "all",
+  curator,
+  limit = 24,
+  offset = 0,
+}: { query?: string; shelf?: KitShelf; curator?: string; limit?: number; offset?: number } = {}) {
   // Anon client: RLS already limits it to published versions.
   const db = getPublicClient();
   let request = db
     .from("kit_versions")
-    .select("version, published_at, data, grant_hash, kits!inner(slug, domain, source_url)", { count: "exact" })
+    .select("version, published_at, data, grant_hash, kits!inner(slug, kind, domain, source_url, curator, curator_slug)", { count: "exact" })
     .eq("status", "ready")
     .order("published_at", { ascending: false })
     .range(offset, offset + limit - 1);
-  if (query) request = request.ilike("kits.domain", `%${query.replace(/[%_]/g, "")}%`);
+  if (query) {
+    const q = query.replace(/[%_,.()"\\]/g, " ").trim();
+    if (q) request = request.or(`domain.ilike.%${q}%,curator.ilike.%${q}%`, { referencedTable: "kits" });
+  }
+  if (shelf === "sites") request = request.in("kits.kind", ["page", "site"]);
+  if (shelf === "tastes") request = request.eq("kits.kind", "taste");
+  if (curator) request = request.eq("kits.curator_slug", curator);
   const { data, count, error } = await request;
   if (error) throw error;
 
   const seen = new Set<string>();
   const cards: KitCard[] = [];
-  for (const row of (data ?? []) as unknown as { version: number; published_at: string; grant_hash: string | null; data: { extraction?: { tokens?: Tokens; fonts?: { family: string }[]; icons?: { library?: { name: string } | null } } }; kits: { slug: string; domain: string; source_url: string } }[]) {
+  type Row = {
+    version: number;
+    published_at: string;
+    grant_hash: string | null;
+    data: { extraction?: { tokens?: Tokens; fonts?: { family: string }[]; icons?: { library?: { name: string } | null } }; sources?: KitSourceLink[] };
+    kits: { slug: string; kind: KitKind; domain: string | null; source_url: string | null; curator: string | null; curator_slug: string | null };
+  };
+  for (const row of (data ?? []) as unknown as Row[]) {
     if (seen.has(row.kits.slug)) continue;
     seen.add(row.kits.slug);
     const tokens = row.data?.extraction?.tokens;
     const palette = tokens?.palette;
+    const sources = row.data?.sources ?? [];
+    const path = row.kits.source_url ? new URL(row.kits.source_url).pathname : "/";
     cards.push({
       slug: row.kits.slug,
-      domain: row.kits.domain,
-      sourceUrl: row.kits.source_url,
+      kind: row.kits.kind,
+      title: kitTitle(row.kits, sources),
+      detail: row.kits.kind === "page" ? (path === "/" ? "Homepage" : path) : row.kits.kind === "site" ? `${sources.length} pages` : `${new Set(sources.map((s) => hostOf(s.url))).size} sites`,
+      curator: row.kits.curator,
+      curatorSlug: row.kits.curator_slug,
       version: row.version,
       publishedAt: row.published_at,
       swatches: palette ? [palette.background, palette.surface, palette.text, palette.accent, palette.border].filter((c): c is string => Boolean(c)) : [],

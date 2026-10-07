@@ -14,9 +14,9 @@ type Rule = { rule: string; why: string };
 type Principle = { title: string; rule: string; why: string };
 
 const pct = (share: number) => `${share < 0.01 ? (share * 100).toFixed(1) : Math.round(share * 100)}%`;
-const clip = (text: string, max: number) => (text.length <= max ? text : `${text.slice(0, max - 1).trimEnd()}…`);
+export const clip = (text: string, max: number) => (text.length <= max ? text : `${text.slice(0, max - 1).trimEnd()}…`);
 
-function colourName(hex: string | null) {
+export function colourName(hex: string | null) {
   if (!hex) return "neutral";
   const rgba = parseColor(hex);
   if (!rgba) return hex;
@@ -81,7 +81,8 @@ function describeStates(c: ComponentVariant) {
 
 const VERBS = /^(get|start|try|book|join|sign|create|build|explore|learn|see|view|read|watch|download|contact|talk|buy|shop|discover|find|make|open|request|subscribe|order|launch|go|back|enter|host|vote|apply|install|add|save|share|send|claim)\b/i;
 
-function voiceProfile(text: Extraction["text"]) {
+/** Numbers only, so it can be stored with a kit and combined later; never the copy itself. */
+export function voiceProfile(text: Extraction["text"]) {
   const prose = [...text.paragraphs, ...text.headings];
   const sentences = prose.flatMap((p) => p.split(/(?<=[.!?])\s+/)).map((s) => s.trim()).filter((s) => s.split(/\s+/).length >= 3);
   const words = prose.join(" ").split(/\s+/).filter(Boolean);
@@ -130,8 +131,9 @@ const EXAMPLE_BANK = {
   title: [{ context: "subheading" as const, text: "Built For Teams That Move Fast" }],
 };
 
-function voice(e: Extraction): Analysis["voice"] {
-  const v = voiceProfile(e.text);
+export type VoiceProfile = ReturnType<typeof voiceProfile>;
+
+function voice(v: VoiceProfile): Analysis["voice"] {
   if (v.sampled < 4) {
     return {
       tone: ["plain", "clear"],
@@ -178,7 +180,7 @@ function voice(e: Extraction): Analysis["voice"] {
 // The analysis
 // ---------------------------------------------------------------------------
 
-export function measuredAnalysis(e: Extraction): Analysis {
+export function measuredAnalysis(e: Extraction, options: { voice?: VoiceProfile } = {}): Analysis {
   const t = e.tokens;
   const p = t.palette;
   const bg = parseColor(p.background) as Rgba;
@@ -399,7 +401,7 @@ export function measuredAnalysis(e: Extraction): Analysis {
     layout: layout.map((c) => clip(c, 240)).slice(0, 8),
     motion: { feel: clip(motion.feel, 240), rules: motion.rules.map((r) => clip(r, 240)) },
     imagery: imagery.map((c) => clip(c, 240)),
-    voice: voice(e),
+    voice: voice(options.voice ?? voiceProfile(e.text)),
   };
   return AnalysisSchema.parse(analysis);
 }

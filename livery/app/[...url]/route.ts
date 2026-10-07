@@ -46,7 +46,7 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/[...url]">) 
         if (!view) throw new Error("ready kit not readable");
         return markdown(
           agentKitMarkdown({
-            siteName: view.domain,
+            siteName: view.title,
             slug: view.slug,
             version: view.version,
             sha256: view.contentHash,

@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   report.pruned = !pruneError;
 
   const { data: stale } = await db.rpc("stale_frame_versions", {});
-  const paths = (stale ?? []).flatMap((v) => ["desktop", "tablet", "mobile"].map((n) => `${v.kit_version_id}/${n}.webp`));
+  const paths = (stale ?? []).flatMap((v) => ["desktop", "tablet", "mobile", "02-desktop", "03-desktop", "04-desktop", "05-desktop"].map((n) => `${v.kit_version_id}/${n}.webp`));
   for (let i = 0; i < paths.length; i += 100) {
     const { data } = await db.storage.from("screenshots").remove(paths.slice(i, i + 100));
     report.framesRemoved += data?.length ?? 0;
