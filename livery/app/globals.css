@@ -260,3 +260,25 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* The hero underline draws itself once. */
+.hero-stroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: hero-draw 900ms var(--ease-out-soft) 500ms forwards;
+}
+@keyframes hero-draw {
+  to { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-stroke { stroke-dashoffset: 0; animation: none; }
+}
+
+/* Section numbers on the landing page, in page order. */
+main {
+  counter-reset: kicker;
+}
+.kicker-index::before {
+  counter-increment: kicker;
+  content: counter(kicker, decimal-leading-zero);
+}

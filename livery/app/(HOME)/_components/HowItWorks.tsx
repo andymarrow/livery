@@ -1,3 +1,4 @@
+import { KickerNumber } from "@/components/SectionHeading";
 import { Check } from "@/components/icons";
 import { SITE } from "@/constants/constants";
 import { AskPreview } from "./AskPreview";
@@ -26,7 +27,10 @@ export function HowItWorks() {
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_1fr] md:items-end">
           <div>
-            <p className="label-micro">How it works</p>
+            <p className="label-micro flex items-center gap-2">
+              <KickerNumber />
+              How it works
+            </p>
             <h2 className="mt-3 text-2xl font-bold leading-tight tracking-tight text-balance sm:text-3xl">
               From Any Link to Your Codebase{" "}
               <span className="text-fg-subtle">Nothing Changes Until You Say So</span>

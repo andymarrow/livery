@@ -29,7 +29,7 @@ export function Guardrails() {
   return (
     <section className="border-t border-border px-4 py-16 sm:px-6 sm:py-20">
       <div className="mx-auto max-w-6xl">
-        <SectionHeading kicker="Guardrails" title="Built to Be Trusted" muted="By You and the Sites You Love" />
+        <SectionHeading kicker="Guardrails" numbered title="Built to Be Trusted" muted="By You and the Sites You Love" />
         <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-[18px] border border-border bg-border sm:grid-cols-2">
           {ITEMS.map(({ Icon, title, body }, index) => (
             <Reveal key={title} delay={index * 60} className="bg-surface p-6 sm:p-8">

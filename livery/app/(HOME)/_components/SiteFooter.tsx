@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
+import { Wordmark } from "@/components/Wordmark";
 import { ThemeSwitch } from "@/components/ThemeToggle";
 import { SITE } from "@/constants/constants";
 import { FOOTER_LINKS } from "@/constants/options";
@@ -19,7 +20,10 @@ export function SiteFooter() {
               <ul className="mt-4 space-y-2.5">
                 {links.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="text-sm text-fg-muted transition-colors hover:text-fg">
+                    <Link
+                      href={link.href}
+                      className="relative text-sm text-fg-muted transition-colors duration-150 after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 after:ease-out-soft hover:text-fg hover:after:scale-x-100"
+                    >
                       {link.label}
                     </Link>
                   </li>
@@ -29,7 +33,11 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="mt-14 flex flex-col-reverse items-start justify-between gap-4 border-t border-border pt-6 sm:flex-row sm:items-center">
+        <div className="mt-12 border-t border-dashed border-border pt-6">
+          <Wordmark />
+        </div>
+
+        <div className="mt-6 flex flex-col-reverse items-start justify-between gap-4 border-t border-border pt-6 sm:flex-row sm:items-center">
           <p className="text-[13px] text-fg-subtle">
             © {new Date().getFullYear()} {SITE.name}. Style, never assets: we describe designs, we don&apos;t copy them.
           </p>

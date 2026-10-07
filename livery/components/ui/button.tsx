@@ -8,6 +8,9 @@ const buttonVariants = cva(
     "transition-[background-color,border-color,color,transform] duration-150 ease-out-soft",
     "active:translate-y-px disabled:pointer-events-none disabled:opacity-45",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0",
+    // Arrows lean the way they point while hovered.
+    "[&_.lucide-arrow-right]:transition-transform [&_.lucide-arrow-up-right]:transition-transform [&_.lucide-arrow-left]:transition-transform",
+    "hover:[&_.lucide-arrow-right]:translate-x-0.5 hover:[&_.lucide-arrow-up-right]:translate-x-px hover:[&_.lucide-arrow-up-right]:-translate-y-px hover:[&_.lucide-arrow-left]:-translate-x-0.5",
   ],
   {
     variants: {

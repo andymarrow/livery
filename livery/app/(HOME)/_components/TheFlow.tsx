@@ -3,8 +3,8 @@ import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { cn } from "@/lib/utils";
 import { ConflictChoice } from "./ConflictChoice";
+import { KitLayers } from "./KitLayers";
 
-const STEPS = ["Prepare", "Audit", "Scan rules", "Report gap", "Ask", "Resolve conflicts", "Licences", "Apply", "Verify", "Keep it", "Summary"];
 
 const GAP = [
   { area: "Tokens", size: "Large", level: 3 },
@@ -53,18 +53,13 @@ export function TheFlow() {
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-14 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-20">
         <div className="lg:sticky lg:top-28 lg:self-start">
           <SectionHeading
-            kicker="The flow"
+            kicker="The flow" numbered
             title="Your Agent Asks First"
             description="Every kit carries the same eleven steps. Nothing is edited until you've seen the gap, chosen the areas and settled any conflict with your own project rules."
           />
-          <ol className="mt-8 grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-2">
-            {STEPS.map((step, index) => (
-              <li key={step} className="flex items-baseline gap-2 text-[13px]">
-                <span className="w-5 shrink-0 font-mono text-[11px] text-fg-subtle tabular">{String(index).padStart(2, "0")}</span>
-                <span className={cn(index === 4 || index === 7 ? "font-medium text-fg" : "text-fg-muted")}>{step}</span>
-              </li>
-            ))}
-          </ol>
+          <div className="mt-8 rounded-[18px] border border-border bg-surface p-4 shadow-card">
+            <KitLayers />
+          </div>
         </div>
 
         <ol className="flex min-w-0 flex-col gap-7 rounded-[18px] border border-border bg-surface p-5 sm:p-8 shadow-card">

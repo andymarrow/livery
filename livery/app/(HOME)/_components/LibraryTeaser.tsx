@@ -13,7 +13,7 @@ export function LibraryTeaser({ kits }: { kits: KitCardData[] }) {
     <section className="border-t border-border px-4 py-16 sm:px-6 sm:py-20">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
-          <SectionHeading kicker="The library" title="Every Link Becomes a Kit" />
+          <SectionHeading kicker="The library" numbered title="Every Link Becomes a Kit" />
           <Button asChild variant="secondary" className="shrink-0 self-start sm:self-auto">
             <Link href="/explore">
               Explore All Kits <ArrowRight strokeWidth={2.25} />
