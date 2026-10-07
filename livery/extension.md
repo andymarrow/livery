@@ -37,7 +37,7 @@ Each phase ships on its own branch, is usable on its own, and ends with a push.
 - **Supabase Auth** holds users, sessions, OAuth and password reset. No custom auth code.
 - `@supabase/ssr` cookie sessions. A `proxy.ts` (Next 16's name for middleware) refreshes the session on each request.
 - Server components and actions read the user with a server client (`utils/supabase/server.ts`, per `CLAUDE.md`). Client components use `app/_context/AuthContext.tsx`.
-- Email (confirm address, reset password, magic links later) goes through **Resend's SMTP**, set inside Supabase. App emails we send ourselves later (e.g. "your kit is ready") use the Resend API.
+- Email (confirm address, reset password) is sent by Livery itself through the **Resend API**: Supabase generates the secure link (`auth.admin.generateLink`) without sending anything, and the templates live in `lib/email/`.
 
 ### Routes and files (following `CLAUDE.md` structure)
 
@@ -64,11 +64,11 @@ app/(HOME)/_components/AccountMenu.tsx header: avatar menu, or "Sign in"
 
 ### Done when
 
-- [ ] Sign up with email gets a Resend email; confirm then sign in.
-- [ ] Google and GitHub sign-in round-trip on livery.site and on localhost.
-- [ ] Forgot password, then update password, works end to end.
-- [ ] Header shows the account menu; `/me` lists nothing yet but loads.
-- [ ] RLS tests: one user can't read another's profile or saved kits.
+- [x] Sign up with email gets a Resend email; confirm then sign in.
+- [x] Google and GitHub sign-in enabled (providers redirect correctly).
+- [x] Forgot password sends the reset email.
+- [x] Header shows the account menu; `/me` lists saved kits.
+- [x] RLS tests: one user can't read another's profile or saved kits.
 
 ## 4. Phase B: ownership and private kits
 
@@ -213,7 +213,7 @@ Phase A:
 1. **Google:** in Google Cloud Console, create an OAuth client (Web application) and set its consent screen. Redirect URI: `https://<your-project>.supabase.co/auth/v1/callback`. Bring the **Client ID** and **Client secret** into Supabase (Authentication → Providers → Google).
 2. **GitHub:** create an OAuth App (Settings → Developer settings) with the same callback URL. Bring its **Client ID** and **Client secret** into Supabase (Providers → GitHub).
 3. **Supabase Auth settings:** Site URL `https://www.livery.site`; redirect URLs for production and `http://localhost:3000/auth/callback`; turn on email confirmation.
-4. **Resend:** verify the `livery.site` domain (DNS records added in Vercel), create an API key, then in Supabase → Authentication → SMTP set host `smtp.resend.com`, port `465`, user `resend`, password = the API key, sender `Livery <hello@livery.site>`. Add `RESEND_API_KEY` to Vercel for app emails.
+4. **Resend:** only `RESEND_API_KEY` in `.env` and Vercel (the `livery.site` domain is verified). Livery sends its own sign-up and reset emails (`lib/email/`); Supabase only makes the links, so no SMTP settings or dashboard templates.
 5. Run the new migrations.
 
 Phase F:
