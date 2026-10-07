@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight } from "@/components/icons";
+import { Plus } from "@/components/icons";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
@@ -117,10 +117,10 @@ export function SiteHeader() {
         <div className="flex items-center gap-1.5 justify-self-end">
           <TasteCounter />
           <ThemeToggle />
-          <Button asChild size="sm" className="hidden h-9 px-4 text-sm sm:inline-flex">
-            <Link href="/#get-a-kit">
-              Get a Kit
-              <ArrowUpRight />
+          <Button asChild size="sm" className="group/create h-9 gap-1.5 pl-3 pr-4 text-sm">
+            <Link href="/create" aria-current={pathname === "/create" ? "page" : undefined}>
+              <Plus strokeWidth={2.5} className="transition-transform duration-300 ease-out-soft group-hover/create:rotate-90" />
+              Create
             </Link>
           </Button>
           <MobileNav />

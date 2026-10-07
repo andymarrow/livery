@@ -37,11 +37,11 @@ export function Hero() {
 
           <p className="animate-rise mt-6 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] text-fg-muted" style={{ animationDelay: "210ms" }}>
             More than one link?
-            <Link href="/combine" className="group inline-flex items-center gap-1 font-medium text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent">
+            <Link href="/create?kind=site" className="group inline-flex items-center gap-1 font-medium text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent">
               Combine pages of a site
             </Link>
             <span aria-hidden className="text-fg-subtle">or</span>
-            <Link href="/combine?kind=taste" className="group inline-flex items-center gap-1 font-medium text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent">
+            <Link href="/create?kind=taste" className="group inline-flex items-center gap-1 font-medium text-fg underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent">
               capture someone&apos;s taste
             </Link>
           </p>

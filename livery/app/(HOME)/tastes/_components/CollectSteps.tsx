@@ -28,7 +28,7 @@ export function CollectSteps() {
                 ))}
               </span>
               {links.length ? (
-                <Link href="/combine?kind=taste" className="font-medium text-fg underline decoration-border-strong underline-offset-4 hover:decoration-accent">
+                <Link href="/create?kind=taste" className="font-medium text-fg underline decoration-border-strong underline-offset-4 hover:decoration-accent">
                   {links.length} collected · build it
                 </Link>
               ) : (

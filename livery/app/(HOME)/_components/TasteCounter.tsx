@@ -10,10 +10,10 @@ import { cn } from "@/lib/utils";
 export function TasteCounter() {
   const { links } = useTasteTray();
   const pathname = usePathname();
-  if (!links.length || pathname === "/combine") return null;
+  if (!links.length || pathname === "/create") return null;
   return (
     <Link
-      href="/combine?kind=taste"
+      href="/create?kind=taste"
       aria-label={`Your taste: ${links.length} ${links.length === 1 ? "site" : "sites"}. Build it`}
       className="animate-rise group inline-flex h-9 items-center gap-2 rounded-full border border-accent/50 bg-surface pl-3 pr-3.5 text-[13px] font-medium text-fg transition-colors hover:border-accent"
     >

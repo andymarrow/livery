@@ -24,6 +24,11 @@ export function MobileNav() {
           <LogoMark />
           <SheetTitle className="text-[17px] font-semibold tracking-tight">livery</SheetTitle>
         </div>
+        <div className="px-5 pt-2">
+          <Button asChild className="h-11 w-full">
+            <Link href="/create" onClick={() => setOpen(false)}>Create a kit</Link>
+          </Button>
+        </div>
         <nav aria-label="Mobile" className="flex-1 px-3 pt-2">
           <ul className="flex flex-col">
             {NAV_LINKS.map((link, index) => (

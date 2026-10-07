@@ -87,11 +87,20 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
             invalid ? "border-danger" : "border-border-strong focus-within:border-accent hover:border-fg-subtle/50",
           )}
         >
-          <div className="relative flex h-12 min-w-0 flex-1 items-center pl-3 text-[17px] sm:h-14 sm:pl-4 sm:text-lg">
+          <div
+            className="relative flex h-12 min-w-0 flex-1 cursor-text items-center pl-3 text-[17px] sm:h-14 sm:pl-4 sm:text-lg"
+            onMouseDown={(event) => {
+              // The whole row is the field: a click beside the text still places the caret.
+              if (event.target !== inputRef.current) {
+                event.preventDefault();
+                inputRef.current?.focus();
+              }
+            }}
+          >
             <span aria-hidden className="shrink-0 font-medium text-fg-subtle select-none">
               {SITE.domain}/
             </span>
-            <div className="relative min-w-0 flex-1">
+            <div className="relative h-full min-w-0 flex-1">
               <input
                 ref={inputRef}
                 id={inputId}
@@ -109,11 +118,14 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
                 spellCheck={false}
                 aria-invalid={invalid || undefined}
                 aria-describedby={invalid ? errorId : undefined}
-                className="h-full w-full bg-transparent pr-2 font-medium text-fg outline-none focus-visible:outline-none"
+                placeholder={focused ? "paste any website" : undefined}
+                className="h-full w-full bg-transparent pr-2 font-medium text-fg caret-accent outline-none placeholder:text-fg-subtle/70 focus-visible:outline-none"
               />
-              {!value && (
+              {/* The typed examples only play while the field is idle; once it has
+                  focus, the real caret and a plain placeholder take over. */}
+              {!value && !focused && (
                 <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 flex items-center font-medium text-fg-subtle">
-                  {focused ? "paste any website" : placeholder}
+                  {placeholder}
                   <span className="ml-px inline-block h-[1.1em] w-[2px] translate-y-px rounded-full bg-accent animate-caret" />
                 </span>
               )}

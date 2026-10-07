@@ -39,7 +39,7 @@ export default async function TastesPage() {
       >
         <div className="flex flex-wrap items-center gap-3">
           <Button asChild size="lg">
-            <Link href="/combine?kind=taste">
+            <Link href="/create?kind=taste">
               Make a Taste <ArrowRight />
             </Link>
           </Button>

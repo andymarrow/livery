@@ -10,7 +10,7 @@ export const NAV_LINKS = [
 export const FOOTER_LINKS = {
   Product: [
     { href: "/explore", label: "Explore kits" },
-    { href: "/combine", label: "Combine links" },
+    { href: "/create", label: "Create a kit" },
     { href: "/tastes", label: "Tastes" },
     { href: "/how-it-works", label: "How it works" },
     { href: "/agents", label: "Install in your agent" },

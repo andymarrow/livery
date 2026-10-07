@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check, CircleAlert, FileText, LoaderCircle, Plus, User, X } from "@/components/icons";
+import { ArrowLeft, ArrowRight, Check, CircleAlert, FileText, Globe, LoaderCircle, Plus, User, X } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import type { BuildEvent } from "@/app/api/build/route";
 import type { CombineEvent } from "@/app/api/combine/route";
@@ -14,16 +14,19 @@ import { useTasteTray } from "@/lib/kit/tasteTray";
 import { toShortcut } from "@/lib/url/shortcut";
 import { cn } from "@/lib/utils";
 
-type Kind = "site" | "taste";
+export type CreateKind = "single" | "site" | "taste";
+type Kind = CreateKind;
 const MIN = 2;
 const MAX = 5;
 
 const KINDS: { id: Kind; label: string; body: string; icon: React.ReactNode }[] = [
-  { id: "site", label: "Pages of one site", body: "Home, pricing, docs. More context, one kit for that site.", icon: <FileText /> },
-  { id: "taste", label: "A person's taste", body: "Sites by one designer. The habits they share, under their name.", icon: <User /> },
+  { id: "single", label: "One website", body: "Paste a link, get its kit. The quickest way in.", icon: <Globe /> },
+  { id: "site", label: "Pages of one site", body: "Home, pricing, docs. More context, one kit.", icon: <FileText /> },
+  { id: "taste", label: "A person's taste", body: "Sites by one designer, under their name.", icon: <User /> },
 ];
 
 const PLACEHOLDERS: Record<Kind, string[]> = {
+  single: ["linear.app"],
   site: ["linear.app", "linear.app/pricing", "linear.app/changelog", "linear.app/method", "linear.app/customers"],
   taste: ["rize.roggy.site", "goatrank.lol", "another-project.com", "a-fourth.site", "and-one-more.dev"],
 };
@@ -63,12 +66,12 @@ function StepIcon({ status }: { status: Step["status"] }) {
   );
 }
 
-export function CombineClient({ initialKind }: { initialKind: Kind }) {
+export function CreateClient({ initialKind }: { initialKind: Kind }) {
   const router = useRouter();
   const [kind, setKind] = useState<Kind>(initialKind);
   const [curator, setCurator] = useState("");
-  const [links, setLinks] = useState<string[]>(["", ""]);
-  const [touched, setTouched] = useState<boolean[]>([false, false]);
+  const [links, setLinks] = useState<string[]>(initialKind === "single" ? [""] : ["", ""]);
+  const [touched, setTouched] = useState<boolean[]>(initialKind === "single" ? [false] : [false, false]);
   const [steps, setSteps] = useState<Step[] | null>(null);
   const [combine, setCombine] = useState<Step>({ status: "waiting" });
   const [problem, setProblem] = useState<string | null>(null);
@@ -117,13 +120,25 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
     });
   }, [links, kind]);
   const filled = checked.filter((c) => c.ok);
-  const ready = filled.length >= MIN && checked.every((c, i) => c.ok || !links[i].trim());
+  const min = kind === "single" ? 1 : MIN;
+  const max = kind === "single" ? 1 : MAX;
+  const ready = filled.length >= min && checked.every((c, i) => c.ok || !links[i].trim());
   const hosts = [...new Set(filled.map((c) => c.host))];
-  const preview = kind === "site" ? (hosts[0] ?? "your-site.com") : curator.trim() ? `${curator.trim()}'s taste` : hosts.length ? `A taste across ${hosts.slice(0, 2).join(", ")}${hosts.length > 2 ? ` +${hosts.length - 2}` : ""}` : "A shared taste";
+  const preview = kind === "single" ? (hosts[0] ?? "any-site.com") : kind === "site" ? (hosts[0] ?? "your-site.com") : curator.trim() ? `${curator.trim()}'s taste` : hosts.length ? `A taste across ${hosts.slice(0, 2).join(", ")}${hosts.length > 2 ? ` +${hosts.length - 2}` : ""}` : "A shared taste";
 
+  const choose = (next: Kind) => {
+    setKind(next);
+    if (next === "single") {
+      setLinks((current) => [current.find((l) => l.trim()) ?? ""]);
+      setTouched([false]);
+    } else if (links.length < MIN) {
+      setLinks((current) => [...current, ...Array(MIN - current.length).fill("")]);
+      setTouched((current) => [...current, ...Array(MIN - current.length).fill(false)]);
+    }
+  };
   const update = (index: number, value: string) => setLinks((current) => current.map((l, i) => (i === index ? value : l)));
   const add = () => {
-    if (links.length >= MAX) return;
+    if (links.length >= max) return;
     focusNew.current = true;
     setLinks((current) => [...current, ""]);
     setTouched((current) => [...current, false]);
@@ -272,16 +287,18 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
 
   return (
     <form
-      className="mx-auto w-full max-w-2xl"
+      className="mx-auto w-full max-w-3xl"
       onSubmit={(event) => {
         event.preventDefault();
         setTouched(links.map(() => true));
-        if (ready) void run();
+        if (!ready) return;
+        if (kind === "single") router.push(`/build?url=${encodeURIComponent(checked[0].path!)}`);
+        else void run();
       }}
     >
       <fieldset>
-        <legend className="label-micro">What are you combining?</legend>
-        <div role="radiogroup" className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <legend className="label-micro">What do you want a kit of?</legend>
+        <div role="radiogroup" className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {KINDS.map((option) => {
             const active = kind === option.id;
             return (
@@ -290,9 +307,9 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
                 type="button"
                 role="radio"
                 aria-checked={active}
-                onClick={() => setKind(option.id)}
+                onClick={() => choose(option.id)}
                 className={cn(
-                  "group relative flex gap-3 rounded-[18px] border bg-surface p-4 text-left transition-[border-color,background-color] duration-200",
+                  "group relative flex gap-3 rounded-[18px] border bg-surface p-4 text-left sm:flex-col sm:gap-4 sm:p-5 transition-[border-color,background-color] duration-200",
                   active ? "border-accent" : "border-border hover:border-border-strong",
                 )}
               >
@@ -338,7 +355,7 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
             {fromTray && kind === "taste" && <span className="ml-2 normal-case tracking-normal text-accent-ink">from your collection</span>}
           </p>
           <p className="text-[12.5px] text-fg-subtle tabular">
-            {filled.length} of {MIN}–{MAX}
+            {kind === "single" ? "One link" : `${filled.length} of ${MIN}–${MAX}`}
           </p>
         </div>
         <ol className="mt-3 space-y-2.5">
@@ -356,7 +373,7 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
                       onChange={(e) => update(index, e.target.value)}
                       onBlur={() => setTouched((current) => current.map((t, i) => (i === index ? true : t)))}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" && index === links.length - 1 && links.length < MAX && !ready) {
+                        if (e.key === "Enter" && index === links.length - 1 && links.length < max && !ready) {
                           e.preventDefault();
                           add();
                         }
@@ -369,11 +386,11 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
                       spellCheck={false}
                       className={cn(
                         "h-12 w-full rounded-full border bg-surface pl-5 text-[15px] transition-[border-color] duration-150 placeholder:text-fg-subtle hover:border-border-strong focus-visible:border-accent focus-visible:outline-none",
-                        index === 0 ? "pr-20" : "pr-5",
+                        index === 0 && kind !== "single" ? "pr-20" : "pr-5",
                         showError ? "border-danger" : "border-border",
                       )}
                     />
-                    {index === 0 && (
+                    {index === 0 && kind !== "single" && (
                       <span title="Values in tokens.json start from the first link" className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-surface-2 px-2.5 py-1 font-mono text-[10.5px] uppercase tracking-wide text-fg-muted">
                         Base
                       </span>
@@ -382,7 +399,7 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
                   <button
                     type="button"
                     onClick={() => remove(index)}
-                    disabled={links.length <= MIN}
+                    disabled={links.length <= min}
                     aria-label={`Remove link ${index + 1}`}
                     className="flex size-9 shrink-0 items-center justify-center rounded-full text-fg-subtle transition-[color,background-color,opacity] duration-150 hover:bg-surface-2 hover:text-fg disabled:pointer-events-none disabled:opacity-0"
                   >
@@ -394,7 +411,7 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
             );
           })}
         </ol>
-        {links.length < MAX && (
+        {links.length < max && (
           <button
             type="button"
             onClick={add}
@@ -408,14 +425,14 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
       <div className="mt-9 flex flex-col-reverse items-stretch justify-between gap-4 border-t border-dashed border-border pt-6 sm:flex-row sm:items-center">
         <p className="min-w-0 text-[13px] text-fg-muted">
           Becomes <span className="font-semibold text-fg">{preview}</span>
-          {kind === "site" ? (filled.length ? ` · ${filled.length} pages` : "") : hosts.length ? ` · ${hosts.length} ${hosts.length === 1 ? "site" : "sites"}` : ""}
+          {kind === "single" ? "" : kind === "site" ? (filled.length ? ` · ${filled.length} pages` : "") : hosts.length ? ` · ${hosts.length} ${hosts.length === 1 ? "site" : "sites"}` : ""}
         </p>
         <Button type="submit" disabled={!ready} className="h-11 px-6">
           Build Kit <ArrowRight />
         </Button>
       </div>
       <p className="mt-4 text-[12.5px] leading-relaxed text-fg-subtle">
-        Each new link counts as one build toward the hourly limit; links already in the library are free.{" "}
+        Each new link counts as one build toward the hourly limit; sites already in the library are free.{" "}
         <Link href="/how-it-works" className="underline decoration-border-strong underline-offset-4 hover:text-fg">
           How kits are measured
         </Link>

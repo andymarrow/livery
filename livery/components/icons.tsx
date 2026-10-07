@@ -37,6 +37,7 @@ import {
   Paintbrush as LucidePaintbrush,
   Palette as LucidePalette,
   Plus as LucidePlus,
+  Globe as LucideGlobe,
   Puzzle as LucidePuzzle,
   Quote as LucideQuote,
   RotateCw as LucideRotateCw,
@@ -101,6 +102,7 @@ export const Moon = make(LucideMoon, "Moon");
 export const Paintbrush = make(LucidePaintbrush, "Paintbrush");
 export const Palette = make(LucidePalette, "Palette");
 export const Plus = make(LucidePlus, "Plus");
+export const Globe = make(LucideGlobe, "Globe");
 export const RotateCw = make(LucideRotateCw, "RotateCw");
 export const Search = make(LucideSearch, "Search");
 export const ShieldCheck = make(LucideShieldCheck, "ShieldCheck");

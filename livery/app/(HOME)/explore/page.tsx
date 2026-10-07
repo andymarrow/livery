@@ -124,7 +124,7 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
               description="A taste is one person's eye, measured across the sites they pick. Paste two to five links and name it."
               action={
                 <Button asChild>
-                  <Link href="/combine?kind=taste">Make a Taste Kit</Link>
+                  <Link href="/create?kind=taste">Make a Taste Kit</Link>
                 </Button>
               }
             />
