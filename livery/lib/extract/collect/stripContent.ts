@@ -5,6 +5,28 @@
 // Icons, borders, radii, spacing and backgrounds stay exactly as they were.
 
 export async function stripContent(): Promise<number> {
+  // Detach the page from its app first. Frameworks (React, Vue, Svelte) keep
+  // references to the nodes they rendered; rewriting those nodes makes the
+  // app crash or re-render on its next update, which can blank the whole page
+  // before the capture finishes. A deep copy of <body> looks identical but has
+  // no listeners and no framework behind it, so later updates land on the old
+  // body, which is no longer on screen.
+  const live = document.body;
+  const scrollX = window.scrollX;
+  const scrollY = window.scrollY;
+  const frozen = live.cloneNode(true) as HTMLElement;
+  // Canvases don't copy their pixels; keep what they showed until they become blocks.
+  live.querySelectorAll("canvas").forEach((canvas, i) => {
+    const copy = frozen.querySelectorAll("canvas")[i];
+    try {
+      copy?.getContext("2d")?.drawImage(canvas, 0, 0);
+    } catch {
+      // Tainted or WebGL-only canvases stay blank; they become flat blocks below anyway.
+    }
+  });
+  live.replaceWith(frozen);
+  window.scrollTo(scrollX, scrollY);
+
   const neutral = (() => {
     const bg = getComputedStyle(document.body).backgroundColor;
     const m = bg.match(/\d+(\.\d+)?/g);

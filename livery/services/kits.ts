@@ -81,20 +81,24 @@ export async function uploadArtefacts(slug: string, version: number, artefacts: 
     [paths.zip, artefacts.zip, "application/zip"],
     [paths.manifest, Buffer.from(JSON.stringify(artefacts.manifest, null, 2)), "application/json"],
   ];
-  for (const [path, body, contentType] of uploads) {
-    const { error } = await bucket.upload(path, body, { contentType, upsert: false, cacheControl: "31536000" });
-    if (error) throw error;
-  }
+  await Promise.all(
+    uploads.map(async ([path, body, contentType]) => {
+      const { error } = await bucket.upload(path, body, { contentType, upsert: false, cacheControl: "31536000" });
+      if (error) throw error;
+    }),
+  );
   return paths;
 }
 
 /** Content-removed frames for the preview page. Private bucket, served by signed URL. */
 export async function uploadFrames(versionId: string, frames: Frame[]) {
   const bucket = getAdminClient().storage.from("screenshots");
-  for (const frame of frames) {
-    const { error } = await bucket.upload(`${versionId}/${frame.name}.webp`, frame.webp, { contentType: "image/webp", upsert: false });
-    if (error) throw error;
-  }
+  await Promise.all(
+    frames.map(async (frame) => {
+      const { error } = await bucket.upload(`${versionId}/${frame.name}.webp`, frame.webp, { contentType: "image/webp", upsert: false });
+      if (error) throw error;
+    }),
+  );
 }
 
 export async function publishBuild(input: {

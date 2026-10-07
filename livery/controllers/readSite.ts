@@ -63,7 +63,14 @@ export async function renderSite(target: Target, visit: Visit, onProgress: Progr
 async function renderSiteUnrecorded(target: Target, visit: Visit, onProgress: Progress): Promise<ReadResult<{ finalUrl: URL }>> {
   onProgress("checking", "redirects and robots.txt");
   // Preflight with our own fetch: every redirect hop is checked for https and public addresses.
-  const preflight = await withOneRetry(() => safeFetch(target.url, { timeoutMs: 12_000 }));
+  let preflight = await withOneRetry(() => safeFetch(target.url, { timeoutMs: 12_000 }));
+  // Some sites only answer on www. (no record or no server on the bare domain).
+  if (!preflight.ok && (preflight.reason === "not_found" || preflight.reason === "timeout") && !target.url.hostname.startsWith("www.")) {
+    const www = new URL(target.url);
+    www.hostname = `www.${www.hostname}`;
+    const retry = await safeFetch(www, { timeoutMs: 12_000 });
+    if (retry.ok) preflight = retry;
+  }
   if (!preflight.ok) return preflight;
   const { response, finalUrl } = preflight.value;
   await response.body?.cancel();
@@ -92,16 +99,23 @@ async function renderSiteUnrecorded(target: Target, visit: Visit, onProgress: Pr
       await first.value.context.close();
     }
 
-    for (const viewport of rest) {
-      onProgress("rendering", `${viewport.width}px`);
-      const rendered = await renderAt(browser, finalUrl, viewport);
-      if (!rendered.ok) return rendered;
-      try {
-        await visit(rendered.value);
-      } finally {
-        await rendered.value.context.close();
-      }
-    }
+    // Phone and tablet don't depend on each other: render them side by side.
+    // Desktop went first on its own so a blocked site costs one render, not three.
+    onProgress("rendering", rest.map((v) => `${v.width}px`).join(" and "));
+    const results = await Promise.all(
+      rest.map(async (viewport) => {
+        const rendered = await renderAt(browser, finalUrl, viewport);
+        if (!rendered.ok) return rendered;
+        try {
+          await visit(rendered.value);
+        } finally {
+          await rendered.value.context.close();
+        }
+        return null;
+      }),
+    );
+    const failed = results.find((r): r is ReadFailure => r !== null);
+    if (failed) return failed;
     return { ok: true, value: { finalUrl } };
   } finally {
     await browser.close().catch(() => {});

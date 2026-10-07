@@ -22,7 +22,11 @@ export function failureCopy(reason: ReadFailureReason, host: string): Copy {
     case "empty_render":
       return { title: `Couldn't read ${host}`, body: "The page loaded but showed almost nothing, so there's no design to read.", next: "Try again in a minute, or try a different page." };
     case "not_found":
-      return { title: `Couldn't find that page on ${host}`, body: "The site answered with “not found”.", next: "Check the address, or try the homepage." };
+      return {
+        title: `Couldn't find ${host}`,
+        body: "Either that domain doesn't exist (check the spelling, e.g. a missing hyphen) or the site answered “not found”.",
+        next: "Check the address, or try the site's homepage.",
+      };
     case "robots_disallowed":
       return { title: `${host} asks not to be read`, body: "Its robots.txt disallows LiveryBot, and Livery respects that.", next: "Own this site? Allow LiveryBot in robots.txt and try again." };
     case "unsafe_url":

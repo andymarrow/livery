@@ -123,6 +123,9 @@ export async function safeFetch(
       const err = error as { name?: string; code?: string; cause?: { code?: string } };
       if (err.code === "EUNSAFEADDR" || err.cause?.code === "EUNSAFEADDR") return fail("unsafe_url", `${url.hostname} resolves to a non-public address`);
       if (err.name === "TimeoutError" || err.name === "AbortError") return fail("timeout", `no response from ${url.hostname}`);
+      // The name doesn't resolve: the domain doesn't exist (or is misspelled). Not worth retrying soon.
+      const code = err.code ?? err.cause?.code;
+      if (code === "ENOTFOUND" || code === "EAI_NONAME" || code === "EAI_AGAIN") return fail("not_found", `${url.hostname} doesn't exist (no DNS record)`);
       return fail("timeout", `could not connect to ${url.hostname}`);
     }
 
