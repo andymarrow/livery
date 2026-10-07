@@ -15,10 +15,12 @@ describe.skipIf(!dnsWorks)("safeFetch bodies", () => {
   });
 
   it("follows redirects and reports the final URL", async () => {
-    const result = await safeFetch(new URL("https://github.com/"), { maxRedirects: 3 });
+    // google.com answers 301 -> www.google.com
+    const result = await safeFetch(new URL("https://google.com/"), { maxRedirects: 3 });
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.value.finalUrl.protocol).toBe("https:");
+      expect(result.value.finalUrl.hostname).toBe("www.google.com");
+      expect(result.value.redirects).toBeGreaterThanOrEqual(1);
       await result.value.response.body?.cancel();
     }
   });
