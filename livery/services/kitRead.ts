@@ -10,6 +10,9 @@ import type { Tokens } from "@/lib/extract/process/tokens";
 /** A link a combined kit was made from. */
 export type KitSourceLink = { url: string; slug: string; version: number };
 
+/** A source with its own measurements, so a combined kit's page can show each one in place. */
+export type KitSourceView = KitSourceLink & { tokens: Tokens | null; font: string | null; iconSet: string | null };
+
 const hostOf = (url: string) => new URL(url).hostname.replace(/^www\./, "");
 
 /** How a kit is named on the site: its host, or whose taste it is. */
@@ -29,8 +32,8 @@ export type KitVersionView = {
   title: string;
   curator: string | null;
   curatorSlug: string | null;
-  /** Combined kits: the page kits they were made from, in order. */
-  sources: KitSourceLink[];
+  /** Combined kits: the page kits they were made from, in order, with their measurements. */
+  sources: KitSourceView[];
   /** Page kits only. */
   sourceUrl: string | null;
   domain: string | null;
@@ -71,7 +74,7 @@ export async function getKitVersion(slug: string, version: number): Promise<KitV
     latestVersion(kit.id),
   ]);
   const data = (v.data ?? {}) as { extraction?: { tokens?: Tokens; frames?: { name: string; width: number; height: number }[] }; analysis?: Analysis; sources?: KitSourceLink[] };
-  const sources = data.sources ?? [];
+  const sources = await sourceViews(v.id, data.sources ?? []);
   return {
     kitId: kit.id,
     versionId: v.id,
@@ -100,6 +103,26 @@ export async function getKitVersion(slug: string, version: number): Promise<KitV
     ownerApproved: v.grant_hash !== null,
     frameSizes: Object.fromEntries((data.extraction?.frames ?? []).map((f) => [f.name, { width: f.width, height: f.height }])),
   };
+}
+
+type SourceData = { extraction?: { tokens?: Tokens; fonts?: { family: string }[]; icons?: { library?: { name: string } | null } } };
+
+async function sourceViews(versionId: string, links: KitSourceLink[]): Promise<KitSourceView[]> {
+  if (!links.length) return [];
+  const db = getAdminClient();
+  const { data: rows } = await db.from("kit_sources").select("position, source_version_id").eq("kit_version_id", versionId).order("position");
+  const ids = (rows ?? []).map((r) => r.source_version_id);
+  const { data: versions } = ids.length ? await db.from("kit_versions").select("id, data").in("id", ids) : { data: [] };
+  const byId = new Map((versions ?? []).map((v) => [v.id, (v.data ?? {}) as SourceData]));
+  return links.map((link, index) => {
+    const d = byId.get(rows?.[index]?.source_version_id ?? "")?.extraction;
+    return {
+      ...link,
+      tokens: d?.tokens ?? null,
+      font: d?.tokens?.typography.families.display ?? d?.fonts?.[0]?.family ?? null,
+      iconSet: d?.icons?.library?.name ?? null,
+    };
+  });
 }
 
 async function latestVersion(kitId: string) {
@@ -149,6 +172,8 @@ export type KitCard = {
   title: string;
   /** "Homepage", "/pricing", "4 pages" or "3 sites". */
   detail: string;
+  /** Page kits only: what a taste collects. */
+  sourceUrl: string | null;
   curator: string | null;
   curatorSlug: string | null;
   version: number;
@@ -210,6 +235,7 @@ export async function listKits({
       kind: row.kits.kind,
       title: kitTitle(row.kits, sources),
       detail: row.kits.kind === "page" ? (path === "/" ? "Homepage" : path) : row.kits.kind === "site" ? `${sources.length} pages` : `${new Set(sources.map((s) => hostOf(s.url))).size} sites`,
+      sourceUrl: row.kits.source_url,
       curator: row.kits.curator,
       curatorSlug: row.kits.curator_slug,
       version: row.version,

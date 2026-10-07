@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { NAV_LINKS } from "@/constants/options";
 import { cn } from "@/lib/utils";
 import { MobileNav } from "./MobileNav";
+import { TasteCounter } from "./TasteCounter";
 
 type Pill = { left: number; width: number; visible: boolean };
 
@@ -70,13 +71,13 @@ export function SiteHeader() {
     >
       <div
         className={cn(
-          "mx-auto grid max-w-[80rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 transition-[height] duration-300 ease-out-soft sm:px-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]",
+          "mx-auto grid max-w-[80rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 transition-[height] duration-300 ease-out-soft sm:px-6 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]",
           scrolled ? "h-14" : "h-[4.5rem]",
         )}
       >
         <Logo className="justify-self-start" />
 
-        <nav aria-label="Main" className="hidden md:block" onPointerLeave={() => setHovered(null)}>
+        <nav aria-label="Main" className="hidden lg:block" onPointerLeave={() => setHovered(null)}>
           <ul className="relative flex items-center gap-0.5 rounded-full border border-border bg-surface/70 p-1">
             <li
               aria-hidden
@@ -114,6 +115,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-1.5 justify-self-end">
+          <TasteCounter />
           <ThemeToggle />
           <Button asChild size="sm" className="hidden h-9 px-4 text-sm sm:inline-flex">
             <Link href="/#get-a-kit">

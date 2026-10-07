@@ -7,7 +7,7 @@ import { listKits } from "@/services/kitRead";
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const pages = ["", "/explore", "/combine", "/how-it-works", "/agents", "/faq", "/owners", "/bot", "/about", "/legal/terms", "/legal/privacy", "/legal/takedown"].map((path) => ({
+  const pages = ["", "/explore", "/combine", "/tastes", "/how-it-works", "/agents", "/faq", "/owners", "/bot", "/about", "/legal/terms", "/legal/privacy", "/legal/takedown"].map((path) => ({
     url: `${SITE.url}${path}`,
     changeFrequency: "weekly" as const,
     priority: path === "" ? 1 : 0.6,

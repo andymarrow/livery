@@ -10,6 +10,7 @@ import type { CombineEvent } from "@/app/api/combine/route";
 import type { BuildStage, ReadFailureReason } from "@/lib/extract/types";
 import { failureCopy } from "@/lib/kit/failure";
 import { readEvents } from "@/lib/kit/stream";
+import { useTasteTray } from "@/lib/kit/tasteTray";
 import { toShortcut } from "@/lib/url/shortcut";
 import { cn } from "@/lib/utils";
 
@@ -71,6 +72,8 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
   const [steps, setSteps] = useState<Step[] | null>(null);
   const [combine, setCombine] = useState<Step>({ status: "waiting" });
   const [problem, setProblem] = useState<string | null>(null);
+  const tray = useTasteTray();
+  const [fromTray, setFromTray] = useState(false);
   const cancelled = useRef(false);
   const lastInput = useRef<HTMLInputElement>(null);
   const focusNew = useRef(false);
@@ -83,6 +86,20 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
       cancelled.current = true;
     };
   }, []);
+  // Sites collected with "+ Taste" fill the list once, on arrival.
+  const trayLinks = tray.links;
+  useEffect(() => {
+    if (fromTray || initialKind !== "taste" || !trayLinks.length) return;
+    if (links.some((l) => l.trim())) return;
+    const filledLinks = trayLinks.map((u) => u.replace(/^https:\/\//, "").replace(/\/$/, ""));
+    const padded = filledLinks.length >= MIN ? filledLinks : [...filledLinks, ...Array(MIN - filledLinks.length).fill("")];
+    /* eslint-disable react-hooks/set-state-in-effect -- the collection lives in localStorage, read after mount */
+    setLinks(padded);
+    setTouched(padded.map(() => false));
+    setFromTray(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [trayLinks, fromTray, initialKind, links]);
+
   useEffect(() => {
     if (focusNew.current) lastInput.current?.focus();
     focusNew.current = false;
@@ -191,6 +208,7 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
           if (event.type === "stage") setCombine({ status: "running", detail: event.detail ?? STAGE_LABEL[event.stage] });
           else if (event.type === "ready") {
             setCombine({ status: "done", detail: "Opening your kit" });
+            if (kind === "taste") tray.clear();
             router.push(event.path);
           } else if (event.type === "rate_limited") setCombine({ status: "failed", detail: "Build limit reached. Try again within the hour." });
           else if (event.type === "invalid") setCombine({ status: "failed", detail: event.message });
@@ -315,7 +333,10 @@ export function CombineClient({ initialKind }: { initialKind: Kind }) {
 
       <div className="mt-7">
         <div className="flex items-baseline justify-between">
-          <p className="label-micro">Links</p>
+          <p className="label-micro">
+            Links
+            {fromTray && kind === "taste" && <span className="ml-2 normal-case tracking-normal text-accent-ink">from your collection</span>}
+          </p>
           <p className="text-[12.5px] text-fg-subtle tabular">
             {filled.length} of {MIN}–{MAX}
           </p>

@@ -13,6 +13,8 @@ import { frameUrls, getKitVersion, readKitFiles } from "@/services/kitRead";
 import { DesignGlance } from "./_components/DesignGlance";
 import { FilesPanel } from "./_components/FilesPanel";
 import { InstallPanel } from "./_components/InstallPanel";
+import { SourceExplorer } from "./_components/SourceExplorer";
+import { AddToTaste } from "@/components/AddToTaste";
 
 // Rendered once per version and cached; refreshed every 30 minutes (shorter
 // than the 2h signed frame URLs) and immediately when a version is withdrawn.
@@ -60,7 +62,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
         <span aria-hidden>/</span>
         {view.kind === "taste" && (
           <>
-            <Link href="/explore?shelf=tastes" className="transition-colors hover:text-fg">Tastes</Link>
+            <Link href="/tastes" className="transition-colors hover:text-fg">Tastes</Link>
             <span aria-hidden>/</span>
           </>
         )}
@@ -100,6 +102,16 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
           A newer version of this kit exists.
           <Link href={kitPath(view.slug, view.latestVersion)} className="ml-auto font-medium text-accent-ink hover:underline">Open v{view.latestVersion}</Link>
         </div>
+      )}
+
+      {!withdrawn && view.kind !== "page" && view.sources.length > 0 && (
+        <section id="sources" className="mt-10 scroll-mt-24">
+          <div className="mb-4 flex items-baseline justify-between gap-4">
+            <h2 className="text-xl font-semibold tracking-tight">{view.kind === "taste" ? "The Sites Behind This Taste" : "The Pages Behind This Kit"}</h2>
+            <p className="hidden text-[13px] text-fg-subtle sm:block">Open one to compare, without leaving this page.</p>
+          </div>
+          <SourceExplorer sources={view.sources} kind={view.kind} />
+        </section>
       )}
 
       {withdrawn ? (
@@ -216,9 +228,12 @@ const pathOf = (url: string) => {
 function KitOrigin({ view }: { view: NonNullable<Awaited<ReturnType<typeof getKitVersion>>> }) {
   if (view.kind === "page" && view.sourceUrl) {
     return (
-      <a href={view.sourceUrl} target="_blank" rel="noreferrer noopener" className="mt-2 inline-flex items-center gap-1 text-[14px] text-fg-muted transition-colors hover:text-fg">
-        {pathOf(view.sourceUrl)} <ArrowUpRight className="size-3.5" />
-      </a>
+      <div className="mt-2 flex flex-wrap items-center gap-3">
+        <a href={view.sourceUrl} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 text-[14px] text-fg-muted transition-colors hover:text-fg">
+          {pathOf(view.sourceUrl)} <ArrowUpRight className="size-3.5" />
+        </a>
+        <AddToTaste url={view.sourceUrl} label="Add to a taste" />
+      </div>
     );
   }
   return (
@@ -229,14 +244,14 @@ function KitOrigin({ view }: { view: NonNullable<Awaited<ReturnType<typeof getKi
         </Link>
       )}
       {view.sources.map((source, index) => (
-        <Link
+        <a
           key={source.url}
-          href={kitPath(source.slug, source.version)}
+          href={`#source-${index + 1}`}
           className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-2.5 py-1 text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
         >
           <span className="font-mono text-[10.5px] text-fg-subtle">{String(index + 1).padStart(2, "0")}</span>
           {view.kind === "site" ? pathOf(source.url) : hostOf(source.url)}
-        </Link>
+        </a>
       ))}
     </div>
   );

@@ -1,5 +1,6 @@
 export const NAV_LINKS = [
   { href: "/explore", label: "Explore" },
+  { href: "/tastes", label: "Tastes" },
   { href: "/how-it-works", label: "How it works" },
   { href: "/agents", label: "Agents" },
   { href: "/owners", label: "Site owners" },
@@ -10,7 +11,7 @@ export const FOOTER_LINKS = {
   Product: [
     { href: "/explore", label: "Explore kits" },
     { href: "/combine", label: "Combine links" },
-    { href: "/explore?shelf=tastes", label: "Tastes" },
+    { href: "/tastes", label: "Tastes" },
     { href: "/how-it-works", label: "How it works" },
     { href: "/agents", label: "Install in your agent" },
     { href: "/faq", label: "FAQ" },

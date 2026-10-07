@@ -4,7 +4,7 @@ import { ArrowUpRight } from "@/components/icons";
 const STEPS = [
   { href: "/how-it-works", label: "How it works", body: "What Livery measures, what a kit holds and how your agent applies it." },
   { href: "/agents", label: "Install in your agent", body: "Claude Code in one paste; Codex, Cursor and Windsurf in a minute." },
-  { href: "/owners", label: "For site owners", body: "Share more of your design, or opt out, with one file." },
+  { href: "/tastes", label: "Make a taste", body: "Pick a few sites one designer made; get the habits they all share." },
 ];
 
 // Where to go after the library: a hairline row of three doors.

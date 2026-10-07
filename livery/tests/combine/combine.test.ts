@@ -127,3 +127,16 @@ describe("a combined kit", () => {
     ]);
   });
 });
+
+describe("merged type scale", () => {
+  it("never repeats a step name", () => {
+    const other = stored((e) => {
+      e.tokens.typography.scale = [{ name: "body", sizePx: 15, weight: 400, lineHeight: 1.5, letterSpacingEm: 0, roles: ["body"], share: 0.9 }];
+    });
+    const { extraction } = mergeSources([stored(), other], []);
+    const names = extraction.tokens.typography.scale.map((s) => s.name);
+    expect(new Set(names).size).toBe(names.length);
+    expect(names).toContain("body");
+    expect(names).toContain("body-2");
+  });
+});

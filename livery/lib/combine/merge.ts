@@ -45,6 +45,18 @@ export function mergeTokens(all: Tokens[]): Tokens {
     (s) => `${s.sizePx}/${s.weight}`,
     10,
   ).sort((a, b) => b.sizePx - a.sizePx);
+  // Every source names its own steps ("body", "h1"), so names repeat after a
+  // merge. The heaviest step keeps the name; the others are numbered.
+  const byShare = [...scale].sort((a, b) => b.share - a.share);
+  const seen = new Map<string, number>();
+  const renamed = new Map(
+    byShare.map((step) => {
+      const n = (seen.get(step.name) ?? 0) + 1;
+      seen.set(step.name, n);
+      return [step, n === 1 ? step.name : `${step.name}-${n}`] as const;
+    }),
+  );
+  for (const step of scale) step.name = renamed.get(step)!;
   const spacingBases = all.map((t) => t.spacing.base);
   return {
     ...base,

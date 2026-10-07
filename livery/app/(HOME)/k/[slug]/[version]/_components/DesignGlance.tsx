@@ -44,8 +44,8 @@ export function DesignGlance({ tokens }: { tokens: Tokens }) {
         <div>
           <p className="label-micro mb-3">Type · {typography.families.display}{typography.families.body !== typography.families.display ? ` / ${typography.families.body}` : ""}</p>
           <div className="space-y-2.5">
-            {typography.scale.slice(0, 6).map((step) => (
-              <div key={step.name} className="flex items-baseline gap-4">
+            {typography.scale.slice(0, 6).map((step, index) => (
+              <div key={`${step.name}-${step.sizePx}-${index}`} className="flex items-baseline gap-4">
                 <span className="w-16 shrink-0 font-mono text-[11px] text-fg-subtle">{step.name}</span>
                 <span
                   className="truncate text-fg"
