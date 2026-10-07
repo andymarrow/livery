@@ -106,14 +106,14 @@ export function Builder({ url, host }: { url: string; host: string }) {
     return (
       <Outcome
         icon={<HourglassMedium className="size-6" />}
-        title="You've built a lot of kits today"
+        title="Daily Build Limit Reached"
         body="New builds are limited per visitor, because each one renders a site and calls a model. Kits already in the library are always free."
         next={`You can build again after ${new Date(state.resetAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.`}
       />
     );
   }
   if (state.phase === "error") {
-    return <Outcome icon={<WarningCircle className="size-6" />} title="Something went wrong" body={state.message} next="Nothing was published. You can try again." retry />;
+    return <Outcome icon={<WarningCircle className="size-6" />} title="Something Went Wrong" body={state.message} next="Nothing was published. You can try again." retry />;
   }
 
   const activeIndex = state.phase === "running" && state.stage ? STAGES.findIndex((s) => s.id === state.stage) : state.phase === "waiting" ? -1 : 0;

@@ -30,20 +30,20 @@ export default function OwnersPage() {
     <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-14 sm:px-6 sm:pt-20">
       <p className="label-micro">For site owners</p>
       <h1 className="mt-3 max-w-3xl text-3xl font-bold leading-tight tracking-tight text-balance sm:text-4xl">
-        Your site, <span className="text-fg-subtle">your call.</span>
+        Your Site, <span className="text-fg-subtle">Your Call</span>
       </h1>
       <p className="mt-5 max-w-2xl text-base leading-relaxed text-fg-muted text-pretty">
         Without a word from you, Livery only describes your design: values and style, never your logo, images, fonts or words. One small file lets you share more, or nothing at all.
       </p>
 
       <div className="mt-14">
-        <Block wide id="opt-in" icon={<FileCode />} kicker="Opt in" title="Share more of your design" body="Grant levels 4 to 6: your own design rules, assets you're happy to share, and real copy in voice examples. Publish the file and new kits pick it up within a day.">
+        <Block wide id="opt-in" icon={<FileCode />} kicker="Opt in" title="Share More of Your Design" body="Grant levels 4 to 6: your own design rules, assets you're happy to share, and real copy in voice examples. Publish the file and new kits pick it up within a day.">
           <OptInGenerator />
         </Block>
-        <Block id="check" icon={<WebValidation />} kicker="Check" title="See what Livery sees" body="Whether LiveryBot can reach your site, whether robots.txt or bot protection stops it, and whether your opt-in file is valid.">
+        <Block id="check" icon={<WebValidation />} kicker="Check" title="See What Livery Sees" body="Whether LiveryBot can reach your site, whether robots.txt or bot protection stops it, and whether your opt-in file is valid.">
           <SiteChecker />
         </Block>
-        <Block id="takedown" icon={<FileRemove />} kicker="Opt out" title="Withdraw your kits" body="The fastest way is an opt-out file. You can also ask us directly; published versions are withdrawn and their links answer 410 Gone.">
+        <Block id="takedown" icon={<FileRemove />} kicker="Opt out" title="Withdraw Your Kits" body="The fastest way is an opt-out file. You can also ask us directly; published versions are withdrawn and their links answer 410 Gone.">
           <TakedownForm />
         </Block>
       </div>

@@ -99,7 +99,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
 
       {withdrawn ? (
         <div className="mt-10 rounded-[18px] border border-border bg-surface p-8 text-center shadow-card">
-          <h2 className="text-xl font-semibold tracking-tight">Withdrawn by the site owner</h2>
+          <h2 className="text-xl font-semibold tracking-tight">Withdrawn by the Site Owner</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-fg-muted">This version was withdrawn on {view.withdrawnAt?.slice(0, 10)}. Its files are no longer available.</p>
         </div>
       ) : (
@@ -127,7 +127,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
 
           {view.tokens && (
             <section className="mt-14">
-              <h2 className="mb-5 text-2xl font-semibold tracking-tight">The design at a glance</h2>
+              <h2 className="mb-5 text-2xl font-semibold tracking-tight">The Design at a Glance</h2>
               <DesignGlance tokens={view.tokens} />
             </section>
           )}
@@ -162,7 +162,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
           {frames.some((f) => f.url) && (
             <section className="mt-14">
               <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="text-2xl font-semibold tracking-tight">Reference frames</h2>
+                <h2 className="text-2xl font-semibold tracking-tight">Reference Frames</h2>
                 <p className="text-[13px] text-fg-subtle">Images became flat blocks and text became bars. Layout, rhythm and colour stay.</p>
               </div>
               <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-[1fr_16rem]">
@@ -191,7 +191,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
 
           {files.length > 0 && (
             <section className="mt-14">
-              <h2 className="mb-5 text-2xl font-semibold tracking-tight">Every file in the kit</h2>
+              <h2 className="mb-5 text-2xl font-semibold tracking-tight">Every File in the Kit</h2>
               <FilesPanel files={files} />
             </section>
           )}

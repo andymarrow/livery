@@ -6,10 +6,10 @@ export const metadata: Metadata = { title: "About", description: "Why Livery exi
 
 export default function AboutPage() {
   return (
-    <Prose kicker="About" title="Design is a set of decisions. Livery writes them down.">
+    <Prose kicker="About" title="Design Is a Set of Decisions">
       <p>Coding agents can build almost anything now, and much of it looks the same. Not because people lack taste, but because taste is hard to hand over. You can point at a site you love, but an agent can&apos;t see what makes it work.</p>
       <p>Livery reads the decisions behind a design (one accent, never a shadow, type that tightens as it grows) and writes them down as a kit your agent can follow, with the reasons attached. Then it asks you before it changes anything.</p>
-      <h2>What we believe</h2>
+      <h2>What We Believe</h2>
       <ul>
         <li><strong>Reasons over values.</strong> A palette is easy to copy. Knowing when not to use it is the design.</li>
         <li><strong>Style, never assets.</strong> We describe how a site feels. We never copy what belongs to its owner.</li>

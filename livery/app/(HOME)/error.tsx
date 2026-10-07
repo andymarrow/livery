@@ -17,7 +17,7 @@ export default function HomeError({ error, retry }: { error: Error & { digest?: 
         <span className="mx-auto flex size-12 items-center justify-center rounded-[18px] border border-border bg-surface text-fg-muted shadow-card">
           <TriangleAlert className="size-5" />
         </span>
-        <h1 className="mt-6 text-3xl font-semibold tracking-tight">Something broke on our side</h1>
+        <h1 className="mt-6 text-3xl font-semibold tracking-tight">Something Broke on Our Side</h1>
         <p className="mt-3 text-sm leading-relaxed text-fg-muted">It isn&apos;t you. Try again, and if it keeps happening, come back in a few minutes.</p>
         <div className="mt-8 flex flex-wrap justify-center gap-2">
           <Button onClick={() => retry()}>

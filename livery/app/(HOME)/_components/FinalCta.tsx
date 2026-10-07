@@ -8,8 +8,8 @@ export function FinalCta() {
           <div>
             <p className="label-micro">Start here</p>
             <h2 className="mt-3 text-2xl font-bold leading-tight tracking-tight text-balance sm:text-3xl">
-              Found a site you love?
-              <span className="block text-fg-subtle">Give your app its livery.</span>
+              Found a Site You Love?
+              <span className="block text-fg-subtle">Give Your App Its Livery</span>
             </h2>
           </div>
           <KitInput compact />

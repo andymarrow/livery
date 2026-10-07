@@ -16,10 +16,10 @@ export function Hero({ kitCount }: { kitCount: number }) {
         <h1
           className="mt-5 text-3xl font-bold leading-tight tracking-tight text-balance sm:text-4xl"
         >
-          Give your app a new{" "}
+          Give Your App a New{" "}
           <span className="relative inline-block whitespace-nowrap">
             <span aria-hidden className="absolute inset-x-[-0.08em] bottom-[0.08em] top-[0.18em] -skew-x-12 rounded-[0.12em] bg-accent-soft" />
-            <span className="relative text-accent-soft-fg">livery</span>
+            <span className="relative text-accent-soft-fg">Livery</span>
           </span>
           .
         </h1>
@@ -27,8 +27,8 @@ export function Hero({ kitCount }: { kitCount: number }) {
         <p
           className="mt-3 max-w-2xl text-base leading-relaxed text-fg-muted text-pretty"
         >
-          Paste any website. Get a design kit your coding agent installs in one step. It audits your project, asks
-          before it changes anything, and applies the look one commit at a time.
+          Paste any website. Get a design kit your agent installs. It asks before changing anything, then commits one
+          area at a time.
         </p>
 
         <div className="animate-rise mt-8 w-full max-w-3xl" style={{ animationDelay: "180ms" }}>

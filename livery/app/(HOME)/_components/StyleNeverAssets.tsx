@@ -3,19 +3,19 @@ import { LicenceBadge, type Licence } from "@/components/LicenceBadge";
 const ITEMS: { licence: Licence; title: string; body: string; examples: string }[] = [
   {
     licence: "free",
-    title: "Reused as is",
+    title: "Reused As Is",
     body: "Values and open-source pieces your agent can install straight from the source.",
     examples: "Colours, spacing, radii, easing · Lucide, Phosphor · Google Fonts",
   },
   {
     licence: "licence_required",
-    title: "Needs your licence",
+    title: "Needs Your Licence",
     body: "Paid fonts and icon sets. The kit names them and always offers a free alternative.",
     examples: "Adobe Fonts, commercial typefaces · Font Awesome Pro",
   },
   {
     licence: "style_only",
-    title: "Described, never copied",
+    title: "Described, Never Copied",
     body: "Anything that belongs to the site. Your agent recreates the feel, not the file.",
     examples: "Logos, photos, illustrations, custom icons, the site's own words",
   },
@@ -28,7 +28,7 @@ export function StyleNeverAssets() {
         <div className="max-w-2xl">
           <p className="label-micro">Style, never assets</p>
           <h2 className="mt-3 text-2xl font-bold leading-tight tracking-tight text-balance sm:text-3xl">
-            Every item in a kit says what you can ship.
+            Every Item Says What You Can Ship
           </h2>
         </div>
 

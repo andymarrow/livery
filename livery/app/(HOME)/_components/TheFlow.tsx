@@ -54,7 +54,7 @@ export function TheFlow() {
         <div className="lg:sticky lg:top-28 lg:self-start">
           <SectionHeading
             kicker="The flow"
-            title="Your agent asks before it touches anything."
+            title="Your Agent Asks First"
             description="Every kit carries the same eleven steps. Nothing is edited until you've seen the gap, chosen the areas and settled any conflict with your own project rules."
           />
           <ol className="mt-8 grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-2">

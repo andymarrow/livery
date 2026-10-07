@@ -4,17 +4,17 @@ import { AskPreview } from "./AskPreview";
 
 const STEPS = [
   {
-    title: "Paste a link",
+    title: "Paste a Link",
     body: "Put livery.site/ in front of any public website. Livery renders it at three screen sizes and reads its design: colours, type, spacing, icons, motion.",
     visual: <PastePreview />,
   },
   {
-    title: "Install the kit",
+    title: "Install the Kit",
     body: "Your agent downloads the kit, checks its hash, and saves it as a skill. Every file is visible on the kit page before you run anything.",
     visual: <InstallPreview />,
   },
   {
-    title: "Your agent asks, then applies",
+    title: "Your Agent Asks, Then Applies",
     body: "It audits your project, rates the gap for each area, and asks what to change. Approved areas land as separate commits you can revert one by one.",
     visual: <AskPreview />,
   },
@@ -28,8 +28,8 @@ export function HowItWorks() {
           <div>
             <p className="label-micro">How it works</p>
             <h2 className="mt-3 text-2xl font-bold leading-tight tracking-tight text-balance sm:text-3xl">
-              From any link to your codebase.{" "}
-              <span className="text-fg-subtle">Nothing changes until you say so.</span>
+              From Any Link to Your Codebase{" "}
+              <span className="text-fg-subtle">Nothing Changes Until You Say So</span>
             </h2>
           </div>
           <p className="max-w-md text-sm leading-relaxed text-fg-muted md:justify-self-end">

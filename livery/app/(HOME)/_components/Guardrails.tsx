@@ -5,22 +5,22 @@ import { SectionHeading } from "@/components/SectionHeading";
 const ITEMS = [
   {
     Icon: ShieldCheck,
-    title: "Never works around protection",
+    title: "Never Works Around Protection",
     body: "LiveryBot says who it is and respects robots.txt. When a site blocks it, Livery stops and says so.",
   },
   {
     Icon: CardBlocked,
-    title: "No login, payment or bank pages",
+    title: "No Login, Payment or Bank Pages",
     body: "Sign-in, checkout and banking pages are refused outright, so a kit can never become a look-alike.",
   },
   {
     Icon: FingerprintCheck,
-    title: "Permanent, verifiable versions",
+    title: "Permanent, Verifiable Versions",
     body: "A published version never changes. Your agent checks its sha256 before installing anything.",
   },
   {
     Icon: StoreVerified,
-    title: "Owners stay in charge",
+    title: "Owners Stay in Charge",
     body: "Site owners can opt in for richer kits, or opt out and have their kits withdrawn, with one file.",
   },
 ];
@@ -29,7 +29,7 @@ export function Guardrails() {
   return (
     <section className="border-t border-border px-4 py-16 sm:px-6 sm:py-20">
       <div className="mx-auto max-w-6xl">
-        <SectionHeading kicker="Guardrails" title="Built to be trusted," muted="by you and by the sites you love." />
+        <SectionHeading kicker="Guardrails" title="Built to Be Trusted" muted="By You and the Sites You Love" />
         <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-[18px] border border-border bg-border sm:grid-cols-2">
           {ITEMS.map(({ Icon, title, body }, index) => (
             <Reveal key={title} delay={index * 60} className="bg-surface p-6 sm:p-8">
