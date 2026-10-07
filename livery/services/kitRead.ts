@@ -212,6 +212,8 @@ export type KitCard = {
   /** The card's picture: an admin-chosen cover, else the content-removed desktop frame (signed). */
   preview: string | null;
   featured: boolean;
+  /** Each counted once per person. */
+  stats: { views: number; likes: number; downloads: number };
   curator: string | null;
   curatorSlug: string | null;
   version: number;
@@ -225,6 +227,9 @@ export type KitCard = {
 };
 
 export type KitShelf = "all" | "sites" | "tastes";
+export type KitSort = "newest" | "liked" | "downloaded" | "viewed";
+
+const SORT_COLUMN: Record<KitSort, "published_at" | "likes" | "downloads" | "views"> = { newest: "published_at", liked: "likes", downloaded: "downloads", viewed: "views" };
 
 /** Newest published kits for the library, newest version per kit. */
 export async function listKits({
@@ -232,15 +237,17 @@ export async function listKits({
   shelf = "all",
   curator,
   featuredOnly = false,
+  sort = "newest",
   limit = 24,
   offset = 0,
-}: { query?: string; shelf?: KitShelf; curator?: string; featuredOnly?: boolean; limit?: number; offset?: number } = {}) {
-  // Anon client: RLS already limits it to published versions.
+}: { query?: string; shelf?: KitShelf; curator?: string; featuredOnly?: boolean; sort?: KitSort; limit?: number; offset?: number } = {}) {
+  // Anon client: RLS already limits it to published versions. kit_library
+  // has one row per kit (its newest version) with its totals.
   const db = getPublicClient();
   let request = db
-    .from("kit_versions")
-    .select("id, version, published_at, data, grant_hash, kits!inner(slug, kind, domain, source_url, curator, curator_slug, display_name, featured, hidden, cover_path)", { count: "exact" })
-    .eq("status", "ready")
+    .from("kit_library")
+    .select("id, version, published_at, data, grant_hash, views, likes, downloads, kits!inner(slug, kind, domain, source_url, curator, curator_slug, display_name, featured, hidden, cover_path)", { count: "exact" })
+    .order(SORT_COLUMN[sort], { ascending: false })
     .order("published_at", { ascending: false })
     .range(offset, offset + limit - 1);
   if (query) {
@@ -259,6 +266,9 @@ export async function listKits({
   const cards: KitCard[] = [];
   type Row = {
     id: string;
+    views: number;
+    likes: number;
+    downloads: number;
     version: number;
     published_at: string;
     grant_hash: string | null;
@@ -279,6 +289,7 @@ export async function listKits({
       detail: row.kits.kind === "page" ? (path === "/" ? "Homepage" : path) : row.kits.kind === "site" ? `${sources.length} pages` : `${new Set(sources.map((s) => hostOf(s.url))).size} sites`,
       sourceUrl: row.kits.source_url,
       preview: row.kits.cover_path ? coverUrl(row.kits.cover_path) : null,
+      stats: { views: row.views, likes: row.likes, downloads: row.downloads },
       featured: row.kits.featured,
       versionId: row.id,
       curator: row.kits.curator,

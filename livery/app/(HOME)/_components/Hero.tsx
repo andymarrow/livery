@@ -16,10 +16,9 @@ export function Hero() {
             className="animate-rise text-[44px] font-bold leading-[1.02] tracking-[-0.035em] text-balance sm:text-6xl xl:text-[76px]"
             style={{ animationDelay: "60ms" }}
           >
-            Give Your App
-            <br />a New{" "}
+            Make Your App Look Like{" "}
             <span className="relative inline-block whitespace-nowrap text-accent-ink">
-              Livery
+              Any Website
               <svg aria-hidden viewBox="0 0 200 12" preserveAspectRatio="none" className="absolute -bottom-2 left-0 h-3 w-full overflow-visible">
                 <path d="M2 8.5 C 48 3.5, 110 2.5, 198 6" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" pathLength={1} className="hero-stroke" />
               </svg>
@@ -27,8 +26,9 @@ export function Hero() {
           </h1>
 
           <p className="animate-rise mt-7 max-w-xl text-lg leading-relaxed text-fg-muted text-pretty" style={{ animationDelay: "120ms" }}>
-            Paste any website. Your coding agent gets its design as a kit, asks before changing anything, then rebuilds your
-            look one commit at a time.
+            Paste a link and <span className="font-semibold text-fg">Livery</span> turns that site&apos;s design (its colours, fonts,
+            spacing and buttons) into a kit for your coding agent. The agent asks before changing anything, then restyles your
+            app step by step.
           </p>
 
           <div className="animate-rise mt-9 w-full max-w-2xl" style={{ animationDelay: "180ms" }}>

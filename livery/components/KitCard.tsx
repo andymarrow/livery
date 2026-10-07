@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AddToTaste } from "@/components/AddToTaste";
-import { ArrowUpRight } from "@/components/icons";
+import { ArrowUpRight, Download, Heart } from "@/components/icons";
 import { kitHome } from "@/lib/kit/urls";
 import type { KitCard as KitCardData } from "@/services/kitRead";
 
@@ -60,6 +60,10 @@ export function KitCard({ kit }: { kit: KitCardData }) {
           {kit.font && <span className="max-w-[10rem] truncate rounded-full bg-surface-2 px-2 py-0.5">{kit.font}</span>}
           <span className="ml-auto flex items-center gap-2">
             {kit.kind === "page" && kit.sourceUrl && <AddToTaste url={kit.sourceUrl} />}
+            <span className="flex items-center gap-2 text-fg-subtle" title={`${kit.stats.views} views · ${kit.stats.likes} likes · ${kit.stats.downloads} downloads`}>
+              <span className="inline-flex items-center gap-0.5 tabular"><Heart className="size-3" />{kit.stats.likes}</span>
+              <span className="inline-flex items-center gap-0.5 tabular"><Download className="size-3" />{kit.stats.downloads}</span>
+            </span>
             <span className="font-mono text-fg-subtle">v{kit.version}</span>
           </span>
         </div>

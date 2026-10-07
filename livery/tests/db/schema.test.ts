@@ -314,3 +314,59 @@ describe("combined kits", () => {
     });
   });
 });
+
+describe("kit stats", () => {
+  const h = (c: string) => c.repeat(64);
+  async function kit() {
+    const lock = await startBuild();
+    await publish(lock.kit_version_id);
+    return lock.kit_id;
+  }
+  const record = async (kitId: string, kind: string, visitor: string, network: string) =>
+    (await db.query<{ record_kit_event: boolean }>(`select public.record_kit_event($1, $2, $3, $4)`, [kitId, kind, visitor, network])).rows[0].record_kit_event;
+  const stats = async (kitId: string) => (await db.query<{ views: number; likes: number; downloads: number }>(`select views, likes, downloads from public.kit_stats where kit_id = $1`, [kitId])).rows[0];
+
+  it("counts each person once, however often they click", async () => {
+    const id = await kit();
+    expect(await record(id, "view", h("a"), h("1"))).toBe(true);
+    expect(await record(id, "view", h("a"), h("1"))).toBe(false);
+    expect(await record(id, "view", h("b"), h("2"))).toBe(true);
+    expect(await stats(id)).toEqual({ views: 2, likes: 0, downloads: 0 });
+  });
+
+  it("doesn't count again when only the cookie changes on the same network and browser", async () => {
+    const id = await kit();
+    await record(id, "download", h("a"), h("1"));
+    expect(await record(id, "download", h("c"), h("1"))).toBe(false);
+    expect((await stats(id)).downloads).toBe(1);
+  });
+
+  it("lets a like be taken back", async () => {
+    const id = await kit();
+    await record(id, "like", h("a"), h("1"));
+    expect((await stats(id)).likes).toBe(1);
+    await db.query(`select public.remove_like($1, $2, $3)`, [id, h("a"), h("1")]);
+    expect((await stats(id)).likes).toBe(0);
+  });
+
+  it("lists one row per kit, its newest version, with its totals", async () => {
+    const id = await kit();
+    const next = await startBuild();
+    await publish(next.kit_version_id);
+    await record(id, "like", h("a"), h("1"));
+    await asRole(db, "anon", async () => {
+      const { rows } = await db.query<{ version: number; likes: number }>(`select version, likes from public.kit_library where kit_id = $1`, [id]);
+      expect(rows).toEqual([{ version: 2, likes: 1 }]);
+    });
+  });
+
+  it("shows totals to anon but never the events", async () => {
+    const id = await kit();
+    await record(id, "view", h("a"), h("1"));
+    await asRole(db, "anon", async () => {
+      expect((await db.query(`select views from public.kit_stats where kit_id = $1`, [id])).rows).toEqual([{ views: 1 }]);
+      await expect(db.query(`select * from public.kit_events`)).rejects.toThrow();
+      await expect(db.query(`select public.record_kit_event($1, 'view', $2, $3)`, [id, h("d"), h("4")])).rejects.toThrow();
+    });
+  });
+});

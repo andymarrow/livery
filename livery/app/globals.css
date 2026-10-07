@@ -318,3 +318,10 @@ main {
     display: none;
   }
 }
+
+/* Like button: a small, quick pop when a kit is liked. */
+@keyframes like-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.32); }
+  100% { transform: scale(1); }
+}

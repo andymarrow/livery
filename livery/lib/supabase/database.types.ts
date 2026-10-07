@@ -97,6 +97,8 @@ export type Database = {
         domain: string;
         source_version_id: string;
       }>;
+      kit_events: Table<{ kit_id: string; kind: "view" | "like" | "download"; visitor: string; network: string; created_at: string }>;
+      kit_stats: Table<{ kit_id: string; views: number; likes: number; downloads: number; updated_at: string }>;
       read_failures: Table<{
         source_url: string;
         domain: string;
@@ -119,6 +121,10 @@ export type Database = {
       }>;
     };
     Views: {
+      kit_library: {
+        Row: { id: string; kit_id: string; version: number; published_at: string; data: Json; grant_hash: string | null; views: number; likes: number; downloads: number };
+        Relationships: [{ foreignKeyName: "kit_versions_kit_id_fkey"; columns: ["kit_id"]; isOneToOne: false; referencedRelation: "kits"; referencedColumns: ["id"] }];
+      };
       blocked_domains: { Row: { domain: string; reason: ReadFailureReason; hits: number; pages: number; last_at: string }; Relationships: [] };
     };
     Functions: {
@@ -196,6 +202,8 @@ export type Database = {
         };
         Returns: undefined;
       };
+      record_kit_event: { Args: { p_kit_id: string; p_kind: "view" | "like" | "download"; p_visitor: string; p_network: string }; Returns: boolean };
+      remove_like: { Args: { p_kit_id: string; p_visitor: string; p_network: string }; Returns: boolean };
       prune_ephemeral: { Args: Record<string, never>; Returns: undefined };
       stale_frame_versions: { Args: { p_age?: string }; Returns: { kit_version_id: string }[] };
     };

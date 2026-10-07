@@ -37,6 +37,7 @@ import {
   Paintbrush as LucidePaintbrush,
   Palette as LucidePalette,
   Plus as LucidePlus,
+  Heart as LucideHeart,
   LayoutDashboard as LucideLayoutDashboard,
   Boxes as LucideBoxes,
   Layers as LucideLayers,
@@ -117,6 +118,7 @@ export const Moon = make(LucideMoon, "Moon");
 export const Paintbrush = make(LucidePaintbrush, "Paintbrush");
 export const Palette = make(LucidePalette, "Palette");
 export const Plus = make(LucidePlus, "Plus");
+export const Heart = make(LucideHeart, "Heart");
 export const Globe = make(LucideGlobe, "Globe");
 export const LayoutDashboard = make(LucideLayoutDashboard, "LayoutDashboard");
 export const Boxes = make(LucideBoxes, "Boxes");

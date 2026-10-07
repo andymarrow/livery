@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { logger } from "@/lib/logger";
 import { supabaseConfigured } from "@/lib/supabase/configured";
 import { cn } from "@/lib/utils";
-import { listKits, type KitShelf } from "@/services/kitRead";
+import { listKits, type KitShelf, type KitSort } from "@/services/kitRead";
 import { SearchBox } from "./_components/SearchBox";
 
 export const metadata: Metadata = {
@@ -25,23 +25,26 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
   const page = Math.max(1, Number(typeof params.page === "string" ? params.page : 1) || 1);
   const by = typeof params.by === "string" && /^[a-z0-9-]{1,40}$/.test(params.by) ? params.by : undefined;
   const shelf: KitShelf = by ? "tastes" : params.shelf === "sites" || params.shelf === "tastes" ? params.shelf : "all";
+  const sort: KitSort = params.sort === "liked" || params.sort === "downloaded" || params.sort === "viewed" ? params.sort : "newest";
 
   let result: Awaited<ReturnType<typeof listKits>> = { cards: [], total: 0 };
   let unavailable = !supabaseConfigured();
   if (!unavailable) {
     try {
-      result = await listKits({ query, shelf, curator: by, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
+      result = await listKits({ query, shelf, curator: by, sort, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
     } catch (error) {
       unavailable = true;
       logger.warn("explore.unavailable", { error: error instanceof Error ? error.message : String(error) });
     }
   }
   const pages = Math.max(1, Math.ceil(result.total / PAGE_SIZE));
-  const href = (p: number, next: { shelf?: KitShelf; by?: string | null } = {}) => {
+  const href = (p: number, next: { shelf?: KitShelf; by?: string | null; sort?: KitSort } = {}) => {
     const nextShelf = next.shelf ?? shelf;
     const nextBy = next.by === undefined ? by : next.by;
+    const nextSort = next.sort ?? sort;
     const search = new URLSearchParams({
       ...(query ? { q: query } : {}),
+      ...(nextSort !== "newest" ? { sort: nextSort } : {}),
       ...(nextShelf !== "all" && !nextBy ? { shelf: nextShelf } : {}),
       ...(nextBy ? { by: nextBy } : {}),
       ...(p > 1 ? { page: String(p) } : {}),
@@ -49,6 +52,12 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
     return `/explore${search.size ? `?${search}` : ""}`;
   };
   const curatorName = by ? (result.cards.find((c) => c.curatorSlug === by)?.curator ?? by) : null;
+  const SORTS: { id: KitSort; label: string }[] = [
+    { id: "newest", label: "Newest" },
+    { id: "liked", label: "Most liked" },
+    { id: "downloaded", label: "Most downloaded" },
+    { id: "viewed", label: "Most viewed" },
+  ];
   const SHELVES: { id: KitShelf; label: string }[] = [
     { id: "all", label: "All kits" },
     { id: "sites", label: "Sites" },
@@ -88,6 +97,21 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
               </Link>
             );
           })}
+        </nav>
+        <nav aria-label="Sort" className="flex items-center gap-0.5 overflow-x-auto rounded-full border border-border bg-surface p-1 sm:ml-auto">
+          {SORTS.map((item) => (
+            <Link
+              key={item.id}
+              href={href(1, { sort: item.id })}
+              aria-current={sort === item.id ? "true" : undefined}
+              className={cn(
+                "inline-flex h-8 shrink-0 items-center rounded-full px-3.5 text-sm font-medium transition-colors duration-150",
+                sort === item.id ? "bg-surface-3 text-fg" : "text-fg-muted hover:text-fg",
+              )}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
         {by && (
           <Link

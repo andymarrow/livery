@@ -32,3 +32,15 @@ export function immutableFile(body: BodyInit, contentType: string, filename?: st
     },
   });
 }
+
+/** Browsers may keep the file, but the CDN must not: every download reaches the counter. */
+export function uncachedAtCdn(response: Response) {
+  response.headers.set("CDN-Cache-Control", "no-store");
+  response.headers.set("Vercel-CDN-Cache-Control", "no-store");
+  return response;
+}
+
+export function cookieValue(headers: Headers, name: string) {
+  const match = (headers.get("cookie") ?? "").match(new RegExp(`(?:^|;\\s*)${name}=([^;]+)`));
+  return match?.[1];
+}

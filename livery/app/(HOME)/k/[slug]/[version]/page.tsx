@@ -14,6 +14,8 @@ import { frameUrls, getKitVersion, readKitFiles } from "@/services/kitRead";
 import { DesignGlance } from "./_components/DesignGlance";
 import { FilesPanel } from "./_components/FilesPanel";
 import { FrameViewer } from "./_components/FrameViewer";
+import { KitStats } from "./_components/KitStats";
+import { getStats } from "@/services/stats";
 import { InstallPanel } from "./_components/InstallPanel";
 import { SourceExplorer } from "./_components/SourceExplorer";
 import { AddToTaste } from "@/components/AddToTaste";
@@ -55,6 +57,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
     licence_required: view.items.filter((i) => i.licence === "licence_required").length,
     style_only: view.items.filter((i) => i.licence === "style_only").length,
   };
+  const stats = await getStats(view.kitId).catch(() => ({ views: 0, likes: 0, downloads: 0 }));
   const prompt = installPrompt({ siteName: view.title, slug: view.slug, version: view.version, sha256: view.contentHash, skillName });
 
   return (
@@ -86,6 +89,11 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
           </div>
           <h1 className="mt-4 text-3xl font-bold tracking-tight text-balance sm:text-4xl">{view.title}</h1>
           <KitOrigin view={view} />
+          {!withdrawn && (
+            <div className="mt-4">
+              <KitStats slug={view.slug} initial={stats} />
+            </div>
+          )}
           {view.analysis?.summary && <p className="mt-5 max-w-2xl text-base leading-relaxed text-fg-muted text-pretty">{view.analysis.summary}</p>}
         </div>
         <dl className="grid shrink-0 grid-cols-3 gap-px overflow-hidden rounded-[18px] border border-border bg-border text-center">
