@@ -28,7 +28,7 @@ export async function KitView({ view, mode }: { view: KitVersionView; mode: "pub
   const versionHref = (version: number) => (mode === "owner" ? `/me/kits/${view.slug}/v${version}` : version === view.latestVersion ? kitHome(view.slug) : kitPath(view.slug, version));
   const skillName = skillNameFor(view.slug);
   const withdrawn = view.status === "withdrawn";
-  const [files, frames] = withdrawn ? [[], []] : await Promise.all([view.tarPath ? readKitFiles(view.tarPath) : [], frameUrls(view.versionId)]);
+  const [files, frames] = withdrawn ? [[], []] : await Promise.all([view.tarPath ? readKitFiles(view.tarPath) : [], frameUrls(view.versionId, view.frameSizes)]);
   const counts = {
     free: view.items.filter((i) => i.licence === "free" && i.kind !== "icon").length,
     licence_required: view.items.filter((i) => i.licence === "licence_required").length,
@@ -224,7 +224,7 @@ export async function KitView({ view, mode }: { view: KitVersionView; mode: "pub
               <FrameViewer
                 title={view.title}
                 frames={frames.flatMap((f) => {
-                  const size = view.frameSizes[f.name];
+                  const size = view.frameSizes[f.file];
                   return f.url && size ? [{ name: f.name, url: f.url, width: size.width, height: size.height }] : [];
                 })}
               />

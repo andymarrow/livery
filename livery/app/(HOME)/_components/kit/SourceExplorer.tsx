@@ -124,15 +124,28 @@ export function SourceExplorer({ sources, kind }: { sources: KitSourceView[]; ki
 
               <div key={current.url} className="animate-rise">
                 <SheetTitle className="mt-7 text-3xl font-bold tracking-tight">{name(current)}</SheetTitle>
-                <p className="mt-1 text-[13px] text-fg-muted">{kind === "site" ? hostOf(current.url) : pathOf(current.url)} · its own kit, v{current.version}</p>
+                <p className="mt-1 text-[13px] text-fg-muted">
+                  {kind === "site" ? hostOf(current.url) : pathOf(current.url)} · {current.captured ? "measured in your browser, private" : `its own kit, v${current.version}`}
+                </p>
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <Link href={kitHome(current.slug)} className="inline-flex h-9 items-center gap-1.5 rounded-full bg-accent px-4 text-[13px] font-semibold text-on-accent transition-opacity hover:opacity-90">
-                    Open its kit <ArrowRight className="size-3.5" />
-                  </Link>
+                  {!current.captured && (
+                    <Link href={kitHome(current.slug)} className="inline-flex h-9 items-center gap-1.5 rounded-full bg-accent px-4 text-[13px] font-semibold text-on-accent transition-opacity hover:opacity-90">
+                      Open its kit <ArrowRight className="size-3.5" />
+                    </Link>
+                  )}
                   <a href={current.url} target="_blank" rel="noreferrer noopener" className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border px-4 text-[13px] font-medium text-fg-muted transition-colors hover:border-border-strong hover:text-fg">
                     Visit the site <ArrowUpRight className="size-3.5" />
                   </a>
                 </div>
+                {current.frame && (
+                  <figure className="mt-8">
+                    <figcaption className="label-micro mb-3">Reference frame</figcaption>
+                    <div className="max-h-[28rem] overflow-y-auto overscroll-contain rounded-[14px] border border-border bg-surface-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- a signed storage URL, shown as is */}
+                      <img src={current.frame} alt={`${name(current)} with its content removed`} className="block w-full" loading="lazy" />
+                    </div>
+                  </figure>
+                )}
                 <div className="mt-8">
                   {current.tokens ? <DesignGlance tokens={current.tokens} /> : <p className="text-sm text-fg-muted">This source&apos;s measurements are no longer available.</p>}
                 </div>

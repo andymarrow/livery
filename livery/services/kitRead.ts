@@ -11,7 +11,7 @@ import type { Tokens } from "@/lib/extract/process/tokens";
 export type KitSourceLink = { url: string; slug: string; version: number; /** Measured in the owner's browser (extension). */ captured?: boolean };
 
 /** A source with its own measurements, so a combined kit's page can show each one in place. */
-export type KitSourceView = KitSourceLink & { tokens: Tokens | null; font: string | null; iconSet: string | null };
+export type KitSourceView = KitSourceLink & { tokens: Tokens | null; font: string | null; iconSet: string | null; /** Its own content-removed desktop frame (signed), if stored. */ frame: string | null };
 
 const hostOf = (url: string) => new URL(url).hostname.replace(/^www\./, "");
 
@@ -126,8 +126,13 @@ async function sourceViews(versionId: string, links: KitSourceLink[]): Promise<K
   const captureIds = (rows ?? []).flatMap((r) => (r.capture_id ? [r.capture_id] : []));
   const [{ data: versions }, { data: captures }] = await Promise.all([
     versionIds.length ? db.from("kit_versions").select("id, data").in("id", versionIds) : Promise.resolve({ data: [] as { id: string; data: unknown }[] }),
-    captureIds.length ? db.from("page_captures").select("id, data").in("id", captureIds) : Promise.resolve({ data: [] as { id: string; data: unknown }[] }),
+    captureIds.length ? db.from("page_captures").select("id, data, frame_path").in("id", captureIds) : Promise.resolve({ data: [] as { id: string; data: unknown; frame_path: string | null }[] }),
   ]);
+  // Each source's own frame: a page version's desktop frame, or the capture's picture.
+  const framePaths = (rows ?? []).map((r) => (r.source_version_id ? `${r.source_version_id}/desktop.webp` : (captures ?? []).find((c) => c.id === r.capture_id)?.frame_path ?? null));
+  const wanted = framePaths.filter((path): path is string => Boolean(path));
+  const { data: signed } = wanted.length ? await db.storage.from("screenshots").createSignedUrls(wanted, 60 * 60 * 2) : { data: [] };
+  const frameOf = (path: string | null) => (path ? (signed ?? []).find((x) => x.path === path && !x.error)?.signedUrl ?? null : null);
   const byId = new Map([
     ...(versions ?? []).map((v) => [v.id, (v.data ?? {}) as SourceData] as const),
     // A capture stores its measurements directly (no "extraction" wrapper).
@@ -141,6 +146,7 @@ async function sourceViews(versionId: string, links: KitSourceLink[]): Promise<K
       tokens: d?.tokens ?? null,
       font: d?.tokens?.typography.families.display ?? d?.fonts?.[0]?.family ?? null,
       iconSet: d?.icons?.library?.name ?? null,
+      frame: frameOf(framePaths[index] ?? null),
     };
   });
 }
@@ -210,12 +216,18 @@ async function attachPreviews(all: KitCard[]) {
 }
 
 /** Short-lived signed URLs for the content-removed preview frames. */
-export async function frameUrls(versionId: string) {
+/**
+ * The version's desktop, tablet and phone frames (signed). `file` is the
+ * stored frame each one shows: a combined kit whose first page has no frame
+ * shows its first other page's desktop frame (02-desktop, ...) instead.
+ */
+export async function frameUrls(versionId: string, sizes: Record<string, { width: number; height: number }> = {}) {
   const names = ["desktop", "tablet", "mobile"] as const;
+  const files = names.map((name) => (name === "desktop" && !sizes.desktop ? (Object.keys(sizes).filter((n) => /^\d+-desktop$/.test(n)).sort()[0] ?? name) : name));
   const { data } = await getAdminClient()
     .storage.from("screenshots")
-    .createSignedUrls(names.map((n) => `${versionId}/${n}.webp`), 60 * 60 * 2);
-  return names.map((name, i) => ({ name, url: data?.[i]?.signedUrl ?? null }));
+    .createSignedUrls(files.map((f) => `${versionId}/${f}.webp`), 60 * 60 * 2);
+  return names.map((name, i) => ({ name, file: files[i], url: data?.[i]?.error ? null : (data?.[i]?.signedUrl ?? null) }));
 }
 
 export type KitCard = {

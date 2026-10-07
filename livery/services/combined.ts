@@ -85,11 +85,18 @@ export async function loadFrames(versionId: string, wanted: { from: string; as: 
   const bucket = getAdminClient().storage.from("screenshots");
   const frames: Frame[] = [];
   for (const { from, as } of wanted) {
-    const size = sizes.find((s) => s.name === from);
-    if (!size) continue;
     const { data } = await bucket.download(`${versionId}/${from}.webp`);
     if (!data) continue;
-    frames.push({ name: as, width: size.width, height: size.height, webp: Buffer.from(await data.arrayBuffer()) });
+    const webp = Buffer.from(await data.arrayBuffer());
+    // Older versions didn't record frame sizes; read them from the image.
+    let size = sizes.find((s) => s.name === from);
+    if (!size) {
+      const { default: sharp } = await import("sharp");
+      const meta = await sharp(webp).metadata();
+      if (!meta.width || !meta.height) continue;
+      size = { name: from, width: meta.width, height: meta.height };
+    }
+    frames.push({ name: as, width: size.width, height: size.height, webp });
   }
   return frames;
 }
