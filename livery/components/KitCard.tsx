@@ -4,21 +4,40 @@ import { ArrowUpRight } from "@/components/icons";
 import { kitPath } from "@/lib/kit/urls";
 import type { KitCard as KitCardData } from "@/services/kitRead";
 
-// A kit at a glance: its palette as a solid strip, then name, type and icons.
+// A kit at a glance: its layout (the content-removed frame, panning on hover)
+// over its palette, then name, type and icons.
 // The whole card opens the kit; page kits also carry a "+ Taste" button.
 export function KitCard({ kit }: { kit: KitCardData }) {
   const swatches = kit.swatches.length ? kit.swatches : ["var(--surface-2)"];
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-[18px] border border-border bg-surface shadow-card transition-[border-color,transform] duration-150 ease-out-soft hover:-translate-y-0.5 hover:border-border-strong has-[a:focus-visible]:border-accent">
-      <div className="flex h-24 border-b border-border" aria-hidden>
-        {swatches.map((colour, index) => (
-          <span
-            key={`${colour}-${index}`}
-            className="h-full transition-[flex-grow] duration-300 ease-out-soft"
-            style={{ background: colour, flexGrow: index === 0 ? 3 : colour === kit.accent ? 1.4 : 1 }}
+      {kit.preview ? (
+        <div className="relative h-44 overflow-hidden border-b border-border bg-surface-2" aria-hidden>
+          {/* eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL from private storage */}
+          <img
+            src={kit.preview}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover object-top transition-[object-position] duration-[2400ms] ease-out-soft group-hover:object-[50%_30%] motion-reduce:transition-none"
           />
-        ))}
-      </div>
+          <div className="absolute inset-x-0 bottom-0 flex h-2">
+            {swatches.map((colour, index) => (
+              <span key={`${colour}-${index}`} className="h-full" style={{ background: colour, flexGrow: index === 0 ? 3 : colour === kit.accent ? 1.4 : 1 }} />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="flex h-24 border-b border-border" aria-hidden>
+          {swatches.map((colour, index) => (
+            <span
+              key={`${colour}-${index}`}
+              className="h-full transition-[flex-grow] duration-300 ease-out-soft"
+              style={{ background: colour, flexGrow: index === 0 ? 3 : colour === kit.accent ? 1.4 : 1 }}
+            />
+          ))}
+        </div>
+      )}
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">

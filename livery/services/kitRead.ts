@@ -157,6 +157,21 @@ export async function readKitFiles(tarPath: string) {
     .map((f) => ({ path: f.path, text: f.content.toString("utf8") }));
 }
 
+/** One signed desktop frame per card, in a single storage request. A missing frame leaves the card's palette strip on its own. */
+async function attachPreviews(cards: KitCard[]) {
+  if (!cards.length) return;
+  try {
+    const { data } = await getAdminClient()
+      .storage.from("screenshots")
+      .createSignedUrls(cards.map((c) => `${c.versionId}/desktop.webp`), 60 * 60 * 2);
+    cards.forEach((card, i) => {
+      card.preview = data?.[i] && !data[i].error ? data[i].signedUrl : null;
+    });
+  } catch {
+    // Previews are decoration; the library still lists without them.
+  }
+}
+
 /** Short-lived signed URLs for the content-removed preview frames. */
 export async function frameUrls(versionId: string) {
   const names = ["desktop", "mobile"] as const;
@@ -168,12 +183,15 @@ export async function frameUrls(versionId: string) {
 
 export type KitCard = {
   slug: string;
+  versionId: string;
   kind: KitKind;
   title: string;
   /** "Homepage", "/pricing", "4 pages" or "3 sites". */
   detail: string;
   /** Page kits only: what a taste collects. */
   sourceUrl: string | null;
+  /** Signed URL of the content-removed desktop frame, for the card's picture. */
+  preview: string | null;
   curator: string | null;
   curatorSlug: string | null;
   version: number;
@@ -200,7 +218,7 @@ export async function listKits({
   const db = getPublicClient();
   let request = db
     .from("kit_versions")
-    .select("version, published_at, data, grant_hash, kits!inner(slug, kind, domain, source_url, curator, curator_slug)", { count: "exact" })
+    .select("id, version, published_at, data, grant_hash, kits!inner(slug, kind, domain, source_url, curator, curator_slug)", { count: "exact" })
     .eq("status", "ready")
     .order("published_at", { ascending: false })
     .range(offset, offset + limit - 1);
@@ -217,6 +235,7 @@ export async function listKits({
   const seen = new Set<string>();
   const cards: KitCard[] = [];
   type Row = {
+    id: string;
     version: number;
     published_at: string;
     grant_hash: string | null;
@@ -236,6 +255,8 @@ export async function listKits({
       title: kitTitle(row.kits, sources),
       detail: row.kits.kind === "page" ? (path === "/" ? "Homepage" : path) : row.kits.kind === "site" ? `${sources.length} pages` : `${new Set(sources.map((s) => hostOf(s.url))).size} sites`,
       sourceUrl: row.kits.source_url,
+      preview: null,
+      versionId: row.id,
       curator: row.kits.curator,
       curatorSlug: row.kits.curator_slug,
       version: row.version,
@@ -248,5 +269,6 @@ export async function listKits({
       ownerApproved: row.grant_hash !== null,
     });
   }
+  await attachPreviews(cards);
   return { cards, total: count ?? cards.length };
 }
