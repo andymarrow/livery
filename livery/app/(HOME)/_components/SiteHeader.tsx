@@ -26,15 +26,15 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 border-b bg-bg transition-[border-color] duration-200",
-        scrolled ? "border-border" : "border-transparent",
+        "sticky top-0 z-40 border-b border-border bg-bg transition-shadow duration-150",
+        scrolled && "shadow-card",
       )}
     >
-      <div className="mx-auto grid h-16 max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 sm:px-6">
-        <Logo className="justify-self-start" />
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-8 px-4 sm:px-6">
+        <Logo className="shrink-0" />
 
         <nav aria-label="Main" className="hidden md:block">
-          <ul className="flex items-center gap-1 rounded-full border border-border bg-surface p-1">
+          <ul className="flex items-center gap-1">
             {NAV_LINKS.map((link) => {
               const active = !link.href.includes("#") && pathname.startsWith(link.href);
               return (
@@ -43,8 +43,8 @@ export function SiteHeader() {
                     href={link.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "inline-flex h-8 items-center rounded-full px-3.5 text-[13px] font-medium transition-colors duration-150",
-                      active ? "bg-surface-2 text-fg" : "text-fg-muted hover:text-fg",
+                      "inline-flex h-8 items-center rounded-full px-3.5 text-sm font-medium transition-colors duration-150",
+                      active ? "bg-surface-3/60 font-semibold text-fg" : "text-fg-muted hover:bg-surface-3/60 hover:text-fg",
                     )}
                   >
                     {link.label}
@@ -55,9 +55,9 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-1.5 justify-self-end">
+        <div className="ml-auto flex items-center gap-1.5">
           <ThemeToggle />
-          <Button asChild size="sm" variant="inverse" className="hidden rounded-full px-3.5 sm:inline-flex">
+          <Button asChild size="sm" className="hidden h-9 px-4 text-sm sm:inline-flex">
             <Link href="/#get-a-kit">
               Get a kit
               <ArrowUpRight />

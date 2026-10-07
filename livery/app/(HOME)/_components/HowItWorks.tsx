@@ -22,7 +22,7 @@ const STEPS = [
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="scroll-mt-20 border-t border-border px-4 py-20 sm:px-6 sm:py-28">
+    <section id="how-it-works" className="scroll-mt-20 border-t border-border px-4 py-16 sm:px-6 sm:py-20">
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_1fr] md:items-end">
           <div>

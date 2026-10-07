@@ -5,8 +5,8 @@ const AGENTS = ["Claude Code", "Codex", "Cursor", "Windsurf", "any agent that re
 
 export function Hero({ kitCount }: { kitCount: number }) {
   return (
-    <section className="relative px-4 pb-20 pt-16 sm:px-6 sm:pb-28 sm:pt-24">
-      <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
+    <section className="relative px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-14">
+      <div className="mx-auto flex max-w-6xl flex-col items-start">
         <Badge variant="neutral" className="animate-rise h-7 px-3 text-[12.5px]">
           <LiveDot />
           {/* The count only appears once the library is big enough to say something. */}
@@ -14,7 +14,7 @@ export function Hero({ kitCount }: { kitCount: number }) {
         </Badge>
 
         <h1
-          className="mt-7 text-3xl font-bold leading-tight tracking-tight text-balance sm:text-4xl"
+          className="mt-5 text-3xl font-bold leading-tight tracking-tight text-balance sm:text-4xl"
         >
           Give your app a new{" "}
           <span className="relative inline-block whitespace-nowrap">
@@ -25,17 +25,17 @@ export function Hero({ kitCount }: { kitCount: number }) {
         </h1>
 
         <p
-          className="mt-6 max-w-xl text-base leading-relaxed text-fg-muted text-pretty"
+          className="mt-3 max-w-2xl text-base leading-relaxed text-fg-muted text-pretty"
         >
           Paste any website. Get a design kit your coding agent installs in one step. It audits your project, asks
           before it changes anything, and applies the look one commit at a time.
         </p>
 
-        <div className="animate-rise mt-10 w-full" style={{ animationDelay: "180ms" }}>
+        <div className="animate-rise mt-8 w-full max-w-3xl" style={{ animationDelay: "180ms" }}>
           <KitInput />
         </div>
 
-        <p className="animate-rise mt-12 text-[13px] text-fg-subtle" style={{ animationDelay: "240ms" }}>
+        <p className="animate-rise mt-8 text-[13px] text-fg-subtle" style={{ animationDelay: "240ms" }}>
           Works with{" "}
           {AGENTS.map((agent, index) => (
             <span key={agent}>

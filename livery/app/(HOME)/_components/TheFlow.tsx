@@ -49,7 +49,7 @@ function Message({ from, children, delay = 0 }: { from: "agent" | "you"; childre
 
 export function TheFlow() {
   return (
-    <section className="border-t border-border px-4 py-20 sm:px-6 sm:py-28">
+    <section className="border-t border-border px-4 py-16 sm:px-6 sm:py-20">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-14 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-20">
         <div className="lg:sticky lg:top-28 lg:self-start">
           <SectionHeading

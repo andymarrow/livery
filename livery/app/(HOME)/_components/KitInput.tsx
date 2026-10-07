@@ -143,7 +143,7 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
         </div>
       </form>
 
-      <div className={cn("mt-4 flex min-h-6 flex-wrap items-center gap-x-1.5 gap-y-2", compact ? "justify-start" : "justify-center")}>
+      <div className={cn("mt-4 flex min-h-6 flex-wrap items-center gap-x-1.5 gap-y-2", "justify-start")}>
         {invalid ? (
           <p id={errorId} role="alert" className="text-sm text-danger">
             That doesn&apos;t look like a public website address. Try something like linear.app.
@@ -179,7 +179,7 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
 function AgentLine({ path }: { path: string }) {
   const command = `curl -fsSL ${SITE.domain}/${path || "<any-site>"}`;
   return (
-    <div className="mx-auto mt-8 flex max-w-xl items-center gap-3 text-left rounded-[14px] border border-border bg-surface-2 py-1.5 pl-4 pr-1.5">
+    <div className="mt-6 flex max-w-xl items-center gap-3 text-left rounded-[14px] border border-border bg-surface-2 py-1.5 pl-4 pr-1.5">
       <span className="label-micro hidden shrink-0 sm:inline">Agents</span>
       <span aria-hidden className="hidden h-4 w-px bg-border-strong sm:inline-block" />
       <code className="min-w-0 flex-1 truncate font-mono text-[13px] text-fg-muted">

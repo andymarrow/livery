@@ -4,7 +4,7 @@ import { KitAnatomy } from "./KitAnatomy";
 
 export function OpenAKit() {
   return (
-    <section className="border-t border-border px-4 py-20 sm:px-6 sm:py-28">
+    <section className="border-t border-border px-4 py-16 sm:px-6 sm:py-20">
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:items-end">
           <SectionHeading kicker="Open a kit" title="Values, and the reasons behind them." />

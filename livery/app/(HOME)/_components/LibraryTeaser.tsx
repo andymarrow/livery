@@ -10,7 +10,7 @@ import type { KitCard as KitCardData } from "@/services/kitRead";
 export function LibraryTeaser({ kits }: { kits: KitCardData[] }) {
   if (kits.length === 0) return null;
   return (
-    <section className="border-t border-border px-4 py-20 sm:px-6 sm:py-28">
+    <section className="border-t border-border px-4 py-16 sm:px-6 sm:py-20">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <SectionHeading kicker="The library" title="Every link becomes a kit anyone can use." />

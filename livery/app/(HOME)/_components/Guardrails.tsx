@@ -27,7 +27,7 @@ const ITEMS = [
 
 export function Guardrails() {
   return (
-    <section className="border-t border-border px-4 py-20 sm:px-6 sm:py-28">
+    <section className="border-t border-border px-4 py-16 sm:px-6 sm:py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeading kicker="Guardrails" title="Built to be trusted," muted="by you and by the sites you love." />
         <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-[18px] border border-border bg-border sm:grid-cols-2">

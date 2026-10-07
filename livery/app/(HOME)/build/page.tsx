@@ -46,5 +46,5 @@ export default async function BuildPage({ searchParams }: PageProps<"/build">) {
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
-  return <div className="flex flex-1 items-center px-4 py-20 sm:px-6 sm:py-28">{children}</div>;
+  return <div className="flex flex-1 items-center px-4 py-16 sm:px-6 sm:py-20">{children}</div>;
 }
