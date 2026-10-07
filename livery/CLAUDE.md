@@ -2,7 +2,7 @@
 
 # What this project is
 
-Livery (`livery.site`) turns any public website's design into an installable agent skill (a "kit"). Frontend/UI only for v1, no accounts, Supabase + Next.js + Gemini. **The roadmap and all product decisions live in `PLAN.md`: read it before starting work and follow its phase order.**
+Livery (`livery.site`) turns any public website's design into an installable agent skill (a "kit"). Frontend/UI only for v1, no accounts, Supabase + Next.js + Browserless. Kits are written from measurements, with no AI model (owner's decision). **The roadmap and all product decisions live in `PLAN.md`: read it before starting work and follow its phase order.**
 
 # Project structure rules (always follow)
 

@@ -123,7 +123,7 @@ export function Builder({ url, host }: { url: string; host: string }) {
       <p className="label-micro text-center">Building a kit</p>
       <h1 className="mt-3 text-center text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">{host}</h1>
       <p className="mt-3 text-center text-[15px] text-fg-muted">
-        {state.phase === "waiting" ? "Someone else is building this kit right now. It will open here when it's ready." : "Usually under two minutes. You can leave; the kit will be in the library."}
+        {state.phase === "waiting" ? "Someone else is building this kit right now. It will open here when it's ready." : "Usually about a minute. You can leave; the kit will be in the library."}
       </p>
 
       <ol className="mt-10 overflow-hidden rounded-[22px] border border-border bg-surface">

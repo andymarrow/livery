@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-// What the model writes. Values come from the extraction; the model supplies
-// the reasons, the rules and the voice. Kept flat and simple so it maps cleanly
-// onto Gemini's structured output.
+// The reasoning part of a kit: principles, rules, recipes and voice. Values
+// come from the extraction; measuredAnalysis (measured.ts) writes the reasons.
+// Validated with this schema so every kit has the same shape.
 
 const Rule = z.object({
   rule: z.string().min(8).max(240).describe("An instruction an agent can follow, in the imperative."),

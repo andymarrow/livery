@@ -1,7 +1,6 @@
 // Opt-in: LIVE=1 OUT=/some/dir SITES=linear.app npx vitest run tests/live/kit.test.ts
 // Builds complete kits from real sites without the database: render, extract,
-// generate (Gemini when GEMINI_API_KEY and GEMINI_MODEL are set, otherwise a
-// stand-in analysis), guard and package. Writes each kit and its archives to OUT.
+// write rules from the measurements, guard and package. Writes each kit and its archives to OUT.
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -12,10 +11,9 @@ import { renderAt, WIDTHS } from "@/lib/extract/render";
 import { detectBlock } from "@/lib/guards/detectBlock";
 import { generateKit } from "@/lib/generate/kit";
 import { packageKit } from "@/lib/generate/package";
-import { geminiWriter } from "@/lib/generate/writer";
+import { measuredWriter } from "@/lib/generate/measured";
 import { normaliseTarget } from "@/lib/url/normalise";
 import { safeFetch } from "@/lib/url/ssrf";
-import { analysis, scriptedWriter } from "../generate/helpers";
 
 if (process.env.LIVE) {
   try {
@@ -24,7 +22,6 @@ if (process.env.LIVE) {
 }
 
 const SITES = (process.env.SITES ?? "rize.roggy.site").split(",");
-const useGemini = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_MODEL);
 
 describe.skipIf(!process.env.LIVE)("live kits", { timeout: 300_000 }, () => {
   it.each(SITES)("builds a kit for %s", async (site) => {
@@ -48,7 +45,7 @@ describe.skipIf(!process.env.LIVE)("live kits", { timeout: 300_000 }, () => {
       await browser.close();
     }
     const extraction = extractor.finish(preflight.value.finalUrl.toString());
-    const writer = useGemini ? geminiWriter() : scriptedWriter([analysis()]).writer;
+    const writer = measuredWriter(extraction);
     const kit = await generateKit(extraction, writer, { slug: target.value.slug, version: 1 });
     const packaged = packageKit(kit.files, { skillName: kit.skillName, version: 1, flowVersion: FLOW_VERSION });
 

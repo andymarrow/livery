@@ -19,7 +19,7 @@ Livery turns a website's design into an installable **kit** (a skill) that a cod
 | Domain | `livery.site` (bought on Vercel). Replace every `livery.so` in the research notes with this. |
 | Stack | Next.js App Router, TypeScript, Tailwind v4, Supabase (Postgres + Storage), Vercel |
 | Browser | `playwright-core` over `connectOverCDP` to a hosted browser (Browserless), one env var `BROWSER_WS_ENDPOINT`. Move to Fly/Railway later. |
-| Model | Gemini (`GEMINI_MODEL`, optional `GEMINI_FALLBACK_MODEL`, never hardcoded). `GEMINI_FALLBACK_MODEL` is a comma-separated chain. On 2026-10-07 `gemini-3.8-flash` was often busy; `gemini-3-flash-preview` and `gemini-2.5-flash` answered every time (3 of 3 full kits built). |
+| Kit writing | No AI model. Rules, recipes and voice are written from the measurements (`lib/generate/measured.ts`); decided 2026-10-07 after Gemini's free tier failed builds. The `DesignWriter` interface allows a model later. |
 | Accounts | None in v1. Rate limit by hashed IP. Library/saved kits, premium kits and paid re-scans are later. |
 | Crawler identity | `LiveryBot/1.0 (+https://livery.site/bot)`. Respects robots.txt. No stealth, no proxies, no CAPTCHA solving, one try then stop. |
 | Kits | A published version is **immutable**. Changes mean a new version. A version can be withdrawn (410), never edited. |

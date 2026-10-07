@@ -17,7 +17,7 @@ export default function PrivacyPage() {
       <h2>What we don&apos;t do</h2>
       <p>No advertising, no tracking pixels, no selling of data. Pages that LiveryBot renders load without their analytics and ad scripts.</p>
       <h2>Processors</h2>
-      <p>Livery runs on Vercel (hosting) and Supabase (database and storage). Measured design values and content-removed screenshots are sent to Google&apos;s Gemini API to write each kit&apos;s guidance.</p>
+      <p>Livery runs on Vercel (hosting), Supabase (database and storage) and Browserless (the browser that reads sites). Kits are written from measurements on our own servers; no AI provider receives site data.</p>
     </Prose>
   );
 }

@@ -9,7 +9,8 @@ import { fetchOwnerRules } from "@/lib/optin/ownerRules";
 import type { Progress, ReadFailure } from "@/lib/extract/types";
 import { generateKit } from "@/lib/generate/kit";
 import { packageKit } from "@/lib/generate/package";
-import { geminiWriter, type DesignWriter } from "@/lib/generate/writer";
+import { measuredWriter } from "@/lib/generate/measured";
+import type { DesignWriter } from "@/lib/generate/writer";
 import { logger } from "@/lib/logger";
 import { checkBuildRate } from "@/lib/rateLimit";
 import type { Json } from "@/lib/supabase/database.types";
@@ -126,9 +127,9 @@ export async function resolveKit(raw: string, options: { ip: string; writer?: De
     const extraction = extractor.finish(rendered.value.finalUrl.toString());
 
     const version = await nextVersion(lock.kit_id);
-    progress("writing", "rules, components and voice");
+    progress("writing", "rules from the measurements");
     const assetFiles = plan.assets.length && extraction.assetCandidates ? await buildAssetFiles(extraction.assetCandidates, plan.assets) : [];
-    const kit = await generateKit(extraction, options.writer ?? geminiWriter(), {
+    const kit = await generateKit(extraction, options.writer ?? measuredWriter(extraction), {
       slug: target.slug,
       version,
       levels: plan.levels,
