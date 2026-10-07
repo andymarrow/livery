@@ -292,3 +292,21 @@ main {
 @keyframes tick-in {
   from { transform: scaleY(0); opacity: 0; }
 }
+
+/* Library wall: two rows of layout frames drifting in opposite directions. */
+@keyframes wall-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.wall-row {
+  animation: wall-left var(--wall-duration, 60s) linear infinite;
+}
+.wall-row[data-direction="right"] {
+  animation-direction: reverse;
+}
+.wall:hover .wall-row {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wall-row { animation: none; }
+}
