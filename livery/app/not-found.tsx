@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 export default function NotFound() {
   return (
     <div className="flex min-h-dvh flex-col px-4 sm:px-6">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center">
+      <div className="mx-auto flex h-16 w-full max-w-[80rem] items-center">
         <Logo />
       </div>
       <div className="mx-auto flex max-w-md flex-1 flex-col items-center justify-center pb-24 text-center">

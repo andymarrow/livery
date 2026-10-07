@@ -282,3 +282,13 @@ main {
   counter-increment: kicker;
   content: counter(kicker, decimal-leading-zero);
 }
+
+/* Page-intro ruler: ticks rise in from left to right, once. */
+.ruler-tick {
+  transform-box: fill-box;
+  transform-origin: top;
+  animation: tick-in 380ms var(--ease-out-soft) both;
+}
+@keyframes tick-in {
+  from { transform: scaleY(0); opacity: 0; }
+}

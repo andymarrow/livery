@@ -37,7 +37,7 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
   const href = (p: number) => `/explore?${new URLSearchParams({ ...(query ? { q: query } : {}), ...(p > 1 ? { page: String(p) } : {}) })}`;
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pb-24 pt-14 sm:px-6 sm:pt-20">
+    <div className="mx-auto w-full max-w-[80rem] px-4 pb-24 pt-14 sm:px-6 sm:pt-20">
       <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
         <div>
           <p className="label-micro">The library</p>

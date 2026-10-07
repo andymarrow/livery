@@ -54,7 +54,7 @@ export default function DesignPage() {
   if (process.env.NODE_ENV === "production") notFound();
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6">
+    <div className="mx-auto w-full max-w-[80rem] px-4 py-14 sm:px-6">
       <p className="label-micro">Internal</p>
       <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Design system</h1>
       <p className="mt-3 max-w-xl text-sm leading-relaxed text-fg-muted">

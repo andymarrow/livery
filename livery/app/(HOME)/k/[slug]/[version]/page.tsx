@@ -55,7 +55,7 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
   const path = new URL(view.sourceUrl).pathname;
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pb-24 pt-10 sm:px-6 sm:pt-14">
+    <div className="mx-auto w-full max-w-[80rem] px-4 pb-24 pt-10 sm:px-6 sm:pt-14">
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-[13px] text-fg-subtle">
         <Link href="/explore" className="transition-colors hover:text-fg">Library</Link>
         <span aria-hidden>/</span>

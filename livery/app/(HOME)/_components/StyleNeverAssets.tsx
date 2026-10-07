@@ -25,7 +25,7 @@ const ITEMS: { licence: Licence; title: string; body: string; examples: string }
 export function StyleNeverAssets() {
   return (
     <section className="border-t border-border px-4 py-16 sm:px-6 sm:py-20">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-[80rem]">
         <div className="max-w-2xl">
           <p className="label-micro flex items-center gap-2">
               <KickerNumber />

@@ -1,15 +1,9 @@
 import { supabaseConfigured } from "@/lib/supabase/configured";
 import { logger } from "@/lib/logger";
 import { listKits, type KitCard } from "@/services/kitRead";
-import { Faq } from "./_components/Faq";
-import { FinalCta } from "./_components/FinalCta";
-import { Guardrails } from "./_components/Guardrails";
 import { Hero } from "./_components/Hero";
-import { HowItWorks } from "./_components/HowItWorks";
 import { LibraryTeaser } from "./_components/LibraryTeaser";
-import { OpenAKit } from "./_components/OpenAKit";
-import { StyleNeverAssets } from "./_components/StyleNeverAssets";
-import { TheFlow } from "./_components/TheFlow";
+import { NextSteps } from "./_components/NextSteps";
 
 // The library teaser and count refresh every five minutes.
 export const revalidate = 300;
@@ -30,14 +24,8 @@ export default async function HomePage() {
   return (
     <>
       <Hero kitCount={total} />
-      <OpenAKit />
-      <HowItWorks />
-      <TheFlow />
-      <StyleNeverAssets />
       <LibraryTeaser kits={kits} />
-      <Guardrails />
-      <Faq />
-      <FinalCta />
+      <NextSteps />
     </>
   );
 }

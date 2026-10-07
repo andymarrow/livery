@@ -27,7 +27,7 @@ function Block({ id, icon, kicker, title, body, children, wide = false }: { id: 
 
 export default function OwnersPage() {
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-14 sm:px-6 sm:pt-20">
+    <div className="mx-auto w-full max-w-[80rem] px-4 pb-16 pt-14 sm:px-6 sm:pt-20">
       <p className="label-micro">For site owners</p>
       <h1 className="mt-3 max-w-3xl text-3xl font-bold leading-tight tracking-tight text-balance sm:text-4xl">
         Your Site, <span className="text-fg-subtle">Your Call</span>

@@ -18,19 +18,19 @@ export function Wordmark() {
   }, [resolved]);
 
   return (
-    <div className="h-36 w-full sm:h-56 lg:h-64" aria-label="livery">
+    <div className="aspect-[11/4] w-full" aria-label="livery">
       {colours && (
         <TechText
           text="livery"
           fontWeight={700}
-          fontSize={260}
+          fontSize={640}
           letterSpacing={-0.05}
           color={colours.fg}
           accentColor={colours.accent}
           reveal="letter"
           dashLength={4}
           dashGap={3}
-          strokeWidth={1.25}
+          strokeWidth={1.5}
           specks={12}
           speed={0.8}
           style={undefined}

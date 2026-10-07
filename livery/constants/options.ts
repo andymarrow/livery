@@ -1,13 +1,17 @@
 export const NAV_LINKS = [
   { href: "/explore", label: "Explore" },
-  { href: "/#how-it-works", label: "How it works" },
-  { href: "/owners", label: "For site owners" },
+  { href: "/how-it-works", label: "How it works" },
+  { href: "/agents", label: "Agents" },
+  { href: "/owners", label: "Site owners" },
+  { href: "/faq", label: "FAQ" },
 ] as const;
 
 export const FOOTER_LINKS = {
   Product: [
     { href: "/explore", label: "Explore kits" },
-    { href: "/#how-it-works", label: "How it works" },
+    { href: "/how-it-works", label: "How it works" },
+    { href: "/agents", label: "Install in your agent" },
+    { href: "/faq", label: "FAQ" },
     { href: "/about", label: "About" },
   ],
   Owners: [

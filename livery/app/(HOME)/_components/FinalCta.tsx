@@ -3,7 +3,7 @@ import { KitInput } from "./KitInput";
 export function FinalCta() {
   return (
     <section className="px-4 pb-20 pt-4 sm:px-6 sm:pb-24">
-      <div className="mx-auto max-w-6xl rounded-[18px] border border-border bg-surface px-6 py-14 sm:px-14 sm:py-20 shadow-card">
+      <div className="mx-auto max-w-[80rem] rounded-[18px] border border-border bg-surface px-6 py-14 sm:px-14 sm:py-20 shadow-card">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1.15fr] lg:items-center">
           <div>
             <p className="label-micro">Start here</p>
