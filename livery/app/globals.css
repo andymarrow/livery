@@ -36,15 +36,15 @@
   --fg-muted: #636363;
   --fg-subtle: #636363;
 
-  /* Accent (goatrank.lol kit): orange. Used as a fill; dark text on it reads at 7.2:1 */
-  --accent: #ff7a00;
-  --accent-hover: #ff8a1f;
-  --accent-soft: #fdebd8;
-  --accent-soft-fg: #8f4508;
-  --on-accent: #111111;
-  --ring: #ff7a00;
-  /* Accent as text: darker in light mode so it passes AA on paper */
-  --accent-ink: #a8500a;
+  /* Accent: Livery teal (kept over the kit's orange). Passes AA as text and as a fill */
+  --accent: #0d7268;
+  --accent-hover: #0a6058;
+  --accent-soft: #d5e9e4;
+  --accent-soft-fg: #0a5850;
+  --on-accent: #ffffff;
+  --ring: #0d7268;
+  /* Accent as text: same teal, it already passes AA on every surface */
+  --accent-ink: #0d7268;
 
   /* Soft, neutral depth (never tinted) */
   --shadow-card-value: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -71,13 +71,13 @@
   --fg: #fafafa;
   --fg-muted: #a1a1a1;
   --fg-subtle: #8f8f8f;
-  --accent: #ff7a00;
-  --accent-hover: #ff8f2e;
-  --accent-soft: #2b1704;
-  --accent-soft-fg: #ffa04d;
-  --on-accent: #030303;
-  --ring: #ff7a00;
-  --accent-ink: #ff7a00;
+  --accent: #5fd4c2;
+  --accent-hover: #7cddcd;
+  --accent-soft: #10302b;
+  --accent-soft-fg: #7cddcd;
+  --on-accent: #052420;
+  --ring: #5fd4c2;
+  --accent-ink: #5fd4c2;
   --success: #6fcf97;
   --success-soft: #17301f;
   --warning: #e3b45c;
@@ -98,13 +98,13 @@
     --fg: #fafafa;
     --fg-muted: #a1a1a1;
     --fg-subtle: #8f8f8f;
-    --accent: #ff7a00;
-    --accent-hover: #ff8f2e;
-    --accent-soft: #2b1704;
-    --accent-soft-fg: #ffa04d;
-    --on-accent: #030303;
-    --ring: #ff7a00;
-    --accent-ink: #ff7a00;
+    --accent: #5fd4c2;
+    --accent-hover: #7cddcd;
+    --accent-soft: #10302b;
+    --accent-soft-fg: #7cddcd;
+    --on-accent: #052420;
+    --ring: #5fd4c2;
+    --accent-ink: #5fd4c2;
     --success: #6fcf97;
     --success-soft: #17301f;
     --warning: #e3b45c;
