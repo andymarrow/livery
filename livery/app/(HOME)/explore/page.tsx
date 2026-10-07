@@ -73,7 +73,7 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
               description="Be the first: paste a site you love and its kit will appear here."
               action={
                 <Button asChild>
-                  <Link href="/#get-a-kit">Build the first kit</Link>
+                  <Link href="/#get-a-kit">Build the First Kit</Link>
                 </Button>
               }
             />

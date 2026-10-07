@@ -55,7 +55,7 @@ export function TakedownForm() {
       {result && !result.ok && <p role="alert" className="text-sm text-danger">{result.error}</p>}
       <Button type="submit" variant="secondary" disabled={pending}>
         {pending && <CircleNotch strokeWidth={2.25} className="animate-[spin_0.9s_linear_infinite]" />}
-        Send request
+        Send Request
       </Button>
     </form>
   );

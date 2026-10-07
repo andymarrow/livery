@@ -59,7 +59,7 @@ export function SiteHeader() {
           <ThemeToggle />
           <Button asChild size="sm" className="hidden h-9 px-4 text-sm sm:inline-flex">
             <Link href="/#get-a-kit">
-              Get a kit
+              Get a Kit
               <ArrowUpRight />
             </Link>
           </Button>

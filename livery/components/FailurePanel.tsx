@@ -22,7 +22,7 @@ export function FailurePanel({ reason, host }: { reason: ReadFailureReason; host
       <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
         <Button asChild variant="secondary">
           <Link href="/#get-a-kit">
-            <ArrowLeft strokeWidth={2.25} /> Try another site
+            <ArrowLeft strokeWidth={2.25} /> Try Another Site
           </Link>
         </Button>
         {OWNER_REASONS.includes(reason) && (

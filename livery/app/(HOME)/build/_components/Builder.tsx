@@ -172,7 +172,7 @@ function Outcome({ icon, title, body, next, code, owners, retry }: { icon: React
         {retry && <Button onClick={() => window.location.reload()}>Try again</Button>}
         <Button asChild variant="secondary">
           <Link href="/#get-a-kit">
-            <ArrowLeft strokeWidth={2.25} /> Try another site
+            <ArrowLeft strokeWidth={2.25} /> Try Another Site
           </Link>
         </Button>
         {owners && (

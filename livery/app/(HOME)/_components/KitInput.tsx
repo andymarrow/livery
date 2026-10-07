@@ -136,7 +136,7 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
               className="hidden size-12 sm:inline-flex sm:size-14"
             />
             <Button type="submit" size="lg" className="group/build h-12 w-full rounded-[14px] sm:h-14 sm:w-auto sm:px-6">
-              Build kit
+              Build Kit
               <ArrowRight strokeWidth={2.25} className="transition-transform duration-150 ease-out-soft group-hover/build:translate-x-0.5" />
             </Button>
           </div>

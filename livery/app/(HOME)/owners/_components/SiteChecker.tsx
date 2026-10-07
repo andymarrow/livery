@@ -15,7 +15,7 @@ export function SiteChecker() {
         <Input id="check-domain" name="domain" placeholder="example.com" autoComplete="off" spellCheck={false} className="h-11 sm:flex-1" required />
         <Button type="submit" size="lg" disabled={pending} className="h-11">
           {pending && <CircleNotch strokeWidth={2.25} className="animate-[spin_0.9s_linear_infinite]" />}
-          {pending ? "Checking…" : "Check my site"}
+          {pending ? "Checking…" : "Check My Site"}
         </Button>
       </form>
       {result && "error" in result && <p role="alert" className="mt-3 text-sm text-danger">{result.error}</p>}

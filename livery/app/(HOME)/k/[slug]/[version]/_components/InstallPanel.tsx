@@ -34,7 +34,7 @@ export function InstallPanel({ prompt, zipUrl, tarUrl, skillName, sha256 }: { pr
             </div>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <CopyButton value={prompt} variant="primary" size="lg" label="Copy install prompt" copiedLabel="Copied. Paste it into your agent" className="rounded-[14px]" />
+            <CopyButton value={prompt} variant="primary" size="lg" label="Copy Install Prompt" copiedLabel="Copied. Paste it into your agent" className="rounded-[14px]" />
             <span className="text-[12.5px] text-fg-subtle">Installs to .claude/skills/{skillName}</span>
           </div>
         </TabsContent>

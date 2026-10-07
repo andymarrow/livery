@@ -16,7 +16,7 @@ export function LibraryTeaser({ kits }: { kits: KitCardData[] }) {
           <SectionHeading kicker="The library" title="Every Link Becomes a Kit" />
           <Button asChild variant="secondary" className="shrink-0 self-start sm:self-auto">
             <Link href="/explore">
-              Explore all kits <ArrowRight strokeWidth={2.25} />
+              Explore All Kits <ArrowRight strokeWidth={2.25} />
             </Link>
           </Button>
         </div>
