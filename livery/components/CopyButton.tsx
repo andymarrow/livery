@@ -61,8 +61,8 @@ export function CopyButton({
       className={cn("relative", className)}
     >
       <span className="relative inline-flex size-[1em] items-center justify-center [&_svg]:absolute">
-        <Copy className={cn("transition-[transform,opacity] duration-200 ease-out-soft", copied && "scale-50 opacity-0")} />
-        <Check className={cn("transition-[transform,opacity] duration-200 ease-out-soft", copied ? "scale-100 opacity-100" : "scale-50 opacity-0")} />
+        <Copy className={cn("transition-[transform,opacity] duration-150 ease-out-soft", copied && "scale-50 opacity-0")} />
+        <Check className={cn("transition-[transform,opacity] duration-150 ease-out-soft", copied ? "scale-100 opacity-100" : "scale-50 opacity-0")} />
       </span>
       {!iconOnly && <span aria-live="polite">{copied ? copiedLabel : label}</span>}
     </Button>

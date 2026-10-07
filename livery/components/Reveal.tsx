@@ -42,7 +42,7 @@ export function Reveal({
       data-visible={visible || undefined}
       style={{ transitionDelay: visible ? `${delay}ms` : undefined }}
       className={cn(
-        "translate-y-3 opacity-0 transition-[opacity,transform] duration-700 ease-out-soft data-[visible]:translate-y-0 data-[visible]:opacity-100",
+        "translate-y-3 opacity-0 transition-[opacity,transform] duration-300 ease-out-soft data-[visible]:translate-y-0 data-[visible]:opacity-100",
         "motion-reduce:translate-y-0 motion-reduce:opacity-100",
         className,
       )}

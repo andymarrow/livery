@@ -34,7 +34,7 @@ export function AskPreview() {
               </span>
               <span
                 className={cn(
-                  "inline-flex h-6 items-center gap-1 rounded-full px-2 text-[11px] font-semibold transition-colors duration-200",
+                  "inline-flex h-6 items-center gap-1 rounded-full px-2 text-[11px] font-semibold transition-colors duration-150",
                   on ? "bg-accent text-on-accent" : "bg-surface-3 text-fg-muted",
                 )}
               >

@@ -83,7 +83,7 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
         </label>
         <div
           className={cn(
-            "group flex flex-col gap-2 rounded-[18px] border bg-surface p-2 transition-[border-color] duration-200 sm:flex-row sm:items-center",
+            "group flex flex-col gap-2 rounded-[18px] border bg-surface p-2 transition-[border-color] duration-150 sm:flex-row sm:items-center",
             invalid ? "border-danger" : "border-border-strong focus-within:border-accent hover:border-fg-subtle/50",
           )}
         >
@@ -137,7 +137,7 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
             />
             <Button type="submit" size="lg" className="group/build h-12 w-full rounded-[14px] sm:h-14 sm:w-auto sm:px-6">
               Build kit
-              <ArrowRight strokeWidth={2.25} className="transition-transform duration-200 ease-out-soft group-hover/build:translate-x-0.5" />
+              <ArrowRight strokeWidth={2.25} className="transition-transform duration-150 ease-out-soft group-hover/build:translate-x-0.5" />
             </Button>
           </div>
         </div>

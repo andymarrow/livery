@@ -42,7 +42,7 @@ export function HowItWorks() {
           {STEPS.map((step, index) => (
             <li
               key={step.title}
-              className="group flex min-w-0 flex-col rounded-[18px] border border-border bg-surface p-2 transition-[border-color] duration-200 hover:border-border-strong shadow-card"
+              className="group flex min-w-0 flex-col rounded-[18px] border border-border bg-surface p-2 transition-[border-color] duration-150 hover:border-border-strong shadow-card"
             >
               <div className="flex h-48 items-center justify-center overflow-hidden rounded-[14px] border border-border bg-surface-2 p-5">
                 {step.visual}

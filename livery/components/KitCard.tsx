@@ -9,13 +9,13 @@ export function KitCard({ kit }: { kit: KitCardData }) {
   return (
     <Link
       href={kitPath(kit.slug, kit.version)}
-      className="group flex flex-col overflow-hidden rounded-[18px] border border-border bg-surface transition-[border-color,transform] duration-200 ease-out-soft hover:-translate-y-0.5 hover:border-border-strong shadow-card"
+      className="group flex flex-col overflow-hidden rounded-[18px] border border-border bg-surface transition-[border-color,transform] duration-150 ease-out-soft hover:-translate-y-0.5 hover:border-border-strong shadow-card"
     >
       <div className="flex h-24 border-b border-border" aria-hidden>
         {swatches.map((colour, index) => (
           <span
             key={`${colour}-${index}`}
-            className="h-full transition-[flex-grow] duration-500 ease-out-soft"
+            className="h-full transition-[flex-grow] duration-300 ease-out-soft"
             style={{ background: colour, flexGrow: index === 0 ? 3 : colour === kit.accent ? 1.4 : 1 }}
           />
         ))}
@@ -26,7 +26,7 @@ export function KitCard({ kit }: { kit: KitCardData }) {
             <p className="truncate text-sm font-semibold tracking-tight">{kit.domain}</p>
             <p className="truncate text-[12.5px] text-fg-subtle">{new URL(kit.sourceUrl).pathname === "/" ? "Homepage" : new URL(kit.sourceUrl).pathname}</p>
           </div>
-          <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border text-fg-subtle transition-colors duration-200 group-hover:border-accent group-hover:bg-accent group-hover:text-on-accent">
+          <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border text-fg-subtle transition-colors duration-150 group-hover:border-accent group-hover:bg-accent group-hover:text-on-accent">
             <ArrowUpRight strokeWidth={2.25} className="size-3.5" />
           </span>
         </div>

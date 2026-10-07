@@ -118,7 +118,7 @@ export function KitAnatomy() {
                 <span
                   aria-hidden
                   className={cn(
-                    "absolute left-0 top-1/2 hidden h-5 w-[3px] -translate-y-1/2 rounded-full bg-accent transition-opacity duration-200 md:block",
+                    "absolute left-0 top-1/2 hidden h-5 w-[3px] -translate-y-1/2 rounded-full bg-accent transition-opacity duration-150 md:block",
                     selected ? "opacity-100" : "opacity-0",
                   )}
                 />

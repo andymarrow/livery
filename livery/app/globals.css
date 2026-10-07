@@ -148,12 +148,13 @@
 
 /* Motion tokens. A plain @theme block so they also exist as CSS variables. */
 @theme {
-  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+  /* goatrank.lol kit: 82% of measured transitions use this curve */
+  --ease-out-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in-out-soft: cubic-bezier(0, 0, 0.2, 1);
 
   --animate-caret: caret 1.1s steps(1) infinite;
-  --animate-rise: rise 0.5s var(--ease-out-soft) both;
-  --animate-pulse-dot: pulse-dot 2s var(--ease-in-out-soft) infinite;
+  --animate-rise: rise 0.3s var(--ease-out-soft) both;
+  --animate-pulse-dot: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes caret {
@@ -164,7 +165,7 @@
 }
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
+  50% { opacity: 0.5; }
 }
 @keyframes fade-in {
   from { opacity: 0; }
