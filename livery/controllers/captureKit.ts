@@ -11,7 +11,7 @@ import { measuredAnalysis, type VoiceProfile } from "@/lib/generate/measured";
 import { packageKit } from "@/lib/generate/package";
 import type { DesignWriter } from "@/lib/generate/writer";
 import { refreshKitPages } from "@/lib/kit/revalidate";
-import { logger } from "@/lib/logger";
+import { errorText, logger } from "@/lib/logger";
 import type { Json } from "@/lib/supabase/database.types";
 import { registrableDomain } from "@/lib/url/site";
 import { captureFrame, createOwnedKit, currentSources, findReadyVersion, kitBySlug, loadCapture, saveCapture, startOwnerVersion, type SourceRef, type TargetKit } from "@/services/captures";
@@ -126,8 +126,8 @@ export async function addCapture(input: CaptureInput): Promise<CaptureOutcome> {
     refreshKitPages();
     return { status: "ready", path: `/me/kits/${owned.slug}/v${version}`, slug: owned.slug, version, mode };
   } catch (error) {
-    logger.error("kit.capture_failed", { slug: owned.slug, error: error instanceof Error ? error.message : String(error) });
-    await failBuild(lock.kit_version_id, error instanceof Error ? error.message : String(error)).catch(() => {});
+    logger.error("kit.capture_failed", { slug: owned.slug, error: errorText(error) });
+    await failBuild(lock.kit_version_id, errorText(error)).catch(() => {});
     throw error;
   }
 }

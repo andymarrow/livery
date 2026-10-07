@@ -13,3 +13,13 @@ export const logger = {
   warn: (event: string, fields?: Fields) => emit("warn", event, fields),
   error: (event: string, fields?: Fields) => emit("error", event, fields),
 };
+
+/** A readable message for anything thrown, including Supabase/PostgREST error objects. */
+export function errorText(error: unknown) {
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === "object") {
+    const e = error as { message?: string; details?: string; hint?: string; code?: string };
+    return [e.code, e.message, e.details, e.hint].filter(Boolean).join(" | ") || JSON.stringify(error);
+  }
+  return String(error);
+}

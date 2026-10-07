@@ -533,3 +533,19 @@ describe("extension captures", () => {
     });
   });
 });
+
+describe("server role", () => {
+  it("can run every build function the server calls (as service_role, not the test superuser)", async () => {
+    const page = async (path: string) => {
+      const { rows } = await asRole(db, "service_role", () => db.query<{ kit_version_id: string }>(`select * from public.start_build($1, 'example.com', $2, 1, 1)`, [`https://example.com${path}`, `example-com${path.replace(/\//g, "-").replace(/-$/, "")}`]));
+      await asRole(db, "service_role", () => publish(rows[0].kit_version_id));
+      return { url: `https://example.com${path}`, versionId: rows[0].kit_version_id };
+    };
+    const sources = [await page("/a"), await page("/b")];
+    const payload = JSON.stringify(sources.map((s, i) => ({ position: i + 1, source_url: s.url, domain: "example.com", source_version_id: s.versionId })));
+    const { rows } = await asRole(db, "service_role", () =>
+      db.query<{ claimed: boolean }>(`select * from public.start_combined_build('site', $1, 'example.com', 'example-com-pages-aaaaaa', null, null, $2, $3, 1, 1, interval '10 minutes', null, 'private')`, ["a".repeat(64), payload, "b".repeat(64)]),
+    );
+    expect(rows[0].claimed).toBe(true);
+  });
+});

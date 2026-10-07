@@ -4,7 +4,7 @@ import type { RawDesign } from "@/lib/extract/collect/collectDesign";
 import type { VoiceProfile } from "@/lib/generate/measured";
 import { json, requireExtensionUser, unauthorized } from "@/lib/extension/http";
 import { CaptureRequestSchema } from "@/lib/extension/schema";
-import { logger } from "@/lib/logger";
+import { errorText, logger } from "@/lib/logger";
 import { getAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     if (outcome.status === "building") return json({ error: "This kit is being updated right now. Try again in a moment." }, 409);
     return json({ ...outcome, url: new URL(outcome.path, request.nextUrl.origin).toString() });
   } catch (error) {
-    logger.error("extension.capture_failed", { error: error instanceof Error ? error.message : String(error) });
+    logger.error("extension.capture_failed", { error: errorText(error) });
     return json({ error: "Something went wrong adding this page. Nothing was published." }, 500);
   }
 }
