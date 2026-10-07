@@ -122,6 +122,13 @@ export async function renderAt(browser: Browser, url: URL, viewport: Viewport): 
   });
   await guardRequests(context);
   const page = await context.newPage();
+  // Pin the screen size through DevTools too. On a remote browser
+  // (Browserless) the context's viewport alone isn't always applied: pages laid
+  // out at the remote window's 800x600, so "desktop" was measured and
+  // captured at tablet width. The session stays open for the page's life,
+  // since the override ends when it detaches.
+  const emulation = await context.newCDPSession(page);
+  await emulation.send("Emulation.setDeviceMetricsOverride", { width: viewport.width, height: viewport.height, deviceScaleFactor: 1, mobile: false });
 
   let response: Response | null = null;
   try {
@@ -136,6 +143,8 @@ export async function renderAt(browser: Browser, url: URL, viewport: Viewport): 
 
   try {
     await page.waitForLoadState("networkidle", { timeout: 6_000 }).catch(() => {});
+    // Smooth scrolling makes every jump an animation; scroll positions would lag.
+    await page.addStyleTag({ content: "html, body { scroll-behavior: auto !important; }" }).catch(() => {});
     await page.evaluate(() => document.fonts.ready).catch(() => {});
     await waitForSettle(page);
     await unrollScrollers(page);
