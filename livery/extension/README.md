@@ -44,7 +44,7 @@ Send `extension/livery-extension-<version>.zip` (made by `npm run extension:zip`
 - **Summary (132 chars max):** Measure the design of a page you're signed into and add it to your Livery kit. Private until you publish.
 - **Category:** Developer Tools
 - **Language:** English
-- **Homepage:** https://www.livery.site
+- **Homepage:** https://www.livery.site/extension
 - **Support:** https://www.livery.site/faq
 - **Privacy policy:** https://www.livery.site/legal/privacy#extension
 - **Description:**
@@ -78,13 +78,29 @@ Send `extension/livery-extension-<version>.zip` (made by `npm run extension:zip`
 - **Not collected:** personally identifiable information, health, financial, authentication information (no passwords or cookies), personal communications, location, web history, user activity.
 - Tick all three certifications: not sold to third parties; not used or transferred for purposes unrelated to the single purpose; not used to determine creditworthiness or for lending.
 
-### Screenshots and promo tile
+### Images (the "Store listing" tab)
 
-Ready in `extension/store/`: three 1280×800 screenshots (`01-choose-a-kit.png`, `02-check-before-sending.png`, `03-private-until-you-publish.png`) and the 440×280 promo tile (`promo-440x280.png`). They show the real popup on a made-up dashboard (`store/dashboard.html`, on example.com). The measurements and the content-removed picture are real. Regenerate after popup changes:
+All in `extension/store/`, at the store's sizes. The screenshots and tiles are 24-bit PNG with no alpha, as the store requires:
+
+| Field | File |
+|---|---|
+| Store icon (128×128) | `store-icon-128.png` (96×96 mark, 16px transparent padding, per Google's guideline) |
+| Screenshots (1280×800, up to 5) | `01-choose-a-kit.png`, `02-check-before-sending.png`, `03-private-until-you-publish.png` |
+| Small promo tile (440×280) | `promo-440x280.png` |
+| Marquee promo tile (1400×560) | `marquee-1400x560.png` |
+| Promo video | none (optional) |
+
+They show the real popup on a made-up dashboard (`store/dashboard.html`, on example.com). The measurements and the content-removed picture are real. Regenerate after popup changes:
 
 ```
 npm run extension:build && npm run extension:store
 ```
+
+### Additional fields
+
+- **Official URL:** leave as None, unless the publisher has verified livery.site in Google Search Console.
+- **Homepage URL:** https://www.livery.site/extension
+- **Support URL:** https://www.livery.site/faq
 
 ### After it's published
 

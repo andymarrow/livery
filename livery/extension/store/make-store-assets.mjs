@@ -1,4 +1,5 @@
-// Makes the Chrome Web Store images (1280×800 screenshots, 440×280 promo tile)
+// Makes the Chrome Web Store images (128×128 store icon, 1280×800 screenshots,
+// 440×280 and 1400×560 promo tiles)
 // from the real built popup (extension/dist), driven against a made-up
 // dashboard on example.com. The measuring and the content-removed picture are
 // real: measure.js runs on the dashboard. Only Chrome and the Livery API are
@@ -119,6 +120,32 @@ await out.setContent(`<!doctype html><html><head><style>
   .rule { height: 1px; background: #d9d7cf; }
 </style></head><body><div class="brand"><img src="${icon}" alt="" />livery</div><div class="rule"></div><h1>Add pages behind your login <span>to your design kit.</span></h1></body></html>`);
 writeFileSync(join(here, "promo-440x280.png"), await sharp(await out.screenshot()).removeAlpha().png().toBuffer());
+
+// 5. Marquee promo tile (1400×560): the line on the left, the review step on the right.
+await out.setViewportSize({ width: 1400, height: 560 });
+await out.setContent(`<!doctype html><html><head><style>
+  * { margin: 0; box-sizing: border-box; }
+  body { width: 1400px; height: 560px; overflow: hidden; background: #efeee8; color: #111; font-family: Inter, -apple-system, "Segoe UI", sans-serif; position: relative; }
+  .copy { position: absolute; left: 88px; top: 0; bottom: 0; width: 640px; display: flex; flex-direction: column; justify-content: center; }
+  .brand { display: flex; align-items: center; gap: 14px; font-size: 30px; font-weight: 700; letter-spacing: -.03em; margin-bottom: 40px; }
+  .brand img { width: 46px; height: 46px; }
+  h1 { font-size: 54px; line-height: 1.06; letter-spacing: -.04em; }
+  h1 span { color: #0d7268; }
+  p { margin-top: 22px; font-size: 20px; line-height: 1.5; color: #55544f; max-width: 540px; }
+  .popup { position: absolute; right: 96px; top: 50%; transform: translateY(-50%); width: ${Math.round((460 / review.height) * 360)}px; border: 1px solid #d9d7cf; border-radius: 14px; overflow: hidden; background: #f4f3ed; }
+  .popup img { width: 100%; display: block; }
+</style></head><body>
+  <div class="copy"><div class="brand"><img src="${icon}" alt="" />livery</div><h1>Pages behind your login, <span>in your design kit.</span></h1><p>Measure your app's dashboard or settings. Text and images never leave the page.</p></div>
+  <div class="popup"><img src="${review.src}" alt="" /></div>
+</body></html>`);
+writeFileSync(join(here, "marquee-1400x560.png"), await sharp(await out.screenshot()).removeAlpha().png().toBuffer());
+
+// 6. Store icon: 128×128 with the mark at 96×96 and 16px of transparent padding (the store's guideline).
+const mark = await sharp(join(dist, "icons/icon-128.png")).resize(96, 96).toBuffer();
+await sharp({ create: { width: 128, height: 128, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
+  .composite([{ input: mark, left: 16, top: 16 }])
+  .png()
+  .toFile(join(here, "store-icon-128.png"));
 
 await browser.close();
 console.log("Store images written to", here);
