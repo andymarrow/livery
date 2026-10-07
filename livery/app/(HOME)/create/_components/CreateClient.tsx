@@ -11,6 +11,7 @@ import type { BuildStage, ReadFailureReason } from "@/lib/extract/types";
 import { failureCopy } from "@/lib/kit/failure";
 import { readEvents } from "@/lib/kit/stream";
 import { useTasteTray } from "@/lib/kit/tasteTray";
+import { useExistingKit } from "@/lib/kit/useExistingKit";
 import { toShortcut } from "@/lib/url/shortcut";
 import { cn } from "@/lib/utils";
 
@@ -124,6 +125,9 @@ export function CreateClient({ initialKind }: { initialKind: Kind }) {
   const max = kind === "single" ? 1 : MAX;
   const ready = filled.length >= min && checked.every((c, i) => c.ok || !links[i].trim());
   const hosts = [...new Set(filled.map((c) => c.host))];
+  // One website that already has a kit: say so and offer it instead of building again.
+  const existing = useExistingKit(kind === "single" && checked[0]?.ok ? checked[0].path! : null);
+  const existingPath = existing.state === "found" ? existing.path : null;
   const preview = kind === "single" ? (hosts[0] ?? "any-site.com") : kind === "site" ? (hosts[0] ?? "your-site.com") : curator.trim() ? `${curator.trim()}'s taste` : hosts.length ? `A taste across ${hosts.slice(0, 2).join(", ")}${hosts.length > 2 ? ` +${hosts.length - 2}` : ""}` : "A shared taste";
 
   const choose = (next: Kind) => {
@@ -292,7 +296,7 @@ export function CreateClient({ initialKind }: { initialKind: Kind }) {
         event.preventDefault();
         setTouched(links.map(() => true));
         if (!ready) return;
-        if (kind === "single") router.push(`/build?url=${encodeURIComponent(checked[0].path!)}`);
+        if (kind === "single") router.push(existingPath ?? `/build?url=${encodeURIComponent(checked[0].path!)}`);
         else void run();
       }}
     >
@@ -424,11 +428,22 @@ export function CreateClient({ initialKind }: { initialKind: Kind }) {
 
       <div className="mt-9 flex flex-col-reverse items-stretch justify-between gap-4 border-t border-dashed border-border pt-6 sm:flex-row sm:items-center">
         <p className="min-w-0 text-[13px] text-fg-muted">
+          {existingPath ? (
+            <span className="inline-flex flex-wrap items-center gap-x-1.5">
+              <span className="font-medium text-fg">Already submitted.</span> {preview} is in the library.
+              <Link href={existingPath} className="font-medium text-accent-ink underline decoration-accent/40 underline-offset-4 hover:decoration-accent">
+                Open the kit
+              </Link>
+            </span>
+          ) : (
+            <>
           Becomes <span className="font-semibold text-fg">{preview}</span>
           {kind === "single" ? "" : kind === "site" ? (filled.length ? ` · ${filled.length} pages` : "") : hosts.length ? ` · ${hosts.length} ${hosts.length === 1 ? "site" : "sites"}` : ""}
+            </>
+          )}
         </p>
         <Button type="submit" disabled={!ready} className="h-11 px-6">
-          Build Kit <ArrowRight />
+          {existingPath ? "Open Kit" : "Build Kit"} <ArrowRight />
         </Button>
       </div>
       <p className="mt-4 text-[12.5px] leading-relaxed text-fg-subtle">

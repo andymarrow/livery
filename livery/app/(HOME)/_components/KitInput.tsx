@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, CornerDownLeft as KeyReturn } from "@/components/icons";
+import { ArrowRight, BadgeCheck, CornerDownLeft as KeyReturn } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/CopyButton";
 import { SITE } from "@/constants/constants";
 import { EXAMPLE_SITES } from "@/constants/options";
+import { useExistingKit } from "@/lib/kit/useExistingKit";
 import { toShortcut } from "@/lib/url/shortcut";
 import { cn } from "@/lib/utils";
 
@@ -58,12 +60,20 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
   const path = result.ok ? result.path : "";
   const shortcut = `https://${SITE.domain}/${path}`;
   const invalid = showError && !result.ok && result.reason === "invalid";
+  const existing = useExistingKit(result.ok ? result.path : null);
+  const [rejected, setRejected] = useState(false);
+  const found = existing.state === "found" ? existing.path : null;
 
   function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!result.ok) {
       setShowError(true);
       inputRef.current?.focus();
+      return;
+    }
+    // Already in the library: nothing is built twice. Say so, and point at the kit.
+    if (found) {
+      setRejected(true);
       return;
     }
     router.push(`/build?url=${encodeURIComponent(result.path)}`);
@@ -108,6 +118,7 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
                 onChange={(event) => {
                   setValue(event.target.value);
                   if (showError) setShowError(false);
+                  if (rejected) setRejected(false);
                 }}
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}
@@ -131,8 +142,16 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
               )}
             </div>
             {result.ok && (
-              <span className="hidden shrink-0 items-center gap-1 pr-2 text-xs text-fg-subtle sm:inline-flex">
-                <KeyReturn className="size-3.5" /> to build
+              <span className={cn("hidden shrink-0 items-center gap-1 pr-2 text-xs sm:inline-flex", found ? "font-medium text-accent-ink" : "text-fg-subtle")}>
+                {found ? (
+                  <>
+                    <BadgeCheck className="size-3.5" /> in the library
+                  </>
+                ) : (
+                  <>
+                    <KeyReturn className="size-3.5" /> to build
+                  </>
+                )}
               </span>
             )}
           </div>
@@ -148,7 +167,7 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
               className="hidden size-12 sm:inline-flex sm:size-14"
             />
             <Button type="submit" size="lg" className="group/build h-12 w-full rounded-[14px] sm:h-14 sm:w-auto sm:px-6">
-              Build Kit
+              {found ? "Open Kit" : "Build Kit"}
               <ArrowRight strokeWidth={2.25} className="transition-transform duration-150 ease-out-soft group-hover/build:translate-x-0.5" />
             </Button>
           </div>
@@ -159,6 +178,17 @@ export function KitInput({ compact = false }: { compact?: boolean }) {
         {invalid ? (
           <p id={errorId} role="alert" className="text-sm text-danger">
             That doesn&apos;t look like a public website address. Try something like linear.app.
+          </p>
+        ) : found ? (
+          <p role={rejected ? "alert" : "status"} className={cn("flex flex-wrap items-center gap-x-2 gap-y-1 text-sm", rejected ? "text-fg" : "text-fg-muted")}>
+            <span className={cn("inline-flex items-center gap-1.5 font-medium", rejected && "animate-rise")}>
+              <BadgeCheck className="size-4 text-accent-ink" />
+              {rejected ? "Already submitted." : "Already in the library."}
+            </span>
+            <span>{path} has a kit, so there&apos;s nothing to build.</span>
+            <Link href={found} className="font-medium text-accent-ink underline decoration-accent/40 underline-offset-4 hover:decoration-accent">
+              Open the kit
+            </Link>
           </p>
         ) : (
           <>

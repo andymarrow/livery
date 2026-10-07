@@ -5,7 +5,9 @@ import { screenTarget } from "@/controllers/readSite";
 import { FailurePanel } from "@/components/FailurePanel";
 import { kitPath } from "@/lib/kit/urls";
 import { supabaseConfigured } from "@/lib/supabase/configured";
+import { getKitVersion } from "@/services/kitRead";
 import { findReadyKit } from "@/services/kits";
+import { AlreadySubmitted } from "./_components/AlreadySubmitted";
 import { Builder } from "./_components/Builder";
 
 export const metadata: Metadata = { title: "Building a kit", robots: { index: false } };
@@ -36,7 +38,21 @@ export default async function BuildPage({ searchParams }: PageProps<"/build">) {
 
   const grantHash = screened.value.grant.status === "granted" ? screened.value.grant.hash : null;
   const ready = await findReadyKit(screened.value.sourceUrl, EXTRACTOR_VERSION);
-  if (ready && ready.grantHash === grantHash) redirect(kitPath(ready.slug, ready.version));
+  if (ready && ready.grantHash === grantHash) {
+    const view = await getKitVersion(ready.slug, ready.version);
+    return (
+      <Shell>
+        <AlreadySubmitted
+          path={kitPath(ready.slug, ready.version)}
+          title={view?.title ?? screened.value.domain}
+          page={screened.value.url.pathname}
+          version={ready.version}
+          publishedAt={ready.publishedAt}
+          palette={view?.tokens?.palette ?? null}
+        />
+      </Shell>
+    );
+  }
 
   return (
     <Shell>
