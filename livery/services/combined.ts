@@ -89,3 +89,23 @@ export async function loadFrames(versionId: string, wanted: { from: string; as: 
   }
   return frames;
 }
+
+/** A combined kit, for admins publishing its next version. */
+export async function getCombinedKit(kitId: string) {
+  const { data, error } = await getAdminClient().from("kits").select("id, slug, kind, curator").eq("id", kitId).in("kind", ["site", "taste"]).single();
+  if (error) throw error;
+  return data;
+}
+
+export async function startCombinedVersion(input: { kitId: string; sourcesKey: string; sources: CombinedSourceRow[]; sourcesHash: string; extractorVersion: number; flowVersion: number }) {
+  const { data, error } = await getAdminClient().rpc("start_combined_version", {
+    p_kit_id: input.kitId,
+    p_sources_key: input.sourcesKey,
+    p_sources: input.sources as unknown as Json,
+    p_sources_hash: input.sourcesHash,
+    p_extractor_version: input.extractorVersion,
+    p_flow_version: input.flowVersion,
+  });
+  if (error) throw error;
+  return data[0];
+}

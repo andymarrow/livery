@@ -12,8 +12,10 @@ export const revalidate = 300;
 async function recentKits(): Promise<KitCard[]> {
   if (!supabaseConfigured()) return [];
   try {
-    const { cards } = await listKits({ limit: 14 });
-    return cards;
+    // Featured kits lead; the newest fill the rest.
+    const [featured, recent] = await Promise.all([listKits({ featuredOnly: true, limit: 8 }), listKits({ limit: 14 })]);
+    const seen = new Set(featured.cards.map((c) => c.slug));
+    return [...featured.cards, ...recent.cards.filter((c) => !seen.has(c.slug))].slice(0, 14);
   } catch (error) {
     logger.warn("home.library_unavailable", { error: error instanceof Error ? error.message : String(error) });
     return [];

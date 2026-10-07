@@ -207,9 +207,10 @@ describe("operations", () => {
 });
 
 describe("storage", () => {
-  it("creates a public kits bucket and a private screenshots bucket", async () => {
+  it("creates public kits and covers buckets and a private screenshots bucket", async () => {
     const { rows } = await db.query(`select id, public from storage.buckets order by id`);
     expect(rows).toEqual([
+      { id: "covers", public: true },
       { id: "kits", public: true },
       { id: "screenshots", public: false },
     ]);
@@ -275,6 +276,28 @@ describe("combined kits", () => {
     await expect(db.query(`insert into public.kits (kind, domain, slug) values ('page', 'example.com', 'x')`)).rejects.toThrow();
     await db.query(`insert into public.sites (domain) values ('example.com') on conflict do nothing`);
     await expect(db.query(`insert into public.kits (kind, sources_key, slug, curator) values ('taste', $1, 'y', 'Andy')`, [KEY])).rejects.toThrow();
+  });
+
+  it("lets an admin publish a taste's next version from new sources", async () => {
+    const [a, b, c] = [await publishedPage("/"), await publishedPage("/work"), await publishedPage("/about")];
+    const first = await startCombined("taste", [a, b], KEY, "Andy");
+    await publish(first.kit_version_id);
+    const NEXT = "d".repeat(64);
+    const { rows } = await db.query<{ kit_id: string; kit_version_id: string; claimed: boolean }>(
+      `select * from public.start_combined_version($1, $2, $3, $4, 1, 1)`,
+      [first.kit_id, NEXT, JSON.stringify([a, b, c].map((s, i) => ({ position: i + 1, source_url: s.url, domain: "example.com", source_version_id: s.versionId }))), SOURCES_HASH],
+    );
+    expect(rows[0]).toMatchObject({ kit_id: first.kit_id, claimed: true });
+    expect(await publish(rows[0].kit_version_id)).toBe(2);
+    const { rows: kit } = await db.query<{ sources_key: string }>(`select sources_key from public.kits where id = $1`, [first.kit_id]);
+    expect(kit[0].sources_key).toBe(NEXT);
+  });
+
+  it("keeps admin fields on kits and a public covers bucket", async () => {
+    await db.query(`insert into public.sites (domain) values ('example.com') on conflict do nothing`);
+    await expect(db.query(`insert into public.kits (source_url, domain, slug, cover_path) values ('https://example.com/x', 'example.com', 'x', '../evil.png')`)).rejects.toThrow();
+    const { rows } = await db.query<{ public: boolean }>(`select public from storage.buckets where id = 'covers'`);
+    expect(rows[0].public).toBe(true);
   });
 
   it("freezes sources with their version and shows them to anon once published", async () => {

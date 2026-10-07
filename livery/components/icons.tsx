@@ -37,6 +37,21 @@ import {
   Paintbrush as LucidePaintbrush,
   Palette as LucidePalette,
   Plus as LucidePlus,
+  LayoutDashboard as LucideLayoutDashboard,
+  Boxes as LucideBoxes,
+  Layers as LucideLayers,
+  Flag as LucideFlag,
+  ServerCrash as LucideServerCrash,
+  Users as LucideUsers,
+  Upload as LucideUpload,
+  Star as LucideStar,
+  Eye as LucideEye,
+  EyeOff as LucideEyeOff,
+  Trash2 as LucideTrash2,
+  Ellipsis as LucideEllipsis,
+  ExternalLink as LucideExternalLink,
+  LogOut as LucideLogOut,
+  Pencil as LucidePencil,
   Globe as LucideGlobe,
   Puzzle as LucidePuzzle,
   Quote as LucideQuote,
@@ -103,6 +118,21 @@ export const Paintbrush = make(LucidePaintbrush, "Paintbrush");
 export const Palette = make(LucidePalette, "Palette");
 export const Plus = make(LucidePlus, "Plus");
 export const Globe = make(LucideGlobe, "Globe");
+export const LayoutDashboard = make(LucideLayoutDashboard, "LayoutDashboard");
+export const Boxes = make(LucideBoxes, "Boxes");
+export const Layers = make(LucideLayers, "Layers");
+export const Flag = make(LucideFlag, "Flag");
+export const ServerCrash = make(LucideServerCrash, "ServerCrash");
+export const Users = make(LucideUsers, "Users");
+export const Upload = make(LucideUpload, "Upload");
+export const Star = make(LucideStar, "Star");
+export const Eye = make(LucideEye, "Eye");
+export const EyeOff = make(LucideEyeOff, "EyeOff");
+export const Trash2 = make(LucideTrash2, "Trash2");
+export const Ellipsis = make(LucideEllipsis, "Ellipsis");
+export const ExternalLink = make(LucideExternalLink, "ExternalLink");
+export const LogOut = make(LucideLogOut, "LogOut");
+export const Pencil = make(LucidePencil, "Pencil");
 export const RotateCw = make(LucideRotateCw, "RotateCw");
 export const Search = make(LucideSearch, "Search");
 export const ShieldCheck = make(LucideShieldCheck, "ShieldCheck");

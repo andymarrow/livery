@@ -98,7 +98,10 @@ export type BuildOutcome =
  * the build lock, render and extract, generate, guard, package, upload, publish.
  * Any failure after the lock releases it, so the next request can retry.
  */
-export async function resolveKit(raw: string, options: { ip: string; writer?: DesignWriter; onProgress?: Progress }): Promise<BuildOutcome> {
+export async function resolveKit(
+  raw: string,
+  options: { ip: string; writer?: DesignWriter; onProgress?: Progress; /** Admin: build a new version even when one is cached. */ force?: boolean; /** Admin: not counted against a visitor's limit. */ skipRate?: boolean },
+): Promise<BuildOutcome> {
   const progress: Progress = options.onProgress ?? (() => {});
   const screened = await screenTarget(raw);
   if (!screened.ok) return { status: "failed", failure: screened };
@@ -108,10 +111,12 @@ export async function resolveKit(raw: string, options: { ip: string; writer?: De
   // (or both have none). A new opt-in makes the next request build a richer kit.
   const currentGrantHash = target.grant.status === "granted" ? target.grant.hash : null;
   const cached = await findReadyKit(target.sourceUrl, EXTRACTOR_VERSION);
-  if (cached && cached.grantHash === currentGrantHash) return { status: "ready", kit: cached, cached: true };
+  if (cached && cached.grantHash === currentGrantHash && !options.force) return { status: "ready", kit: cached, cached: true };
 
-  const rate = await checkBuildRate(options.ip);
-  if (!rate.allowed) return { status: "rate_limited", resetAt: rate.resetAt };
+  if (!options.skipRate) {
+    const rate = await checkBuildRate(options.ip);
+    if (!rate.allowed) return { status: "rate_limited", resetAt: rate.resetAt };
+  }
 
   const lock = await startBuild(target, EXTRACTOR_VERSION, FLOW_VERSION);
   if (!lock.claimed) return { status: "building", slug: target.slug };

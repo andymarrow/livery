@@ -49,6 +49,10 @@ export type Database = {
         sources_key: string | null;
         curator: string | null;
         curator_slug: string | null;
+        display_name: string | null;
+        featured: boolean;
+        hidden: boolean;
+        cover_path: string | null;
         slug: string;
         owner_id: string | null;
         created_at: string;
@@ -141,6 +145,18 @@ export type Database = {
           p_slug: string;
           p_curator: string | null;
           p_curator_slug: string | null;
+          p_sources: Json;
+          p_sources_hash: string;
+          p_extractor_version: number;
+          p_flow_version: number;
+          p_stale_after?: string;
+        };
+        Returns: { kit_id: string; kit_version_id: string; claimed: boolean }[];
+      };
+      start_combined_version: {
+        Args: {
+          p_kit_id: string;
+          p_sources_key: string;
           p_sources: Json;
           p_sources_hash: string;
           p_extractor_version: number;

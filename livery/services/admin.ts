@@ -1,5 +1,6 @@
 import "server-only";
 import { getAdminClient } from "@/lib/supabase/admin";
+import { coverUrl } from "@/services/kitRead";
 import type { KitKind, KitStatus, ReadFailureReason, SiteOptIn } from "@/lib/supabase/database.types";
 
 // Everything the admin page reads. Service role only; the page itself checks
@@ -102,4 +103,61 @@ export async function adminOwners(): Promise<{ domain: string; opt_in: SiteOptIn
   const { data, error } = await getAdminClient().from("sites").select("domain, opt_in, grant_checked_at").neq("opt_in", "none").order("updated_at", { ascending: false }).limit(200);
   if (error) throw error;
   return data ?? [];
+}
+
+export type AdminKit = {
+  id: string;
+  slug: string;
+  kind: KitKind;
+  name: string;
+  displayName: string | null;
+  curator: string | null;
+  sourceUrl: string | null;
+  featured: boolean;
+  hidden: boolean;
+  cover: string | null;
+  preview: string | null;
+  versions: number;
+  latest: { versionId: string; version: number; status: KitStatus; publishedAt: string } | null;
+  sources: { url: string; slug: string; version: number }[];
+};
+
+/** Every kit with its newest published version, for the admin tables. */
+export async function adminKitList(): Promise<AdminKit[]> {
+  const db = getAdminClient();
+  const { data, error } = await db
+    .from("kits")
+    .select("id, slug, kind, domain, source_url, curator, display_name, featured, hidden, cover_path, created_at, kit_versions(id, version, status, published_at, data)")
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (error) throw error;
+  type Version = { id: string; version: number | null; status: KitStatus; published_at: string | null; data: { sources?: AdminKit["sources"] } | null };
+  const kits = (data ?? []).map((k) => {
+    const versions = ((k.kit_versions ?? []) as unknown as Version[]).filter((v) => v.version && (v.status === "ready" || v.status === "withdrawn"));
+    const latest = versions.sort((a, b) => (b.version ?? 0) - (a.version ?? 0))[0];
+    const fallback = k.kind === "taste" ? (k.curator ? `${k.curator}'s taste` : "Unnamed taste") : (k.domain ?? k.slug);
+    return {
+      id: k.id,
+      slug: k.slug,
+      kind: k.kind,
+      name: k.display_name ?? fallback,
+      displayName: k.display_name,
+      curator: k.curator,
+      sourceUrl: k.source_url,
+      featured: k.featured,
+      hidden: k.hidden,
+      cover: k.cover_path ? coverUrl(k.cover_path) : null,
+      preview: null as string | null,
+      versions: versions.length,
+      latest: latest ? { versionId: latest.id, version: latest.version!, status: latest.status, publishedAt: latest.published_at ?? "" } : null,
+      sources: latest?.data?.sources ?? [],
+    };
+  }).filter((k) => k.latest);
+  const framed = kits.filter((k) => !k.cover && k.latest?.status === "ready");
+  if (framed.length) {
+    const { data: signed } = await db.storage.from("screenshots").createSignedUrls(framed.map((k) => `${k.latest!.versionId}/desktop.webp`), 60 * 60);
+    framed.forEach((k, i) => (k.preview = signed?.[i] && !signed[i].error ? signed[i].signedUrl : null));
+  }
+  for (const k of kits) if (k.cover) k.preview = k.cover;
+  return kits;
 }

@@ -13,7 +13,7 @@ import type { DesignWriter } from "@/lib/generate/writer";
 import { logger } from "@/lib/logger";
 import { checkBuildRate } from "@/lib/rateLimit";
 import type { Json } from "@/lib/supabase/database.types";
-import { findReadyCombined, loadFrames, loadSource, startCombinedBuild } from "@/services/combined";
+import { findReadyCombined, getCombinedKit, loadFrames, loadSource, startCombinedBuild, startCombinedVersion } from "@/services/combined";
 import { failBuild, findReadyKit, nextVersion, publishBuild, uploadArtefacts, uploadFrames, type ReadyKit } from "@/services/kits";
 import { screenTarget } from "./readSite";
 
@@ -35,7 +35,10 @@ export type CombineOutcome =
  * and caching stay per page. This step only merges stored measurements: it
  * never contacts the sites, so it fits easily in one request.
  */
-export async function combineKit(request: CombineRequest, options: { ip: string; onProgress?: Progress }): Promise<CombineOutcome> {
+export async function combineKit(
+  request: CombineRequest,
+  options: { ip: string; onProgress?: Progress; /** Admin: not counted against a visitor's limit. */ skipRate?: boolean; /** Admin: publish as the next version of this combined kit. */ kitId?: string },
+): Promise<CombineOutcome> {
   const progress: Progress = options.onProgress ?? (() => {});
   const { kind } = request;
   if (kind !== "site" && kind !== "taste") return { status: "invalid", message: "Choose pages of one site or a person's taste." };
@@ -66,25 +69,32 @@ export async function combineKit(request: CombineRequest, options: { ip: string;
   if (missing.length) return { status: "needs_sources", urls: missing };
 
   const named = kind === "taste" ? cleanCurator(request.curator) : null;
+  // An admin editing a taste keeps its kind and domain rules; the name can change.
   const hosts = domains;
   const key = sourcesKey(kind, named?.curatorSlug ?? null, targets.map((t) => t.sourceUrl));
   const hash = sourcesHash(sources.map((s) => s.kit.versionId));
-  const slug = combinedSlug(kind, key, { domain: domains[0], curatorSlug: named?.curatorSlug, hosts });
+  const existing = options.kitId ? await getCombinedKit(options.kitId) : null;
+  const slug = existing?.slug ?? combinedSlug(kind, key, { domain: domains[0], curatorSlug: named?.curatorSlug, hosts });
 
   const cached = await findReadyCombined(key, EXTRACTOR_VERSION, hash);
-  if (cached) return { status: "ready", kit: cached, cached: true };
+  if (cached && (!existing || cached.kitId === existing.id)) return { status: "ready", kit: cached, cached: true };
 
-  const rate = await checkBuildRate(options.ip);
-  if (!rate.allowed) return { status: "rate_limited", resetAt: rate.resetAt };
+  if (!options.skipRate) {
+    const rate = await checkBuildRate(options.ip);
+    if (!rate.allowed) return { status: "rate_limited", resetAt: rate.resetAt };
+  }
 
-  const lock = await startCombinedBuild({
+  const sourceRows = sources.map((s, i) => ({ position: i + 1, source_url: s.target.sourceUrl, domain: s.target.domain, source_version_id: s.kit.versionId }));
+  const lock = existing
+    ? await startCombinedVersion({ kitId: existing.id, sourcesKey: key, sources: sourceRows, sourcesHash: hash, extractorVersion: EXTRACTOR_VERSION, flowVersion: FLOW_VERSION })
+    : await startCombinedBuild({
     kind,
     sourcesKey: key,
     domain: kind === "site" ? domains[0] : null,
     slug,
     curator: named?.curator ?? null,
     curatorSlug: named?.curatorSlug ?? null,
-    sources: sources.map((s, i) => ({ position: i + 1, source_url: s.target.sourceUrl, domain: s.target.domain, source_version_id: s.kit.versionId })),
+    sources: sourceRows,
     sourcesHash: hash,
     extractorVersion: EXTRACTOR_VERSION,
     flowVersion: FLOW_VERSION,

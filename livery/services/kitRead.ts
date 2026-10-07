@@ -16,7 +16,8 @@ export type KitSourceView = KitSourceLink & { tokens: Tokens | null; font: strin
 const hostOf = (url: string) => new URL(url).hostname.replace(/^www\./, "");
 
 /** How a kit is named on the site: its host, or whose taste it is. */
-export function kitTitle(kit: { kind: KitKind; domain: string | null; curator: string | null }, sources: KitSourceLink[] = []) {
+export function kitTitle(kit: { kind: KitKind; domain: string | null; curator: string | null; display_name?: string | null }, sources: KitSourceLink[] = []) {
+  if (kit.display_name) return kit.display_name;
   if (kit.kind !== "taste") return kit.domain ?? "Untitled kit";
   if (kit.curator) return `${kit.curator}'s taste`;
   const hosts = [...new Set(sources.map((s) => hostOf(s.url)))];
@@ -59,7 +60,7 @@ export type KitVersionView = {
 /** A published or withdrawn version. Building and failed builds are never visible. */
 export async function getKitVersion(slug: string, version: number): Promise<KitVersionView | null> {
   const db = getAdminClient();
-  const { data: kit } = await db.from("kits").select("id, slug, kind, source_url, domain, curator, curator_slug").eq("slug", slug).maybeSingle();
+  const { data: kit } = await db.from("kits").select("id, slug, kind, source_url, domain, curator, curator_slug, display_name").eq("slug", slug).maybeSingle();
   if (!kit) return null;
   const { data: v } = await db
     .from("kit_versions")
@@ -158,7 +159,12 @@ export async function readKitFiles(tarPath: string) {
 }
 
 /** One signed desktop frame per card, in a single storage request. A missing frame leaves the card's palette strip on its own. */
-async function attachPreviews(cards: KitCard[]) {
+export function coverUrl(path: string) {
+  return getAdminClient().storage.from("covers").getPublicUrl(path).data.publicUrl;
+}
+
+async function attachPreviews(all: KitCard[]) {
+  const cards = all.filter((c) => !c.preview);
   if (!cards.length) return;
   try {
     const { data } = await getAdminClient()
@@ -190,8 +196,9 @@ export type KitCard = {
   detail: string;
   /** Page kits only: what a taste collects. */
   sourceUrl: string | null;
-  /** Signed URL of the content-removed desktop frame, for the card's picture. */
+  /** The card's picture: an admin-chosen cover, else the content-removed desktop frame (signed). */
   preview: string | null;
+  featured: boolean;
   curator: string | null;
   curatorSlug: string | null;
   version: number;
@@ -211,14 +218,15 @@ export async function listKits({
   query,
   shelf = "all",
   curator,
+  featuredOnly = false,
   limit = 24,
   offset = 0,
-}: { query?: string; shelf?: KitShelf; curator?: string; limit?: number; offset?: number } = {}) {
+}: { query?: string; shelf?: KitShelf; curator?: string; featuredOnly?: boolean; limit?: number; offset?: number } = {}) {
   // Anon client: RLS already limits it to published versions.
   const db = getPublicClient();
   let request = db
     .from("kit_versions")
-    .select("id, version, published_at, data, grant_hash, kits!inner(slug, kind, domain, source_url, curator, curator_slug)", { count: "exact" })
+    .select("id, version, published_at, data, grant_hash, kits!inner(slug, kind, domain, source_url, curator, curator_slug, display_name, featured, hidden, cover_path)", { count: "exact" })
     .eq("status", "ready")
     .order("published_at", { ascending: false })
     .range(offset, offset + limit - 1);
@@ -229,6 +237,8 @@ export async function listKits({
   if (shelf === "sites") request = request.in("kits.kind", ["page", "site"]);
   if (shelf === "tastes") request = request.eq("kits.kind", "taste");
   if (curator) request = request.eq("kits.curator_slug", curator);
+  if (featuredOnly) request = request.eq("kits.featured", true);
+  request = request.eq("kits.hidden", false);
   const { data, count, error } = await request;
   if (error) throw error;
 
@@ -240,7 +250,7 @@ export async function listKits({
     published_at: string;
     grant_hash: string | null;
     data: { extraction?: { tokens?: Tokens; fonts?: { family: string }[]; icons?: { library?: { name: string } | null } }; sources?: KitSourceLink[] };
-    kits: { slug: string; kind: KitKind; domain: string | null; source_url: string | null; curator: string | null; curator_slug: string | null };
+    kits: { slug: string; kind: KitKind; domain: string | null; source_url: string | null; curator: string | null; curator_slug: string | null; display_name: string | null; featured: boolean; cover_path: string | null };
   };
   for (const row of (data ?? []) as unknown as Row[]) {
     if (seen.has(row.kits.slug)) continue;
@@ -255,7 +265,8 @@ export async function listKits({
       title: kitTitle(row.kits, sources),
       detail: row.kits.kind === "page" ? (path === "/" ? "Homepage" : path) : row.kits.kind === "site" ? `${sources.length} pages` : `${new Set(sources.map((s) => hostOf(s.url))).size} sites`,
       sourceUrl: row.kits.source_url,
-      preview: null,
+      preview: row.kits.cover_path ? coverUrl(row.kits.cover_path) : null,
+      featured: row.kits.featured,
       versionId: row.id,
       curator: row.kits.curator,
       curatorSlug: row.kits.curator_slug,
