@@ -27,3 +27,10 @@ export const EXTENSION_STORE_URL = process.env.NEXT_PUBLIC_CHROME_EXTENSION_URL 
 
 /** What someone types on /me to confirm deleting their account. */
 export const DELETE_ACCOUNT_PHRASE = "delete my account";
+
+/** The person behind Livery: where to say hello and how to support the work. */
+export const CREATOR = {
+  handle: "@andymarrows",
+  x: "https://x.com/andymarrows",
+  support: "https://buymeacoffee.com/andymarrow",
+} as const;

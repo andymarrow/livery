@@ -2,8 +2,9 @@ import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { Wordmark } from "@/components/Wordmark";
 import { ThemeSwitch } from "@/components/ThemeToggle";
-import { SITE } from "@/constants/constants";
+import { CREATOR, SITE } from "@/constants/constants";
 import { FOOTER_LINKS } from "@/constants/options";
+import { Coffee } from "@/components/icons";
 
 export function SiteFooter() {
   return (
@@ -13,6 +14,22 @@ export function SiteFooter() {
           <div className="max-w-xs">
             <Logo />
             <p className="mt-3 text-sm leading-relaxed text-fg-muted">{SITE.tagline}</p>
+            <p className="mt-5 text-[13px] text-fg-subtle">
+              Made by{" "}
+              <a href={CREATOR.x} target="_blank" rel="noreferrer" className="font-medium text-fg-muted underline decoration-border-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-accent">
+                {CREATOR.handle}
+              </a>{" "}
+              on X
+            </p>
+            <a
+              href={CREATOR.support}
+              target="_blank"
+              rel="noreferrer"
+              className="group mt-3 inline-flex h-9 items-center gap-2 rounded-full border border-border bg-surface px-3.5 text-[13px] font-medium text-fg transition-colors hover:border-accent"
+            >
+              <Coffee className="size-4 text-accent-ink transition-transform duration-300 ease-out-soft group-hover:-rotate-12" />
+              Buy me a coffee
+            </a>
           </div>
           {Object.entries(FOOTER_LINKS).map(([group, links]) => (
             <div key={group}>

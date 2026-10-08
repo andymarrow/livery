@@ -11,6 +11,7 @@ import {
   CircleAlert as LucideCircleAlert,
   CircleCheck as LucideCircleCheck,
   CircleX as LucideCircleX,
+  Coffee as LucideCoffee,
   Copy as LucideCopy,
   CornerDownLeft as LucideCornerDownLeft,
   CreditCard as LucideCreditCard,
@@ -127,6 +128,7 @@ export const Bookmark = make(LucideBookmark, "Bookmark");
 export const BookmarkCheck = make(LucideBookmarkCheck, "BookmarkCheck");
 export const CircleUser = make(LucideCircleUser, "CircleUser");
 export const Heart = make(LucideHeart, "Heart");
+export const Coffee = make(LucideCoffee, "Coffee");
 export const Globe = make(LucideGlobe, "Globe");
 export const LayoutDashboard = make(LucideLayoutDashboard, "LayoutDashboard");
 export const Boxes = make(LucideBoxes, "Boxes");

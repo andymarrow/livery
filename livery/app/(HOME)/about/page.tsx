@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro } from "@/components/PageIntro";
 import { AboutScene } from "@/components/iso/scenes";
-import { ArrowRight } from "@/components/icons";
+import { ArrowRight, ArrowUpRight, Coffee } from "@/components/icons";
+import { CREATOR } from "@/constants/constants";
 import { Button } from "@/components/ui/button";
 import { SceneCard, SceneSection } from "../_components/SceneCard";
 import { OwnerScene, ReasonScene, RulesScene, StyleScene } from "./_components/BeliefScenes";
@@ -39,6 +40,25 @@ export default function AboutPage() {
             </SceneCard>
           ))}
         </ol>
+      </SceneSection>
+      <SceneSection kicker="Who makes it" title="Built by One Person," muted="in the Open">
+        <div className="flex flex-col gap-6 rounded-[18px] border border-border bg-surface p-6 shadow-card sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <p className="max-w-xl text-[15px] leading-relaxed text-fg-muted">
+            Livery is made by <a href={CREATOR.x} target="_blank" rel="noreferrer" className="font-medium text-fg underline decoration-border-strong underline-offset-4 hover:decoration-accent">{CREATOR.handle}</a>. Questions, ideas or a site Livery couldn&apos;t read? Say hello on X. If Livery saves you time, a coffee keeps it going.
+          </p>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <Button asChild>
+              <a href={CREATOR.support} target="_blank" rel="noreferrer">
+                <Coffee /> Buy me a coffee
+              </a>
+            </Button>
+            <Button asChild variant="secondary">
+              <a href={CREATOR.x} target="_blank" rel="noreferrer">
+                Say hello on X <ArrowUpRight />
+              </a>
+            </Button>
+          </div>
+        </div>
       </SceneSection>
       <section className="border-t border-border px-4 py-16 sm:px-6 sm:py-20">
         <div className="mx-auto flex max-w-[80rem] flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
