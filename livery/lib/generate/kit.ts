@@ -1,6 +1,6 @@
 import type { Extraction } from "@/lib/extract";
 import type { Analysis } from "./analysis";
-import { componentsMd, fontsJson, iconsJson, layoutMd, licencesMd, motionMd, rulesMd, tokensJson, voiceMd } from "./files";
+import { componentsMd, detailsMd, fontsJson, iconsJson, layoutMd, licencesMd, motionMd, rulesMd, stackMd, tokensJson, voiceMd } from "./files";
 import { renderSkill, skillNameFor } from "./flow";
 import { DEFAULT_LEVELS, type Level } from "./levels";
 import { overlaps, sourceIndex } from "./overlap";
@@ -48,7 +48,7 @@ type Meta = {
 const LEVEL_FILES: Record<1 | 2 | 3, string[]> = {
   1: ["tokens.json", "fonts.json", "icons.json"],
   2: ["components.md", "layout.md"],
-  3: ["motion.md", "voice.md"],
+  3: ["motion.md", "details.md", "stack.md", "voice.md"],
 };
 
 // Every string the model wrote, with a path so offending parts can be named.
@@ -127,7 +127,7 @@ export async function generateKit(extraction: Extraction, writer: DesignWriter, 
   const dataFiles = [
     ...(ownerRules ? ["owner-rules.md"] : []),
     "rules.md",
-    ...["tokens.json", "fonts.json", "icons.json", "components.md", "layout.md", "motion.md", "voice.md"].filter((f) => included.has(f)),
+    ...["tokens.json", "fonts.json", "icons.json", "components.md", "layout.md", "motion.md", "details.md", "stack.md", "voice.md"].filter((f) => included.has(f) && (!["details.md", "stack.md"].includes(f) || extraction.tokens.site)),
     "licences.md",
     ...(assets.length ? ["assets/"] : []),
     "frames/",
@@ -145,6 +145,8 @@ export async function generateKit(extraction: Extraction, writer: DesignWriter, 
   if (included.has("components.md")) add("components.md", componentsMd(extraction, analysis));
   if (included.has("layout.md")) add("layout.md", layoutMd(extraction, analysis));
   if (included.has("motion.md")) add("motion.md", motionMd(extraction, analysis));
+  if (included.has("details.md") && extraction.tokens.site) add("details.md", detailsMd(extraction));
+  if (included.has("stack.md") && extraction.tokens.site) add("stack.md", stackMd(extraction));
   if (included.has("voice.md")) add("voice.md", voiceMd(analysis));
   add("licences.md", licencesMd(extraction, meta.attribution ?? null, meta.terms ?? null, assets.length));
   for (const asset of assets) files.push(asset);
@@ -155,7 +157,7 @@ export async function generateKit(extraction: Extraction, writer: DesignWriter, 
 }
 
 const ALLOWED =
-  /^(SKILL\.md|rules\.md|owner-rules\.md|tokens\.json|fonts\.json|icons\.json|components\.md|layout\.md|motion\.md|voice\.md|licences\.md|frames\/([0-9]{2}-)?(desktop|tablet|mobile)\.webp|assets\/(icons|illustrations)\/[a-z0-9-]+\.svg|assets\/photos\/[a-z0-9-]+\.(jpg|png|webp|avif))$/;
+  /^(SKILL\.md|rules\.md|owner-rules\.md|tokens\.json|fonts\.json|icons\.json|components\.md|layout\.md|motion\.md|details\.md|stack\.md|voice\.md|licences\.md|frames\/([0-9]{2}-)?(desktop|tablet|mobile)\.webp|assets\/(icons|illustrations)\/[a-z0-9-]+\.svg|assets\/photos\/[a-z0-9-]+\.(jpg|png|webp|avif))$/;
 const FONT_MAGIC = [Buffer.from("wOFF"), Buffer.from("wOF2"), Buffer.from([0x00, 0x01, 0x00, 0x00]), Buffer.from("OTTO")];
 const IMAGE_MAGIC: Record<string, (b: Buffer) => boolean> = {
   jpg: (b) => b[0] === 0xff && b[1] === 0xd8,

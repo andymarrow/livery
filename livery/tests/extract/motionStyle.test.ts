@@ -70,6 +70,13 @@ describe("motion style", () => {
     expect(io.lineArt).toBe(true);
   });
 
+  it("counts an animation once when the same page is measured at three widths", () => {
+    const page = raw([use("benchmark-comparison-cycle", FARM.cycle, { count: 32, durationMs: 12000, iterations: "infinite", delaysMs: [0, 3000, 6000, 9000] })]);
+    const [cycle] = motionSignatures([page, page, page]);
+    expect(cycle.count).toBe(32);
+    expect(cycle.description).toMatch(/^32 items/);
+  });
+
   it("is empty for pages measured before motion was collected", () => {
     const old = {} as RawDesign;
     expect(motionSignatures([old])).toEqual([]);

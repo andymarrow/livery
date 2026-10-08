@@ -45,6 +45,18 @@ export const RawDesignSchema = z.object({
       lineArt: z.object({ svgs: z.number().int().min(0).max(100000), hairline: z.number().int().min(0).max(100000) }),
     })
     .optional(),
+  signals: z
+    .object({
+      stack: z.array(z.object({ name: z.string().max(60), category: z.enum(["framework", "builder", "css", "ui", "motion", "scroll", "3d", "fonts"]), evidence: z.string().max(120), version: z.string().max(40).optional(), strong: z.boolean() })).max(30),
+      canvases: z.object({ count: z.number().int().min(0).max(10000), largestShare: z.number().min(0).max(1), engines: z.array(z.string().max(40)).max(5), aboveFold: z.boolean() }),
+      details: z.object({
+        backdropBlur: z.number().int().min(0), blendModes: z.number().int().min(0), gradientText: z.number().int().min(0), outlinedText: z.number().int().min(0), sticky: z.number().int().min(0),
+        preserve3d: z.number().int().min(0), clipShapes: z.number().int().min(0), masks: z.number().int().min(0), filters: weighted, fontFeatures: weighted, variableAxes: z.number().int().min(0),
+        balancedText: z.number().int().min(0), underlineOffset: z.number().int().min(0), customCursor: z.boolean(), smoothScroll: z.boolean(), scrollSnap: z.boolean(), grain: z.boolean(),
+        viewTransitions: z.boolean(), scrollbar: z.boolean(), selection: z.object({ background: shortText, color: shortText }).nullable(), focusRing: z.string().max(160).nullable(),
+      }),
+    })
+    .optional(),
   mediaQueries: z.array(z.string().max(500)).max(2000),
   darkSchemeHints: z.array(z.string().max(100)).max(20),
   stylesheetHrefs: z.array(z.string().max(2048)).max(300),

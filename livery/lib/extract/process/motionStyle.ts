@@ -166,8 +166,18 @@ function shorthand(a: MotionUse, staggerMs: number | null) {
 const RANK: MotionKind[] = ["typewriter", "line-draw", "cycle", "marquee", "clip-reveal", "shake", "shimmer", "float", "blink", "pulse", "spin", "enter", "exit", "other"];
 
 /** The site's signature motions: its own animations (not a library's), one per kind. */
+/** The same animation seen at several screen widths (or one capture standing in for all three) counts once. */
+function byName(raws: RawDesign[]) {
+  const merged = new Map<string, MotionUse>();
+  for (const a of raws.flatMap((r) => r.motionUse?.animations ?? [])) {
+    const seen = merged.get(a.name);
+    merged.set(a.name, !seen ? a : { ...seen, count: Math.max(seen.count, a.count), delaysMs: [...new Set([...seen.delaysMs, ...a.delaysMs])].sort((x, y) => x - y).slice(0, 12), targets: [...new Set([...seen.targets, ...a.targets])].slice(0, 4), keyframes: seen.keyframes || a.keyframes, trigger: seen.trigger === "load" ? seen.trigger : a.trigger });
+  }
+  return [...merged.values()];
+}
+
 export function motionSignatures(raws: RawDesign[]): MotionSignature[] {
-  const uses = raws.flatMap((r) => r.motionUse?.animations ?? []).filter((a) => a.keyframes && a.durationMs > 0 && !isLibraryAnimation(a.name));
+  const uses = byName(raws).filter((a) => a.keyframes && a.durationMs > 0 && !isLibraryAnimation(a.name));
   // Animations sharing one long looping clock are parts of one choreography.
   const clocks = new Map<number, number>();
   for (const a of uses) if (a.iterations === "infinite" && a.durationMs >= 2000) clocks.set(a.durationMs, (clocks.get(a.durationMs) ?? 0) + 1);
@@ -237,15 +247,14 @@ export function interactions(raws: RawDesign[]): Interactions {
   const hover: Record<string, number> = {};
   let hoverRules = 0;
   for (const r of raws) {
-    hoverRules += r.motionUse?.hoverRules ?? 0;
+    hoverRules = Math.max(hoverRules, r.motionUse?.hoverRules ?? 0);
     // A rule changing several underline properties counts once.
     for (const [prop, n] of Object.entries(r.motionUse?.hover ?? {})) {
       const change = HOVER_NAMES[prop];
       if (change) hover[change] = Math.max(hover[change] ?? 0, n);
     }
   }
-  const triggered = raws
-    .flatMap((r) => r.motionUse?.animations ?? [])
+  const triggered = byName(raws)
     .filter((a) => a.trigger !== "load" && a.keyframes)
     .sort((a, b) => Number(isLibraryAnimation(a.name)) - Number(isLibraryAnimation(b.name)) || b.count - a.count);
   const seen = new Set<string>();

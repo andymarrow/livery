@@ -182,6 +182,36 @@ ${io?.reducedMotion ? "The site turns its motion off under `prefers-reduced-moti
 `;
 }
 
+export function detailsMd(e: Extraction) {
+  const details = e.tokens.site?.details ?? [];
+  return `# Details
+
+The small things that make this site feel finished. People notice them without naming them; apply the ones that fit your project.
+
+${details.length ? details.map((d) => `- **${d.title}**: ${d.description}`).join("\n") : "No distinctive details were measured: the site relies on its tokens, components and layout."}
+`;
+}
+
+const CATEGORY_NAMES: Record<string, string> = { framework: "Framework", builder: "Site builder", css: "Styling", ui: "UI kit", motion: "Motion", scroll: "Scrolling", "3d": "3D and canvas", fonts: "Fonts" };
+
+export function stackMd(e: Extraction) {
+  const site = e.tokens.site;
+  const stack = site?.stack ?? [];
+  const scene = site?.scene ?? null;
+  return `# Stack
+
+What the source site appears to be built with, read from its page: script and asset URLs, attributes and class patterns. It is evidence, not certainty. Treat "likely" entries as a guess.
+
+**Never switch your project's framework or add these libraries just to match.** Recreate each effect with what your project already uses; reach for a library only when the user asks.
+
+${stack.length ? `| | Built with | Evidence | Confidence |\n|---|---|---|---|\n${stack.map((s) => `| ${CATEGORY_NAMES[s.category] ?? s.category} | ${s.name}${s.version ? ` ${s.version}` : ""} | ${s.evidence.replace(/\|/g, "/")} | ${s.confidence} |`).join("\n")}` : "Nothing identifiable: the page doesn't show which framework or libraries made it."}
+${scene ? `
+## 3D and canvas
+
+${scene.notes.map((n) => `- ${n}`).join("\n")}
+` : ""}`;
+}
+
 export function voiceMd(a: Analysis) {
   const examples = a.voice.examples.map((x) => `- **${x.context}**: ${x.text}`).join("\n");
   return `# Voice

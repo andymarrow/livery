@@ -61,6 +61,38 @@ export type MotionUse = {
   keyframes: string;
 };
 
+/** One technology the page shows evidence of. */
+export type StackHit = { name: string; category: "framework" | "builder" | "css" | "ui" | "motion" | "scroll" | "3d" | "fonts"; evidence: string; version?: string; strong: boolean };
+
+/** What makes a page itself beyond tokens: its stack, canvases, and the small craft details. */
+export type SiteSignals = {
+  stack: StackHit[];
+  canvases: { count: number; largestShare: number; engines: string[]; aboveFold: boolean };
+  details: {
+    backdropBlur: number;
+    blendModes: number;
+    gradientText: number;
+    outlinedText: number;
+    sticky: number;
+    preserve3d: number;
+    clipShapes: number;
+    masks: number;
+    filters: Weighted;
+    fontFeatures: Weighted;
+    variableAxes: number;
+    balancedText: number;
+    underlineOffset: number;
+    customCursor: boolean;
+    smoothScroll: boolean;
+    scrollSnap: boolean;
+    grain: boolean;
+    viewTransitions: boolean;
+    scrollbar: boolean;
+    selection: { background: string; color: string } | null;
+    focusRing: string | null;
+  };
+};
+
 export type RawDesign = {
   url: string;
   viewport: { width: number; height: number };
@@ -78,6 +110,8 @@ export type RawDesign = {
   keyframes: Record<string, string>;
   /** Animations in use and what triggers them, hover changes, reduced-motion support. Older captures lack it. */
   motionUse?: { animations: MotionUse[]; hover: Weighted; hoverRules: number; reducedMotion: boolean; lineArt: { svgs: number; hairline: number } };
+  /** Stack, canvases and craft details. Older captures lack it. */
+  signals?: SiteSignals;
   mediaQueries: string[];
   darkSchemeHints: string[];
   stylesheetHrefs: string[];
@@ -239,6 +273,11 @@ export async function collectDesign(): Promise<RawDesign> {
   };
 
   const elements = Array.from(document.body ? document.body.querySelectorAll("*") : []).slice(0, MAX_ELEMENTS);
+  const details: SiteSignals["details"] = {
+    backdropBlur: 0, blendModes: 0, gradientText: 0, outlinedText: 0, sticky: 0, preserve3d: 0, clipShapes: 0, masks: 0,
+    filters: {}, fontFeatures: {}, variableAxes: 0, balancedText: 0, underlineOffset: 0,
+    customCursor: false, smoothScroll: false, scrollSnap: false, grain: false, viewTransitions: false, scrollbar: false, selection: null, focusRing: null,
+  };
 
   for (const el of elements) {
     const s = getComputedStyle(el);
@@ -273,6 +312,26 @@ export async function collectDesign(): Promise<RawDesign> {
       s.transitionProperty.split(",").forEach((p) => bump(transitions.properties, p.trim()));
     }
     if (s.animationName && s.animationName !== "none") s.animationName.split(",").forEach((n) => bump(animations, n.trim()));
+
+    // Craft details, counted per element.
+    const st = s as CSSStyleDeclaration & Record<string, string>;
+    if (st.backdropFilter && st.backdropFilter !== "none") details.backdropBlur++;
+    if (s.mixBlendMode && s.mixBlendMode !== "normal") details.blendModes++;
+    if (st.backgroundClip === "text" || st.webkitBackgroundClip === "text") details.gradientText++;
+    if (px(st.webkitTextStrokeWidth || "0") > 0) details.outlinedText++;
+    if (s.position === "sticky") details.sticky++;
+    if (s.transformStyle === "preserve-3d" || (s.perspective && s.perspective !== "none")) details.preserve3d++;
+    if (s.clipPath && s.clipPath !== "none" && !/^inset\(0(px)?\)$/.test(s.clipPath)) details.clipShapes++;
+    if ((st.maskImage && st.maskImage !== "none") || (st.webkitMaskImage && st.webkitMaskImage !== "none")) details.masks++;
+    if (s.filter && s.filter !== "none") (s.filter.match(/\b(blur|brightness|contrast|grayscale|hue-rotate|invert|saturate|sepia|drop-shadow)(?=\()/g) ?? []).forEach((f) => bump(details.filters, f));
+    if (own && s.fontVariantNumeric && s.fontVariantNumeric !== "normal") s.fontVariantNumeric.split(/\s+/).forEach((f) => bump(details.fontFeatures, f));
+    if (own && s.fontFeatureSettings && s.fontFeatureSettings !== "normal") s.fontFeatureSettings.split(",").forEach((f) => bump(details.fontFeatures, f.replace(/"/g, "").trim().split(/\s+/)[0]));
+    if (own && s.fontVariationSettings && s.fontVariationSettings !== "normal") details.variableAxes++;
+    if (own && (st.textWrap === "balance" || st.textWrap === "pretty" || st.textWrapStyle === "balance" || st.textWrapStyle === "pretty")) details.balancedText++;
+    if (tag === "a" && s.textUnderlineOffset && s.textUnderlineOffset !== "auto") details.underlineOffset++;
+    if (s.scrollSnapType && s.scrollSnapType !== "none") details.scrollSnap = true;
+    if (/url\(|none/.test(s.cursor) && (el === document.body || el === document.documentElement || r.width >= vw * 0.9)) details.customCursor = true;
+    if (/noise|grain/i.test(s.backgroundImage)) details.grain = true;
 
     if (s.display === "grid" && s.gridTemplateColumns !== "none") bump(gridColumns, String(s.gridTemplateColumns.split(" ").length));
     if ((s.display === "flex" || s.display === "inline-flex") && px(s.columnGap) > 0) bump(flexGaps, String(Math.round(px(s.columnGap))));
@@ -357,6 +416,16 @@ export async function collectDesign(): Promise<RawDesign> {
           }
         }
         if (/\.dark\b|\[data-theme=["']?dark|\[data-mode=["']?dark|\.theme-dark/.test(selector)) darkSchemeHints.add("class");
+        if (/::selection/.test(selector) && !details.selection) {
+          const background = rule.style.backgroundColor || rule.style.background;
+          if (background) details.selection = { background, color: rule.style.color || "" };
+        }
+        if (/::-webkit-scrollbar/.test(selector) || rule.style.getPropertyValue("scrollbar-color") || rule.style.getPropertyValue("scrollbar-width") === "thin") details.scrollbar = true;
+        if (/:focus-visible/.test(selector) && !details.focusRing) {
+          const ring = rule.style.outline || [rule.style.outlineWidth, rule.style.outlineStyle, rule.style.outlineColor].filter(Boolean).join(" ") || (rule.style.boxShadow && rule.style.boxShadow !== "none" ? `box-shadow ${rule.style.boxShadow}` : "");
+          if (ring && !/^(none|0|0px)/.test(ring)) details.focusRing = `${ring}${rule.style.outlineOffset ? `, offset ${rule.style.outlineOffset}` : ""}`.slice(0, 160);
+        }
+        if (/::view-transition/.test(selector)) details.viewTransitions = true;
         // What hovering changes, across the site's own rules.
         if (/:hover/.test(selector)) {
           hoverRules++;
@@ -390,6 +459,8 @@ export async function collectDesign(): Promise<RawDesign> {
           const name = rule.style.animationName;
           if (name && name !== "none") declared.set(name, { ...(declared.get(name) ?? { count: 1, durationMs: 0, delays: new Set<number>(), iterations: 1, easing: "linear" }), trigger: "scroll" });
         }
+      } else if (rule.cssText.startsWith("@view-transition")) {
+        details.viewTransitions = true;
       } else if (rule instanceof CSSKeyframesRule) {
         allKeyframes[rule.name] = rule.cssText.replace(/\s+/g, " ").slice(0, 1200);
       } else if (rule instanceof CSSMediaRule) {
@@ -478,6 +549,125 @@ export async function collectDesign(): Promise<RawDesign> {
   const keyframes: Record<string, string> = {};
   for (const name of usedNames) if (allKeyframes[name] && Object.keys(keyframes).length < 60) keyframes[name] = allKeyframes[name];
   for (const name of Object.keys(allKeyframes)) if (Object.keys(keyframes).length < 40 && !keyframes[name]) keyframes[name] = allKeyframes[name];
+
+  // The stack, from evidence in the DOM (script and link URLs, attributes,
+  // class patterns). In the browser extension this runs in an isolated world
+  // where the page's own JavaScript globals aren't visible, so globals only
+  // ever add evidence, never decide.
+  const stack: StackHit[] = [];
+  const urls = [
+    ...Array.from(document.querySelectorAll("script[src]")).map((x) => (x as HTMLScriptElement).src),
+    ...Array.from(document.querySelectorAll("link[href]")).map((x) => (x as HTMLLinkElement).href),
+  ].join(" ");
+  const inline = Array.from(document.querySelectorAll("script:not([src])")).map((x) => (x.textContent || "").slice(0, 4000)).join(" ");
+  const generator = (document.querySelector('meta[name="generator" i]')?.getAttribute("content") || "").slice(0, 80);
+  const q = (selector: string) => {
+    try {
+      return document.querySelector(selector);
+    } catch {
+      return null;
+    }
+  };
+  const w = window as unknown as Record<string, unknown>;
+  const classSample = elements.slice(0, 3000).map((el) => (typeof el.className === "string" ? el.className : el.getAttribute("class") || "")).join(" ");
+  const countClasses = (re: RegExp) => (classSample.match(re) || []).length;
+  const add = (name: string, category: StackHit["category"], evidence: string | false | null | undefined, strong = true, version?: string) => {
+    if (!evidence || stack.some((h) => h.name === name)) return;
+    stack.push({ name, category, evidence: evidence.slice(0, 120), strong, ...(version ? { version } : {}) });
+  };
+  const gen = (re: RegExp) => (re.test(generator) ? `meta generator "${generator}"` : null);
+
+  // Frameworks
+  add("Next.js", "framework", q("#__NEXT_DATA__") ? "#__NEXT_DATA__ script" : /\/_next\/static\//.test(urls) ? "assets under /_next/static/" : /self\.__next_f/.test(inline) ? "streamed __next_f payload" : gen(/next\.js/i));
+  add("Nuxt", "framework", q("#__nuxt, #__NUXT_DATA__") ? "#__nuxt root" : /\/_nuxt\//.test(urls) ? "assets under /_nuxt/" : null);
+  add("SvelteKit", "framework", /\/_app\/immutable\//.test(urls) ? "assets under /_app/immutable/" : q("[data-sveltekit-preload-data], [data-sveltekit-reload]") ? "data-sveltekit attributes" : null);
+  add("Svelte", "framework", countClasses(/\bsvelte-[a-z0-9]{4,}\b/g) >= 5 ? "svelte-* scoped classes" : null);
+  add("Astro", "framework", q("astro-island, astro-slot") ? "astro-island elements" : /\/_astro\//.test(urls) ? "assets under /_astro/" : gen(/astro/i));
+  add("Remix / React Router", "framework", /__remixContext|__reactRouterContext/.test(inline) ? "router context script" : null);
+  add("Gatsby", "framework", q("#___gatsby") ? "#___gatsby root" : null);
+  add("Vue", "framework", q("[data-v-app]") ? "data-v-app root" : Array.from(elements.slice(0, 400)).some((el) => Array.from(el.attributes).some((a) => /^data-v-[0-9a-f]{6,}$/.test(a.name))) ? "data-v-* scoped attributes" : null);
+  add("Angular", "framework", q("[ng-version]") ? "ng-version attribute" : null, true, q("[ng-version]")?.getAttribute("ng-version") || undefined);
+  add("Qwik", "framework", q("[q\\:container]") ? "q:container attribute" : null);
+  add("Solid", "framework", q("[data-hk]") && !stack.some((h) => h.name === "Astro") ? "data-hk hydration keys" : null, false);
+  const reactRoot = elements.slice(0, 50).some((el) => Object.keys(el).some((k) => k.startsWith("__reactFiber$") || k.startsWith("__reactContainer$")));
+  add("React", "framework", stack.some((h) => ["Next.js", "Gatsby", "Remix / React Router"].includes(h.name)) ? "implied by the framework" : reactRoot ? "React fiber on DOM nodes" : q("[data-reactroot]") ? "data-reactroot" : null);
+  // Site builders and CMSs
+  add("Framer", "builder", gen(/framer/i) || (/framerusercontent\.com|framer\.com\/m\//.test(urls + " " + Array.from(document.images).slice(0, 30).map((i) => i.src).join(" ")) ? "framerusercontent.com assets" : q("[data-framer-name], [data-framer-component-type]") ? "data-framer attributes" : null));
+  add("Webflow", "builder", q("html[data-wf-site]") ? "data-wf-site on <html>" : /webflow\.[a-z0-9]+\.js|assets\.website-files\.com/.test(urls) ? "Webflow assets" : gen(/webflow/i));
+  add("Wix", "builder", gen(/wix/i) || (/static\.wixstatic\.com|parastorage\.com/.test(urls) ? "Wix static assets" : null));
+  add("Squarespace", "builder", /static1\.squarespace\.com/.test(urls) ? "Squarespace static assets" : gen(/squarespace/i));
+  add("WordPress", "builder", /\/wp-content\/|\/wp-includes\//.test(urls) ? "/wp-content/ assets" : gen(/wordpress/i));
+  add("Shopify", "builder", /cdn\.shopify\.com/.test(urls) ? "cdn.shopify.com assets" : null);
+  add("Ghost", "builder", gen(/ghost/i));
+  add("Docusaurus", "builder", gen(/docusaurus/i) || (q("#__docusaurus") ? "#__docusaurus root" : null));
+  add("VitePress", "builder", gen(/vitepress/i) || (q(".VPContent, #VPContent") ? "VitePress layout" : null));
+  add("Fumadocs", "builder", q("#nd-docs-layout, [data-fd-framework]") || countClasses(/\bfd-[a-z-]+/g) >= 10 ? "fd-* docs layout" : null);
+  add("Mintlify", "builder", /mintlify/.test(urls) ? "Mintlify assets" : null);
+  add("Hugo", "builder", gen(/hugo/i));
+  add("Tilda", "builder", /tildacdn|tilda\.ws/.test(urls) ? "Tilda assets" : null);
+  // Styling
+  const tailwindish = countClasses(/(?:^|\s)(?:-?m[trblxy]?-\d|p[trblxy]?-\d|gap-\d|text-(?:xs|sm|base|lg|[2-9]?xl)|rounded(?:-[a-z0-9]+)?|bg-[a-z]+-\d{2,3}|(?:sm|md|lg|xl):[a-z-]+|flex|items-center|justify-between)(?=\s|$)/g);
+  add("Tailwind CSS", "css", tailwindish >= 60 ? `${tailwindish} utility classes` : null, tailwindish >= 150);
+  add("CSS Modules", "css", countClasses(/\b[A-Za-z]+_[A-Za-z0-9]+__[A-Za-z0-9_-]{5}\b/g) >= 10 ? "hashed module class names" : null);
+  add("styled-components", "css", q("style[data-styled]") ? "style[data-styled]" : countClasses(/\bsc-[a-zA-Z]{5,}\b/g) >= 5 ? "sc-* class names" : null);
+  add("Emotion", "css", q("style[data-emotion]") ? "style[data-emotion]" : null);
+  add("Bootstrap", "css", /bootstrap(\.min)?\.(css|js)/.test(urls) ? "Bootstrap files" : countClasses(/\bcol-(?:sm|md|lg)-\d+\b/g) >= 6 ? "col-md-* grid classes" : null);
+  // UI kits
+  const radix = q("[data-radix-collection-item], [data-radix-popper-content-wrapper], [data-radix-scroll-area-viewport]") || /\bradix-:/.test(document.body?.innerHTML.slice(0, 200000) || "");
+  add("Radix UI", "ui", radix ? "Radix data attributes" : null);
+  add("shadcn/ui", "ui", radix && tailwindish >= 60 && q("[data-slot]") ? "Radix + Tailwind + data-slot attributes" : null, false);
+  add("MUI", "ui", countClasses(/\bMui[A-Z][A-Za-z]+-root\b/g) >= 3 ? "Mui*-root classes" : null);
+  add("Chakra UI", "ui", countClasses(/\bchakra-[a-z-]+/g) >= 3 ? "chakra-* classes" : null);
+  add("Mantine", "ui", countClasses(/\bmantine-[A-Za-z-]+/g) >= 3 ? "mantine-* classes" : null);
+  add("Headless UI", "ui", q('[id^="headlessui-"]') ? "headlessui-* ids" : null);
+  add("Ant Design", "ui", countClasses(/\bant-[a-z]+(?:-[a-z]+)*\b/g) >= 8 ? "ant-* classes" : null);
+  // Motion, scroll and media libraries
+  add("GSAP", "motion", /gsap|greensock|ScrollTrigger/i.test(urls) ? "GSAP script" : w.gsap ? "window.gsap" : q(".pin-spacer") ? "ScrollTrigger pin spacers" : null);
+  add("Framer Motion", "motion", q("[data-framer-appear-id], [data-projection-id]") ? "Framer Motion appear/projection attributes" : null, false);
+  add("Lenis", "scroll", q("html.lenis, html.lenis-smooth, .lenis") ? "lenis classes on <html>" : /lenis/i.test(urls) ? "Lenis script" : null);
+  add("Locomotive Scroll", "scroll", q("[data-scroll-container]") ? "data-scroll-container" : null);
+  add("AOS", "motion", q("[data-aos]") ? "data-aos attributes" : null);
+  add("Lottie", "motion", q("lottie-player, dotlottie-player, [data-animation-path], [data-lottie]") ? "Lottie player" : /lottie|bodymovin/i.test(urls) ? "Lottie script" : null);
+  add("Rive", "motion", /@rive-app|rive\.wasm|\.riv\b/.test(urls + inline.slice(0, 20000)) ? "Rive runtime" : null);
+  add("Swiper", "motion", q(".swiper-wrapper") ? "Swiper markup" : null);
+  add("Embla Carousel", "motion", q(".embla, [class*='embla__']") ? "Embla markup" : null, false);
+  add("Barba.js", "motion", q("[data-barba]") ? "data-barba attributes" : null);
+  // Fonts
+  add("Google Fonts", "fonts", /fonts\.(googleapis|gstatic)\.com/.test(urls) ? "fonts.googleapis.com" : null);
+  add("Adobe Fonts", "fonts", /use\.typekit\.net|p\.typekit\.net/.test(urls) ? "use.typekit.net" : null);
+  add("Fontshare", "fonts", /api\.fontshare\.com/.test(urls) ? "api.fontshare.com" : null);
+
+  // 3D and canvases. Three.js stamps its renderer's canvas with data-engine.
+  const canvases = Array.from(document.querySelectorAll("canvas")).filter((c) => c.getBoundingClientRect().width > 40);
+  const engines = new Set<string>();
+  let largestShare = 0;
+  let aboveFold = false;
+  for (const canvas of canvases) {
+    const box = canvas.getBoundingClientRect();
+    largestShare = Math.max(largestShare, Math.min(1, (Math.min(box.width, vw) * Math.min(box.height, vh)) / (vw * vh)));
+    if (box.top + window.scrollY < vh) aboveFold = true;
+    const engine = canvas.getAttribute("data-engine");
+    if (engine) engines.add(engine.slice(0, 40));
+  }
+  const three = [...engines].find((e) => /three\.js/i.test(e));
+  add("Three.js", "3d", three ? `canvas data-engine="${three}"` : w.__THREE__ ? "window.__THREE__" : /three(\.module)?(\.min)?\.js/.test(urls) ? "three.js script" : null, true, three?.match(/r\d+/)?.[0] ?? (typeof w.__THREE__ === "string" ? `r${w.__THREE__}` : undefined));
+  add("React Three Fiber", "3d", stack.some((h) => h.name === "Three.js") && stack.some((h) => h.name === "React") ? "Three.js inside a React app" : null, false);
+  add("Spline", "3d", q("spline-viewer") ? "<spline-viewer>" : /prod\.spline\.design|@splinetool/.test(urls + inline.slice(0, 20000)) ? "Spline scene" : null);
+  add("Babylon.js", "3d", [...engines].some((e) => /babylon/i.test(e)) || /babylon(js)?(\.min)?\.js/i.test(urls) ? "Babylon.js" : null);
+  add("PlayCanvas", "3d", /playcanvas/i.test(urls) ? "PlayCanvas script" : null);
+  add("Unicorn Studio", "3d", q("[data-us-project]") || /unicornstudio/i.test(urls) ? "Unicorn Studio embed" : null);
+  add("PixiJS", "3d", /pixi(\.min)?\.js/i.test(urls) || w.PIXI ? "PixiJS" : null);
+  add("p5.js", "3d", q("canvas.p5Canvas, #defaultCanvas0") ? "p5 canvas" : null);
+
+  // Resolve the selection colours the site set (its rule may use variables).
+  if (details.selection && document.body) {
+    const sel = getComputedStyle(document.body, "::selection");
+    details.selection = { background: sel.backgroundColor || details.selection.background, color: sel.color || details.selection.color };
+  }
+  if (details.focusRing && /^rgba\(0, 0, 0, 0\)$|transparent/.test(details.focusRing)) details.focusRing = null;
+  details.smoothScroll = stack.some((h) => h.category === "scroll") || getComputedStyle(document.documentElement).scrollBehavior === "smooth";
+  if (document.querySelector("feTurbulence")) details.grain = true;
+  if (document.querySelector('[class*="cursor" i][style*="translate"], .cursor, .custom-cursor, [data-cursor]') && getComputedStyle(document.body).cursor === "none") details.customCursor = true;
 
   // Line-art illustrations: SVGs drawn in thin strokes that stay thin when scaled.
   let lineArtSvgs = 0;
@@ -603,6 +793,7 @@ export async function collectDesign(): Promise<RawDesign> {
       reducedMotion,
       lineArt: { svgs: lineArtSvgs, hairline },
     },
+    signals: { stack: stack.slice(0, 30), canvases: { count: canvases.length, largestShare: Math.round(largestShare * 100) / 100, engines: [...engines].slice(0, 5), aboveFold }, details },
     mediaQueries: Array.from(mediaQueries).slice(0, 80),
     darkSchemeHints: Array.from(darkSchemeHints),
     stylesheetHrefs: Array.from(document.querySelectorAll("link[rel~='stylesheet']")).map((l) => (l as HTMLLinkElement).href).slice(0, 40),

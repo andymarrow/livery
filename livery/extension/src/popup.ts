@@ -2,6 +2,7 @@
 // after the user presses Measure), shows exactly what would be sent, and
 // sends it only after they press Send.
 import { LIVERY_URL, TEST_BUILD } from "./config";
+import { pageGlobals } from "./globals";
 import type { MeasureApi } from "./measure";
 import { stitch, toBase64, type Shot } from "./stitch";
 
@@ -116,6 +117,25 @@ async function run<T>(tabId: number, fn: (...args: never[]) => T, args: unknown[
   return result?.result as Awaited<T>;
 }
 
+// Library names and versions only the page's own world can see (React, Three.js, GSAP...).
+async function addPageGlobals(tabId: number, measured: Measured) {
+  const signals = measured.raw.signals;
+  if (!signals) return;
+  try {
+    const [result] = await chrome.scripting.executeScript({ target: { tabId }, world: "MAIN", func: pageGlobals });
+    for (const hit of (result?.result ?? []) as typeof signals.stack) {
+      const seen = signals.stack.find((h) => h.name === hit.name);
+      if (!seen) signals.stack.push(hit);
+      else if (!seen.version && hit.version) seen.version = hit.version;
+    }
+    if (signals.stack.some((h) => h.name === "Three.js") && signals.stack.some((h) => h.name === "React") && !signals.stack.some((h) => h.name === "React Three Fiber")) {
+      signals.stack.push({ name: "React Three Fiber", category: "3d", evidence: "Three.js inside a React app", strong: false });
+    }
+  } catch {
+    // Some pages refuse main-world scripts; the DOM evidence still stands.
+  }
+}
+
 function progress(step: string, fraction: number) {
   render(`<h1>Measuring this page</h1><p>${esc(step)}</p><div class="progress"><i style="width:${Math.round(fraction * 100)}%"></i></div><p class="note">Keep this open. Your page is put back as it was when it's done.</p>`);
 }
@@ -125,6 +145,7 @@ async function measure(tab: chrome.tabs.Tab & { id: number; url: string }, targe
     progress("Reading the design…", 0.08);
     await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["measure.js"] });
     const measured = await run(tab.id, () => (window as unknown as { __livery: MeasureApi }).__livery.measure()) as Measured;
+    await addPageGlobals(tab.id, measured);
 
     progress("Removing text and images for the picture…", 0.25);
     const page = await run(tab.id, () => (window as unknown as { __livery: MeasureApi }).__livery.prepare()) as { height: number; width: number; screen: number };

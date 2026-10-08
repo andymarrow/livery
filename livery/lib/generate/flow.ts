@@ -33,7 +33,7 @@ description: Apply the ${siteName} design kit (Livery v${version}) to this proje
 
 ${summary}
 
-Kit files (read each one only when its step needs it): ${(input.files ?? ["tokens.json", "fonts.json", "icons.json", "components.md", "layout.md", "motion.md", "voice.md", "rules.md", "licences.md", "frames/"]).map((f) => `\`${f}\``).join(", ")}.${input.files?.includes("owner-rules.md") ? "\nThe owner's own rules are in `owner-rules.md`; they outrank `rules.md`." : ""}
+Kit files (read each one only when its step needs it): ${(input.files ?? ["tokens.json", "fonts.json", "icons.json", "components.md", "layout.md", "motion.md", "details.md", "stack.md", "voice.md", "rules.md", "licences.md", "frames/"]).map((f) => `\`${f}\``).join(", ")}.${input.files?.includes("owner-rules.md") ? "\nThe owner's own rules are in `owner-rules.md`; they outrank `rules.md`." : ""}
 
 Levels offered:
 ${levelLines}
@@ -46,14 +46,14 @@ ${levelLines}
 ## 1. Audit
 Find theme files, design tokens, CSS variables, Tailwind config, fonts, the icon library and how colours are used.
 Note the styling setup (Tailwind v4 or v3, CSS modules, shadcn/ui, CSS-in-JS, plain CSS).
-Report colours that are scattered (hard-coded in many files) rather than centralised; offer to centralise them first.
+Report colours that are scattered (hard-coded in many files) rather than centralised; offer to centralise them first.${!input.files || input.files.includes("stack.md") ? "\n`stack.md` says what the source site appears to be built with. Never switch this project's framework or add libraries just to match it: recreate each effect with what the project already uses, and suggest a library only when the user asks (for 3D, follow its notes)." : ""}
 
 ## 2. Scan project rules
 Read CLAUDE.md (root, nested, ~/.claude), AGENTS.md, .cursor/rules, .github/copilot-instructions.md, design docs, lint rules, and contrast or visual tests.
 Sort each finding as hard (must keep), soft (preference) or unrelated.
 
 ## 3. Report the gap
-For each area (tokens, components, layout, motion, voice), rate the gap small / medium / large in one or two lines, comparing the project with \`rules.md\` and \`tokens.json\`.
+For each area (tokens, components, layout, motion, details, voice), rate the gap small / medium / large in one or two lines, comparing the project with \`rules.md\` and \`tokens.json\`.
 
 ## 4. Ask
 Ask which areas to apply. Warn clearly where the gap is large.
@@ -71,7 +71,7 @@ Items marked "style only" (logos, photos, illustrations, custom icons) are recre
 Styling the user's own login or checkout pages with these tokens is fine. Never recreate the source site's login, checkout or branding.
 
 ## 7. Apply
-One area per commit, in this order: tokens → components → layout → motion → voice (only the areas this kit's levels include).
+One area per commit, in this order: tokens → components → layout → motion → details → voice (only the areas this kit's levels include).
 Commit message: \`livery(${siteName} v${version}): <area>\`. Edits to project rule files go in the same commit.
 Read the data file for an area only when you reach it. Follow \`rules.md\` throughout, especially its "Never" list.
 

@@ -2,6 +2,7 @@ import type { RawDesign } from "../collect/collectDesign";
 import { chroma, contrast, distance, hue, luminance, parseColor, toHex, toOklab, type Rgba } from "./color";
 import { clusterColors, mergeWeights, topEntries, type ColorCluster } from "./cluster";
 import { interactions, motionSignatures, type Interactions, type MotionSignature } from "./motionStyle";
+import { siteProfile, type SiteProfile } from "./siteProfile";
 
 const WHITE: Rgba = { r: 255, g: 255, b: 255, a: 1 };
 const SATURATED = 0.06;
@@ -377,12 +378,15 @@ export function buildTokens(byWidth: { mobile: RawDesign; tablet: RawDesign; des
     borderWidths: topEntries(desktop.borderWidths, 3).map(([v]) => v),
     breakpoints: breakpoints(all.flatMap((r) => r.mediaQueries)),
     motion: motion(all),
+    /** Stack, 3D scene and craft details. Older kits lack it. */
+    site: siteProfile(all),
     layout: layout(desktop),
     rootVariables: Object.fromEntries(Object.entries(desktop.rootVariables).slice(0, 120)),
   };
 }
 
-export type Tokens = ReturnType<typeof buildTokens>;
+/** Kits built before the site profile existed don't have one. */
+export type Tokens = Omit<ReturnType<typeof buildTokens>, "site"> & { site?: SiteProfile };
 
 function round(value: number, places: number) {
   const f = 10 ** places;

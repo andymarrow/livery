@@ -27,6 +27,7 @@ npm run extension:zip     # production build + extension/livery-extension-<versi
 | File | Runs | Does |
 |---|---|---|
 | `src/popup.ts` | the popup | connect, pick a kit, measure, preview, send |
+| `src/globals.ts` | in the chosen tab's own JavaScript world, on Measure | reads library names and versions only (React, Three.js, GSAP...), which the isolated measuring script can't see |
 | `src/measure.ts` | injected into the chosen tab on Measure | measures the page with Livery's own code (`lib/extract/collect/*`), turns copy into voice numbers in the page, makes a content-removed copy for the screenshots, then puts the real page back |
 | `src/stitch.ts` | the popup | joins screen-by-screen captures into one WebP |
 | `src/background.ts` | background worker | trades the one-time code from the connect page for a token |
@@ -66,7 +67,7 @@ Send `extension/livery-extension-<version>.zip` (made by `npm run extension:zip`
 | Permission | Justification for the review form |
 |---|---|
 | `activeTab` | To measure and capture only the tab the user clicked the extension on, only after that click. The extension has no access to any other tab or site. |
-| `scripting` | To run Livery's measuring script in that tab when the user presses Measure. |
+| `scripting` | To run Livery's measuring script in that tab when the user presses Measure, and one small check in the page's own context that reads only the names and versions of the libraries it uses (for example React, Three.js, GSAP). |
 | `storage` | To keep the token that connects the extension to the user's Livery account, in the browser only. |
 | Host permission `https://www.livery.site/*`, `https://livery.site/*` | To send the measurements to the user's Livery account and to read the one-time connection code on Livery's connect page. No other sites. |
 
@@ -74,7 +75,7 @@ Send `extension/livery-extension-<version>.zip` (made by `npm run extension:zip`
 
 ### Data usage (the "Privacy practices" tab)
 
-- **Collected:** "Website content" only, and only measurements of the design of the page the user chooses, plus a picture with text and images removed. Sent only after the user reviews it and presses Send.
+- **Collected:** "Website content" only, and only measurements of the design of the page the user chooses (including its animation timings and the names of the libraries it's built with), plus a picture with text and images removed. Sent only after the user reviews it and presses Send.
 - **Not collected:** personally identifiable information, health, financial, authentication information (no passwords or cookies), personal communications, location, web history, user activity.
 - Tick all three certifications: not sold to third parties; not used or transferred for purposes unrelated to the single purpose; not used to determine creditworthiness or for lending.
 

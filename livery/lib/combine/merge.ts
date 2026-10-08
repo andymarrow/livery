@@ -88,6 +88,18 @@ export function mergeTokens(all: Tokens[]): Tokens {
       }, new Map<string, NonNullable<typeof base.motion.signatures>[number]>()).values()].slice(0, 8),
       interactions: mergeInteractions(all.map((t) => t.motion.interactions)),
     },
+    site: mergeSite(all.map((t) => t.site)),
+  };
+}
+
+// Stack entries and details from every source; the first scene found.
+function mergeSite(list: Tokens["site"][]): Tokens["site"] {
+  const present = list.filter((s): s is NonNullable<typeof s> => Boolean(s));
+  if (!present.length) return undefined;
+  return {
+    stack: [...new Map(present.flatMap((s) => s.stack).map((e) => [e.name, e] as const)).values()],
+    scene: present.find((s) => s.scene)?.scene ?? null,
+    details: [...new Map(present.flatMap((s) => s.details).map((d) => [d.title, d] as const)).values()].slice(0, 16),
   };
 }
 

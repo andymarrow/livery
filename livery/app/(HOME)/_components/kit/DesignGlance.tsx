@@ -1,5 +1,6 @@
 import type { Palette, Tokens } from "@/lib/extract/process/tokens";
 import { MotionGlance } from "./MotionGlance";
+import { SiteGlance } from "./SiteGlance";
 
 const ROLES: [keyof Palette, string][] = [
   ["background", "Background"],
@@ -82,6 +83,7 @@ export function DesignGlance({ tokens }: { tokens: Tokens }) {
         </div>
       </div>
       <MotionGlance motion={tokens.motion} />
+      <SiteGlance site={tokens.site} />
     </div>
   );
 }

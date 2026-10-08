@@ -21,6 +21,10 @@ const api = {
     const raw = await collectDesign();
     const voice = voiceProfile(raw.text);
     raw.text = { headings: [], paragraphs: [], actions: [] };
+    // Keyframes are CSS, but a typing effect can carry words in content: "...". Drop any such text.
+    const noText = (css: string) => css.replace(/content:\s*(["'])(?:\\.|(?!\1).)*\1\s*;?/g, "content: none;");
+    raw.keyframes = Object.fromEntries(Object.entries(raw.keyframes).map(([name, css]) => [name, noText(css)]));
+    if (raw.motionUse) raw.motionUse.animations = raw.motionUse.animations.map((a) => ({ ...a, keyframes: noText(a.keyframes) }));
     document.querySelectorAll("[data-livery-probe]").forEach((el) => el.removeAttribute("data-livery-probe"));
     return { raw, voice, url: location.href, viewport: { width: window.innerWidth, height: window.innerHeight } };
   },
