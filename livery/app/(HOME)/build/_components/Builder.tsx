@@ -10,6 +10,7 @@ import { failureCopy } from "@/lib/kit/failure";
 import { readEvents } from "@/lib/kit/stream";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { BuildVisual } from "./BuildVisual";
 
 const STAGES: { id: BuildStage; label: string; hint: string }[] = [
   { id: "checking", label: "Checking the site", hint: "Safe address, redirects and robots.txt" },
@@ -103,7 +104,7 @@ export function Builder({ url, host }: { url: string; host: string }) {
       <Outcome
         icon={<HourglassMedium className="size-6" />}
         title="Daily Build Limit Reached"
-        body="New builds are limited per visitor, because each one renders a site and calls a model. Kits already in the library are always free."
+        body="New builds are limited per visitor, because each one renders a site in a real browser at three screen sizes. Kits already in the library are always free."
         next={`You can build again after ${new Date(state.resetAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.`}
       />
     );
@@ -115,19 +116,23 @@ export function Builder({ url, host }: { url: string; host: string }) {
   const activeIndex = state.phase === "running" && state.stage ? STAGES.findIndex((s) => s.id === state.stage) : state.phase === "waiting" ? -1 : 0;
 
   return (
-    <div className="mx-auto w-full max-w-xl">
+    <div className="mx-auto w-full max-w-2xl">
       <p className="label-micro text-center">Building a kit</p>
       <h1 className="mt-3 text-center text-3xl font-semibold tracking-tight sm:text-4xl">{host}</h1>
       <p className="mt-3 text-center text-sm text-fg-muted">
         {state.phase === "waiting" ? "Someone else is building this kit right now. It will open here when it's ready." : "Usually about a minute. You can leave; the kit will be in the library."}
       </p>
 
-      <ol className="mt-10 overflow-hidden rounded-[18px] border border-border bg-surface shadow-card">
+      <div className="mt-8">
+        <BuildVisual stage={state.phase === "running" ? state.stage : null} host={host} waiting={state.phase === "waiting"} />
+      </div>
+
+      <ol className="mt-4 grid grid-cols-1 overflow-hidden rounded-[18px] border border-border bg-surface shadow-card sm:grid-cols-2">
         {STAGES.map((stage, index) => {
           const done = activeIndex > index;
           const active = activeIndex === index && state.phase === "running";
           return (
-            <li key={stage.id} className={cn("flex items-center gap-4 border-b border-border px-5 py-4 transition-colors duration-300 last:border-b-0", active && "bg-surface-2/60")}>
+            <li key={stage.id} className={cn("flex items-center gap-3.5 border-b border-border px-4 py-3 transition-colors duration-300 sm:odd:border-r [&:nth-last-child(-n+2)]:sm:border-b-0 last:border-b-0", active && "bg-surface-2/60")}>
               <span
                 className={cn(
                   "flex size-7 shrink-0 items-center justify-center rounded-full border transition-colors duration-300",
