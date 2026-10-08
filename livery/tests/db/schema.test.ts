@@ -586,6 +586,41 @@ describe("deleting an account", () => {
   });
 });
 
+describe("admin moderation", () => {
+  const sourcesOf = (versions: { url: string; versionId: string }[]) => JSON.stringify(versions.map((v, i) => ({ position: i + 1, source_url: v.url, domain: "mod.dev", source_version_id: v.versionId })));
+  async function page(path: string) {
+    const { rows } = await db.query<{ kit_id: string; kit_version_id: string }>(`select * from public.start_build($1, 'mod.dev', $2, 1, 1)`, [`https://mod.dev${path}`, `mod-dev${path.replace(/\//g, "-").replace(/-$/, "")}`]);
+    await publish(rows[0].kit_version_id);
+    return { url: `https://mod.dev${path}`, versionId: rows[0].kit_version_id, kitId: rows[0].kit_id };
+  }
+
+  it("deletes a kit with its published versions, but not one a taste is built from", async () => {
+    const [a, b] = [await page("/a"), await page("/b")];
+    const { rows: combined } = await db.query<{ kit_id: string; kit_version_id: string }>(
+      `select * from public.start_combined_build('taste', $1, null, 'taste-mod-111111', 'Mod', 'mod', $2, $3, 1, 1)`,
+      ["c".repeat(64), sourcesOf([a, b]), "d".repeat(64)],
+    );
+    await publish(combined[0].kit_version_id);
+
+    await expect(asRole(db, "service_role", () => db.query(`select * from public.admin_delete_kit($1)`, [a.kitId]))).rejects.toThrow(/used by taste-mod-111111/);
+
+    const { rows } = await asRole(db, "service_role", () => db.query<{ frame_folders: string[] }>(`select * from public.admin_delete_kit($1)`, [combined[0].kit_id]));
+    expect(rows[0].frame_folders).toEqual([combined[0].kit_version_id]);
+    await asRole(db, "service_role", () => db.query(`select * from public.admin_delete_kit($1)`, [a.kitId]));
+    expect((await db.query(`select 1 from public.kits where id = any($1)`, [[a.kitId, combined[0].kit_id]])).rows).toHaveLength(0);
+    expect((await db.query(`select 1 from public.kit_versions where id = $1`, [a.versionId])).rows).toHaveLength(0);
+    // Untouched kits stay, and their guards are back on.
+    await expect(db.query(`delete from public.kit_versions where id = $1`, [b.versionId])).rejects.toThrow(/withdraw it/);
+  });
+
+  it("keeps the audit log and the delete function away from signed-in users", async () => {
+    await asRole(db, "authenticated", async () => {
+      await expect(db.query(`select * from public.admin_audit`)).rejects.toThrow(/permission denied/);
+      await expect(db.query(`select * from public.admin_delete_kit(gen_random_uuid())`)).rejects.toThrow(/permission denied/);
+    });
+  });
+});
+
 describe("server role", () => {
   it("can run every build function the server calls (as service_role, not the test superuser)", async () => {
     const page = async (path: string) => {

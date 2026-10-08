@@ -118,7 +118,10 @@ export type AdminKit = {
   cover: string | null;
   preview: string | null;
   versions: number;
-  latest: { versionId: string; version: number; status: KitStatus; publishedAt: string } | null;
+  latest: { versionId: string; version: number; status: KitStatus; publishedAt: string; visibility: "public" | "private" } | null;
+  /** Who owns it: null for kits built by visitors without an account. */
+  owner: { id: string; email: string | null } | null;
+  stats: { views: number; likes: number; downloads: number };
   sources: { url: string; slug: string; version: number }[];
   /** Combined kits: some of their sites have a newer version than the one they were built from. */
   stale: boolean;
@@ -129,11 +132,14 @@ export async function adminKitList(): Promise<AdminKit[]> {
   const db = getAdminClient();
   const { data, error } = await db
     .from("kits")
-    .select("id, slug, kind, domain, source_url, curator, display_name, featured, hidden, cover_path, created_at, kit_versions(id, version, status, published_at, data)")
+    .select("id, slug, kind, domain, source_url, curator, display_name, featured, hidden, cover_path, created_at, owner_id, kit_versions(id, version, status, published_at, visibility, data), kit_stats(views, likes, downloads)")
     .order("created_at", { ascending: false })
     .limit(500);
   if (error) throw error;
-  type Version = { id: string; version: number | null; status: KitStatus; published_at: string | null; data: { sources?: AdminKit["sources"] } | null };
+  type Version = { id: string; version: number | null; status: KitStatus; published_at: string | null; visibility: "public" | "private"; data: { sources?: AdminKit["sources"] } | null };
+  const owners = new Set((data ?? []).map((k) => k.owner_id).filter((id): id is string => Boolean(id)));
+  const emails = new Map<string, string | null>();
+  await Promise.all([...owners].map(async (id) => emails.set(id, (await db.auth.admin.getUserById(id)).data.user?.email ?? null)));
   const kits = (data ?? []).map((k) => {
     const versions = ((k.kit_versions ?? []) as unknown as Version[]).filter((v) => v.version && (v.status === "ready" || v.status === "withdrawn"));
     const latest = versions.sort((a, b) => (b.version ?? 0) - (a.version ?? 0))[0];
@@ -151,11 +157,13 @@ export async function adminKitList(): Promise<AdminKit[]> {
       cover: k.cover_path ? coverUrl(k.cover_path) : null,
       preview: null as string | null,
       versions: versions.length,
-      latest: latest ? { versionId: latest.id, version: latest.version!, status: latest.status, publishedAt: latest.published_at ?? "" } : null,
+      latest: latest ? { versionId: latest.id, version: latest.version!, status: latest.status, publishedAt: latest.published_at ?? "", visibility: latest.visibility } : null,
+      owner: k.owner_id ? { id: k.owner_id, email: emails.get(k.owner_id) ?? null } : null,
+      stats: (Array.isArray(k.kit_stats) ? k.kit_stats[0] : k.kit_stats) ?? { views: 0, likes: 0, downloads: 0 },
       sources: latest?.data?.sources ?? [],
       stale: false,
     };
-  }).filter((k) => k.latest);
+  }).filter((k) => k.latest).map((k) => (k.kind === "page" && k.sources.length > 1 ? { ...k, kind: "site" as const } : k));
   const newest = new Map(kits.filter((k) => k.kind === "page" && k.latest?.status === "ready").map((k) => [k.slug, k.latest!.version]));
   for (const k of kits) if (k.kind !== "page") k.stale = k.sources.some((s) => (newest.get(s.slug) ?? 0) > s.version);
   const framed = kits.filter((k) => !k.cover && k.latest?.status === "ready");

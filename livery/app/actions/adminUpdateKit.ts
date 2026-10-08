@@ -2,9 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { audit } from "@/lib/admin/audit";
 import { requireAdmin } from "@/lib/adminSession";
 import { cleanCurator } from "@/lib/combine/identity";
-import { logger } from "@/lib/logger";
 import { getAdminClient } from "@/lib/supabase/admin";
 
 const Patch = z.object({
@@ -30,6 +30,6 @@ export async function adminUpdateKit(kitId: string, patch: z.infer<typeof Patch>
   const db = getAdminClient();
   const { data: kit, error } = await db.from("kits").update(update).eq("id", kitId).select("slug, kind").single();
   if (error) throw new Error(error.message);
-  logger.info("admin.kit_updated", { slug: kit.slug, fields: Object.keys(update) });
+  await audit("kit_updated", kit.slug, { fields: Object.keys(update) });
   revalidatePath("/", "layout");
 }

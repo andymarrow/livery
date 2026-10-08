@@ -106,6 +106,7 @@ export type Database = {
       profiles: Table<{ id: string; display_name: string | null; avatar_url: string | null; created_at: string; updated_at: string }>;
       saved_kits: Table<{ user_id: string; kit_id: string; created_at: string }, { user_id: string; kit_id: string; created_at?: string }>;
       kit_events: Table<{ kit_id: string; kind: "view" | "like" | "download"; visitor: string; network: string; created_at: string }>;
+      admin_audit: Table<{ id: number; at: string; action: string; target: string | null; detail: Json }, { action: string; target?: string | null; detail?: Json }>;
       kit_stats: Table<{ kit_id: string; views: number; likes: number; downloads: number; updated_at: string }>;
       read_failures: Table<{
         source_url: string;
@@ -197,6 +198,10 @@ export type Database = {
           p_visibility?: "public" | "private";
         };
         Returns: { kit_id: string; kit_version_id: string; claimed: boolean }[];
+      };
+      admin_delete_kit: {
+        Args: { p_kit_id: string };
+        Returns: { kit_files: string[]; frame_folders: string[]; frame_files: string[]; cover: string | null }[];
       };
       delete_account: {
         Args: { p_user: string };
