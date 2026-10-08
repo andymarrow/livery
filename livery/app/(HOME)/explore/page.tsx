@@ -81,7 +81,7 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
             </Suspense>
           </div>
         </div>
-        <div className="hidden sm:block">
+        <div className="mx-auto hidden w-full max-w-xl sm:block lg:max-w-none">
           <ExploreScene />
         </div>
       </div>

@@ -192,7 +192,7 @@ export function KitsManager({ kits }: { kits: AdminKit[] }) {
         </div>
       </div>
 
-      <div className="mt-3 overflow-x-auto rounded-[14px] border border-border bg-surface">
+      <div className="mt-3 relative overflow-x-auto rounded-[14px] border border-border bg-surface">
         <table className="w-full min-w-[68rem] text-left text-[13px] [&_td]:whitespace-nowrap">
           <thead className="bg-surface-2/50">
             <tr className="border-b border-border text-[11.5px] text-fg-muted">

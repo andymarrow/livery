@@ -16,7 +16,7 @@ export function AdminPage({ title, description, actions, children }: { title: st
 
 export function DataTable({ head, children, empty, emptyText = "Nothing here yet." }: { head: string[]; children: React.ReactNode; empty: boolean; emptyText?: string }) {
   return (
-    <div className="overflow-x-auto rounded-[14px] border border-border bg-surface">
+    <div className="relative overflow-x-auto rounded-[14px] border border-border bg-surface">
       <table className="w-full min-w-[44rem] text-left text-[13px]">
         <thead className="bg-surface-2/50">
           <tr className="border-b border-border">

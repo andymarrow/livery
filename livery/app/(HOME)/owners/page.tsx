@@ -39,7 +39,7 @@ export default function OwnersPage() {
             Without a word from you, Livery only describes your design: values and style, never your logo, images, fonts or words. One small file lets you share more, or nothing at all.
           </p>
         </div>
-        <div className="mt-10 hidden sm:block lg:mt-0">
+        <div className="mx-auto mt-10 hidden w-full max-w-xl sm:block lg:mt-0 lg:max-w-none">
           <OwnersScene />
         </div>
       </div>

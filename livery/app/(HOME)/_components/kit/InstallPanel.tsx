@@ -10,7 +10,7 @@ export function InstallPanel({ prompt, zipUrl, tarUrl, skillName, sha256 }: { pr
     <div className="overflow-hidden rounded-[18px] border border-border bg-surface shadow-card">
       <Tabs defaultValue="prompt">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
-          <TabsList>
+          <TabsList className="max-w-full overflow-x-auto max-sm:[&_svg]:hidden">
             <TabsTrigger value="prompt">
               <SquareTerminal /> Claude Code
             </TabsTrigger>

@@ -11,7 +11,7 @@ import { AdminNav } from "./AdminNav";
 export async function AdminShell({ children }: { children: React.ReactNode }) {
   const { count: openTakedowns } = await getAdminClient().from("takedown_requests").select("*", { count: "exact", head: true }).eq("status", "open");
   return (
-    <div className="flex min-h-svh flex-1 flex-col lg:flex-row">
+    <div className="flex min-h-svh w-full min-w-0 flex-1 flex-col lg:flex-row">
       <aside className="border-b border-border bg-surface lg:sticky lg:top-0 lg:h-svh lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
         <div className="flex h-full flex-col">
           <div className="flex h-16 items-center gap-2 px-5">
@@ -35,7 +35,7 @@ export async function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </aside>
-      <div className="min-w-0 flex-1">{children}</div>
+      <div className="w-full min-w-0 flex-1">{children}</div>
     </div>
   );
 }

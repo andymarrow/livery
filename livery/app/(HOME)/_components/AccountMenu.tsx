@@ -24,7 +24,7 @@ export function AccountMenu() {
   if (!auth.ready) return <span className="size-9" aria-hidden />;
   if (!auth.user) {
     return (
-      <Link href={`/sign-in?next=${encodeURIComponent(pathname)}`} className="hidden h-9 items-center rounded-full px-3 text-sm font-medium text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg sm:inline-flex">
+      <Link href={`/sign-in?next=${encodeURIComponent(pathname)}`} className="hidden h-9 items-center whitespace-nowrap rounded-full px-3 text-sm font-medium text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg sm:inline-flex">
         Sign in
       </Link>
     );

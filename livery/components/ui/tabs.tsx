@@ -19,7 +19,7 @@ export function TabsTrigger({ className, ...props }: React.ComponentProps<typeof
   return (
     <TabsPrimitive.Trigger
       className={cn(
-        "inline-flex h-full items-center justify-center gap-1.5 rounded-full px-3.5 text-xs font-medium text-fg-muted",
+        "inline-flex h-full items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium text-fg-muted sm:px-3.5",
         "transition-[background-color,color] duration-150 hover:bg-surface-3/60 hover:text-fg",
         "data-[state=active]:bg-accent data-[state=active]:font-semibold data-[state=active]:text-on-accent data-[state=active]:hover:bg-accent",
         "[&_svg]:size-3.5",

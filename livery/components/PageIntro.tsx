@@ -37,7 +37,7 @@ export function PageIntro({
         )}
         {children && <div className="animate-rise mt-8" style={{ animationDelay: "180ms" }}>{children}</div>}
         </div>
-        {art && <div className="mt-10 hidden sm:block lg:mt-0 lg:row-span-2">{art}</div>}
+        {art && <div className="mx-auto mt-10 hidden w-full max-w-xl sm:block lg:mt-0 lg:row-span-2 lg:max-w-none">{art}</div>}
         <svg aria-hidden className="mt-12 h-4 w-full text-border-strong lg:col-start-1" preserveAspectRatio="none" viewBox="0 0 960 16">
           {ticks.map((i) => (
             <line

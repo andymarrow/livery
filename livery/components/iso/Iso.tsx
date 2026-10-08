@@ -90,8 +90,8 @@ export function Callout({ at, plate, label, side = "right", dy = 0, tone = "plai
 /** The scene: a responsive SVG that never overflows its column. */
 export function IsoScene({ plate, top, label, pulses = 4, className, children }: { /** The base plate [w, d]; the frame is worked out from it. */ plate: [number, number]; /** The highest z in the scene. */ top: number; label: string; /** How many parts take turns in the highlight. */ pulses?: number; className?: string; children: React.ReactNode }) {
   const [w, d] = plate;
-  const left = -d * COS - 128;
-  const right = w * COS + 128;
+  const left = -d * COS - 150;
+  const right = w * COS + 150;
   const topY = -top - 16;
   const bottom = (w + d) * SIN + 10;
   const viewBox = `${Math.floor(left)} ${Math.floor(topY)} ${Math.ceil(right - left)} ${Math.ceil(bottom - topY)}`;

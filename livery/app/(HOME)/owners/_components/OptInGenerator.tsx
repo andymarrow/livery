@@ -152,7 +152,7 @@ export function OptInGenerator() {
             <span className="font-mono text-xs text-fg-muted">/.well-known/livery.json</span>
             <CopyButton value={json} variant="ghost" size="sm" />
           </div>
-          <pre className="max-h-[30rem] overflow-auto p-4 font-mono text-[12.5px] leading-[1.7] text-fg" tabIndex={0}>
+          <pre className="max-h-[30rem] overflow-auto p-4 font-mono text-[11.5px] leading-[1.7] text-fg sm:text-[12.5px]" tabIndex={0}>
             {json}
           </pre>
         </div>

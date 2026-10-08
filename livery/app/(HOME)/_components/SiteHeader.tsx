@@ -72,8 +72,8 @@ export function SiteHeader() {
     >
       <div
         className={cn(
-          "mx-auto grid max-w-[80rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 transition-[height] duration-300 ease-out-soft sm:px-6 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]",
-          scrolled ? "h-14" : "h-[4.5rem]",
+          "mx-auto grid max-w-[80rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 lg:gap-4 transition-[height] duration-300 ease-out-soft sm:px-6 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]",
+          scrolled ? "h-14" : "h-16 lg:h-[4.5rem]",
         )}
       >
         <Logo className="justify-self-start" />
@@ -102,7 +102,7 @@ export function SiteHeader() {
                     onFocus={() => setHovered(index)}
                     onBlur={() => setHovered(null)}
                     className={cn(
-                      "relative inline-flex h-8 items-center rounded-full px-3.5 text-sm font-medium transition-colors duration-150",
+                      "relative inline-flex h-8 items-center whitespace-nowrap rounded-full px-2.5 text-[13px] font-medium transition-colors duration-150 xl:px-3.5 xl:text-sm",
                       active ? "text-fg" : "text-fg-muted hover:text-fg",
                     )}
                   >
@@ -115,7 +115,7 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-1.5 justify-self-end">
+        <div className="flex shrink-0 items-center gap-1 justify-self-end sm:gap-1.5">
           <TasteCounter />
           <ThemeToggle />
           <AccountMenu />
