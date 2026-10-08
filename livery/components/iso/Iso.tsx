@@ -90,8 +90,8 @@ export function Callout({ at, plate, label, side = "right", dy = 0, tone = "plai
 /** The scene: a responsive SVG that never overflows its column. */
 export function IsoScene({ plate, top, label, pulses = 4, className, children }: { /** The base plate [w, d]; the frame is worked out from it. */ plate: [number, number]; /** The highest z in the scene. */ top: number; label: string; /** How many parts take turns in the highlight. */ pulses?: number; className?: string; children: React.ReactNode }) {
   const [w, d] = plate;
-  const left = -d * COS - 150;
-  const right = w * COS + 150;
+  const left = -d * COS - 118;
+  const right = w * COS + 118;
   const topY = -top - 16;
   const bottom = (w + d) * SIN + 10;
   const viewBox = `${Math.floor(left)} ${Math.floor(topY)} ${Math.ceil(right - left)} ${Math.ceil(bottom - topY)}`;
@@ -99,5 +99,52 @@ export function IsoScene({ plate, top, label, pulses = 4, className, children }:
     <svg viewBox={viewBox} role="img" aria-label={label} className={cn("iso h-auto w-full overflow-visible", className)} style={{ "--n": pulses } as React.CSSProperties}>
       {children}
     </svg>
+  );
+}
+
+/**
+ * Draws flat 2D shapes on one face of the isometric world, so anything can be
+ * drawn there: rings, dials, text, UI. `top` is the floor (u along x, v along
+ * y); `left` is a wall facing down-left (u along x, v downward from `at`);
+ * `right` a wall facing down-right (u to the right, v downward). Children use
+ * the .iso-plane styles: p-fill, p-hot, p-faint, p-accent, p-text.
+ */
+export function Plane({ at, face = "top", className, style: css, children }: { at: [number, number, number]; face?: "top" | "left" | "right"; className?: string; style?: React.CSSProperties; children: React.ReactNode }) {
+  const [px, py] = iso(...at);
+  const m = face === "top" ? [COS, SIN, -COS, SIN] : face === "left" ? [COS, SIN, 0, 1] : [COS, -SIN, 0, 1];
+  return (
+    <g transform={`matrix(${m.map((n) => Math.round(n * 10000) / 10000).join(" ")} ${px} ${py})`} className={cn("iso-plane", className)} style={css}>
+      {children}
+    </g>
+  );
+}
+
+/** A cone (a traffic cone, a spire): an elliptical base and two lines to its tip. */
+export function Cone({ x, y, z = 0, r, h, tone, delay, pulse, stripes = 0 }: Common & { x: number; y: number; z?: number; r: number; h: number; stripes?: number }) {
+  const [cx, cy] = iso(x, y, z);
+  const rx = r * Math.SQRT2 * COS;
+  const ry = r * Math.SQRT2 * SIN;
+  return (
+    <g className={cn("iso-shape", toneClass(tone), pulse !== undefined && "iso-pulse")} style={style(delay, pulse)}>
+      <path className="iso-side" d={`M${cx - rx},${cy}A${rx} ${ry} 0 0 0 ${cx + rx},${cy}L${cx},${cy - h}Z`} />
+      {Array.from({ length: stripes }, (_, i) => {
+        const t = (i + 1) / (stripes + 1);
+        return <path key={i} className="iso-side-r" d={`M${cx - rx * (1 - t)},${cy - h * t}A${rx * (1 - t)} ${ry * (1 - t)} 0 0 0 ${cx + rx * (1 - t)},${cy - h * t}`} />;
+      })}
+    </g>
+  );
+}
+
+/** Tick marks around a ring (a dial, a clock face), drawn flat; place inside a Plane. */
+export function Ticks({ r, count, long = 5, inner = 3.5, outer = 7 }: { r: number; count: number; long?: number; inner?: number; outer?: number }) {
+  return (
+    <g>
+      {Array.from({ length: count }, (_, i) => {
+        const a = (i / count) * Math.PI * 2;
+        const len = i % long === 0 ? outer : inner;
+        const [c, s2] = [Math.cos(a), Math.sin(a)];
+        return <line key={i} x1={c * r} y1={s2 * r} x2={c * (r - len)} y2={s2 * (r - len)} className={i % long === 0 ? "" : "p-faint"} />;
+      })}
+    </g>
   );
 }

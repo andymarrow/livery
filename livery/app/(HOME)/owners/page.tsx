@@ -29,7 +29,7 @@ function Block({ id, icon, kicker, title, body, children, wide = false }: { id: 
 export default function OwnersPage() {
   return (
     <div className="mx-auto w-full max-w-[80rem] px-4 pb-16 pt-14 sm:px-6 sm:pt-20">
-      <div className="grid grid-cols-1 items-center gap-x-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,32rem)]">
+      <div className="grid grid-cols-1 items-center gap-x-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,38rem)]">
         <div>
           <p className="label-micro">For site owners</p>
           <h1 className="mt-3 max-w-3xl text-3xl font-bold leading-tight tracking-tight text-balance sm:text-4xl">
@@ -39,7 +39,7 @@ export default function OwnersPage() {
             Without a word from you, Livery only describes your design: values and style, never your logo, images, fonts or words. One small file lets you share more, or nothing at all.
           </p>
         </div>
-        <div className="mx-auto mt-10 hidden w-full max-w-xl sm:block lg:mt-0 lg:max-w-none">
+        <div className="mx-auto mt-10 hidden w-full max-w-2xl sm:block lg:mt-0 lg:max-w-none">
           <OwnersScene />
         </div>
       </div>

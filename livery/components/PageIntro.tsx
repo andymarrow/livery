@@ -23,7 +23,7 @@ export function PageIntro({
   const ticks = Array.from({ length: 121 }, (_, i) => i);
   return (
     <section className={cn("border-b border-border px-4 pb-14 pt-14 sm:px-6 sm:pb-16 sm:pt-20", className)}>
-      <div className={cn("mx-auto max-w-[80rem]", art && "grid grid-cols-1 items-center gap-x-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)]")}>
+      <div className={cn("mx-auto max-w-[80rem]", art && "grid grid-cols-1 items-center gap-x-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,40rem)]")}>
         <div className="min-w-0">
         <p className="label-micro animate-rise">{kicker}</p>
         <h1 className="animate-rise mt-4 max-w-4xl text-4xl font-bold leading-[1.04] tracking-[-0.03em] text-balance sm:text-6xl" style={{ animationDelay: "60ms" }}>
@@ -37,7 +37,7 @@ export function PageIntro({
         )}
         {children && <div className="animate-rise mt-8" style={{ animationDelay: "180ms" }}>{children}</div>}
         </div>
-        {art && <div className="mx-auto mt-10 hidden w-full max-w-xl sm:block lg:mt-0 lg:row-span-2 lg:max-w-none">{art}</div>}
+        {art && <div className="mx-auto mt-10 hidden w-full max-w-2xl sm:block lg:-my-6 lg:mt-0 lg:row-span-2 lg:max-w-none">{art}</div>}
         <svg aria-hidden className="mt-12 h-4 w-full text-border-strong lg:col-start-1" preserveAspectRatio="none" viewBox="0 0 960 16">
           {ticks.map((i) => (
             <line

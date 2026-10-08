@@ -68,7 +68,7 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
 
   return (
     <div className="mx-auto w-full max-w-[80rem] px-4 pb-24 pt-14 sm:px-6 sm:pt-20">
-      <div className="grid grid-cols-1 items-center gap-x-10 gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)]">
+      <div className="grid grid-cols-1 items-center gap-x-10 gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,38rem)]">
         <div>
           <p className="label-micro">The library</p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Explore Kits</h1>
@@ -81,7 +81,7 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
             </Suspense>
           </div>
         </div>
-        <div className="mx-auto hidden w-full max-w-xl sm:block lg:max-w-none">
+        <div className="mx-auto hidden w-full max-w-2xl sm:block lg:max-w-none">
           <ExploreScene />
         </div>
       </div>
