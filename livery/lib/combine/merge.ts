@@ -80,7 +80,29 @@ export function mergeTokens(all: Tokens[]): Tokens {
       properties: byFrequency(all.map((t) => t.motion.properties), 8),
       keyframes: [...new Map(all.flatMap((t) => t.motion.keyframes).map((k) => [k.name, k] as const)).values()].slice(0, 8),
       animated: all.some((t) => t.motion.animated),
+      // One signature per kind across the sources: the one that moves the most.
+      signatures: [...all.flatMap((t) => t.motion.signatures ?? []).reduce((byKind, s) => {
+        const seen = byKind.get(s.kind);
+        if (!seen || s.count > seen.count) byKind.set(s.kind, s);
+        return byKind;
+      }, new Map<string, NonNullable<typeof base.motion.signatures>[number]>()).values()].slice(0, 8),
+      interactions: mergeInteractions(all.map((t) => t.motion.interactions)),
     },
+  };
+}
+
+function mergeInteractions(list: (Tokens["motion"]["interactions"])[]): Tokens["motion"]["interactions"] {
+  const present = list.filter((i): i is NonNullable<typeof i> => Boolean(i));
+  if (!present.length) return undefined;
+  const hoverRules = present.reduce((n, i) => n + i.hoverRules, 0);
+  const hover = new Map<string, number>();
+  for (const i of present) for (const h of i.hover) hover.set(h.change, (hover.get(h.change) ?? 0) + h.share * i.hoverRules);
+  return {
+    hover: [...hover.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([change, n]) => ({ change, share: hoverRules ? Math.round((n / hoverRules) * 100) / 100 : 0 })),
+    hoverRules,
+    triggered: [...new Map(present.flatMap((i) => i.triggered).map((t) => [t.name, t] as const)).values()].slice(0, 8),
+    reducedMotion: present.some((i) => i.reducedMotion),
+    lineArt: present.some((i) => i.lineArt),
   };
 }
 

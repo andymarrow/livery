@@ -1,4 +1,5 @@
 import type { Palette, Tokens } from "@/lib/extract/process/tokens";
+import { MotionGlance } from "./MotionGlance";
 
 const ROLES: [keyof Palette, string][] = [
   ["background", "Background"],
@@ -32,7 +33,7 @@ function PaletteRow({ palette }: { palette: Palette }) {
   );
 }
 
-// The design at a glance: palettes, type scale, radii and spacing, straight from the measurements.
+// The design at a glance: palettes, type scale, radii, spacing and motion style, straight from the measurements.
 export function DesignGlance({ tokens }: { tokens: Tokens }) {
   const { typography, radii, spacing, palette, alternatePalette } = tokens;
   return (
@@ -80,6 +81,7 @@ export function DesignGlance({ tokens }: { tokens: Tokens }) {
           </div>
         </div>
       </div>
+      <MotionGlance motion={tokens.motion} />
     </div>
   );
 }

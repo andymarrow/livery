@@ -22,6 +22,29 @@ export const RawDesignSchema = z.object({
   transitions: z.object({ durations: weighted, easings: weighted, properties: weighted }),
   animations: weighted,
   keyframes: z.record(z.string().max(200), z.string().max(20000)).refine((r) => Object.keys(r).length <= 300, "too many keyframes"),
+  motionUse: z
+    .object({
+      animations: z
+        .array(
+          z.object({
+            name: z.string().max(200),
+            count: z.number().int().min(0).max(100000),
+            durationMs: z.number().min(0).max(3600000),
+            delaysMs: z.array(z.number().min(-3600000).max(3600000)).max(12),
+            iterations: z.union([z.number().min(0).max(100000), z.literal("infinite")]),
+            easing: z.string().max(200),
+            trigger: z.enum(["load", "hover", "focus", "state", "scroll"]),
+            targets: z.array(z.string().max(40)).max(4),
+            keyframes: z.string().max(1200),
+          }),
+        )
+        .max(40),
+      hover: weighted,
+      hoverRules: z.number().int().min(0).max(1000000),
+      reducedMotion: z.boolean(),
+      lineArt: z.object({ svgs: z.number().int().min(0).max(100000), hairline: z.number().int().min(0).max(100000) }),
+    })
+    .optional(),
   mediaQueries: z.array(z.string().max(500)).max(2000),
   darkSchemeHints: z.array(z.string().max(100)).max(20),
   stylesheetHrefs: z.array(z.string().max(2048)).max(300),

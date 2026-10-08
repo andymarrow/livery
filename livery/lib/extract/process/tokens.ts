@@ -1,6 +1,7 @@
 import type { RawDesign } from "../collect/collectDesign";
 import { chroma, contrast, distance, hue, luminance, parseColor, toHex, toOklab, type Rgba } from "./color";
 import { clusterColors, mergeWeights, topEntries, type ColorCluster } from "./cluster";
+import { interactions, motionSignatures, type Interactions, type MotionSignature } from "./motionStyle";
 
 const WHITE: Rgba = { r: 255, g: 255, b: 255, a: 1 };
 const SATURATED = 0.06;
@@ -299,6 +300,10 @@ export type Motion = {
   properties: string[];
   keyframes: { name: string; css: string }[];
   animated: boolean;
+  /** The site's own signature motions (typing, line drawing, rotating lists...). Older kits lack it. */
+  signatures?: MotionSignature[];
+  /** Hover changes and triggered animations. Older kits lack it. */
+  interactions?: Interactions;
 };
 
 export function motion(raws: RawDesign[]): Motion {
@@ -326,6 +331,8 @@ export function motion(raws: RawDesign[]): Motion {
         .map(([name]) => [name.replace(/\d+/g, "#"), { name, css: keyframes[name] }] as const),
     ).values()].slice(0, 8),
     animated: Object.keys(msWeights).length > 0 || Object.keys(animations).length > 0,
+    signatures: motionSignatures(raws),
+    interactions: interactions(raws),
   };
 }
 

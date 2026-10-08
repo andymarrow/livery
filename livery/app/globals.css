@@ -186,6 +186,59 @@
   from { opacity: 0; transform: translateY(8px); }
 }
 
+/* Motion style demos on kit pages: each kind of signature motion, played
+   with the site's measured duration and easing (set inline). */
+@keyframes demo-type {
+  0%, 8% { width: 0; }
+  45%, 85% { width: 11ch; }
+  92%, 100% { width: 11ch; opacity: 0; }
+}
+@keyframes demo-draw {
+  0% { stroke-dashoffset: 1; }
+  45%, 85% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes demo-cycle {
+  0% { opacity: 0; transform: translateY(60%); }
+  6%, 28% { opacity: 1; transform: none; }
+  34%, 100% { opacity: 0; transform: translateY(-60%); }
+}
+@keyframes demo-rail {
+  to { transform: translateX(-50%); }
+}
+@keyframes demo-wipe {
+  0%, 10% { clip-path: inset(0 0 100% 0); }
+  50%, 85% { clip-path: inset(0); opacity: 1; }
+  100% { clip-path: inset(0); opacity: 0; }
+}
+@keyframes demo-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@keyframes demo-pulse {
+  50% { opacity: 0.35; transform: scale(0.85); }
+}
+@keyframes demo-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes demo-shake {
+  0%, 60%, 100% { transform: none; }
+  66%, 78%, 90% { transform: translateX(-3px); }
+  72%, 84%, 96% { transform: translateX(3px); }
+}
+@keyframes demo-sweep {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(320%); }
+}
+@keyframes demo-float {
+  50% { transform: translateY(-5px); }
+}
+@keyframes demo-enter {
+  0% { opacity: 0; transform: translateY(8px); }
+  30%, 80% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: none; }
+}
+
 @layer base {
   *,
   ::before,

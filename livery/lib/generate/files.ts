@@ -40,7 +40,11 @@ export function tokensJson(e: Extraction, sources?: KitSource[]) {
       borderWidths,
       breakpointsPx: breakpoints,
       layout,
-      motion: { durationsMs: motion.durationsMs, easings: motion.easings },
+      motion: {
+        durationsMs: motion.durationsMs,
+        easings: motion.easings,
+        signatures: (motion.signatures ?? []).map(({ kind, durationMs, easing, loops, staggerMs, trigger }) => ({ kind, durationMs, easing, loops, staggerMs, trigger })),
+      },
     },
     null,
     2,
@@ -128,19 +132,53 @@ Reference frames (content removed) are in \`frames/\`: desktop 1440px, tablet 82
 
 export function motionMd(e: Extraction, a: Analysis) {
   const m = e.tokens.motion;
-  return `# Motion
+  const signatures = m.signatures ?? [];
+  const io = m.interactions;
+  const trigger = (t: string) => (t === "load" ? "runs on its own" : t === "hover" ? "starts on hover" : t === "focus" ? "starts on focus" : t === "scroll" ? "starts as it scrolls into view" : "starts when its state changes (opened, selected, shown)");
+  const TARGETS: Record<string, string> = { "list item": "list items", block: "blocks", text: "text", image: "images", "svg path": "SVG paths", "svg tspan": "SVG text", "svg text": "SVG text" };
+  const on = (targets: string[]) => [...new Set(targets.map((t) => TARGETS[t] ?? (t.startsWith("svg") ? "SVG shapes" : t)))].join(", ");
+  const signatureSection = signatures.length
+    ? `
+## Signature motion
+
+The animations that make this site feel like itself. Recreate the behaviour with your own elements and content; the keyframes are the measured reference.
+
+${signatures
+  .map(
+    (s) => `### ${s.label}
+
+${s.description} It ${trigger(s.trigger)}${s.targets.length ? `, on ${on(s.targets)}` : ""}.
+
+\`\`\`css
+${s.example.keyframes}
+.${s.example.name.replace(/[^a-z0-9-]/gi, "")} { ${s.example.animation} }
+\`\`\``,
+  )
+  .join("\n\n")}
+`
+    : "";
+  const hoverLine = io?.hover.length ? `- **Hover** changes ${io.hover.map((h) => `${h.change} (${Math.round(h.share * 100)}% of hover rules)`).join(", ")}.${io.hover.some((h) => h.change === "position or scale" && h.share >= 0.2) ? "" : " Things rarely move on hover; they change colour."}` : "";
+  const triggeredLines = (io?.triggered ?? []).slice(0, 6).map((t) => `- \`${t.name}\`: ${t.kind === "other" ? "custom" : t.kind}, ${t.durationMs}ms ${t.easing}, ${trigger(t.trigger)}.`);
+  const interactionSection = io
+    ? `
+## Interactions
+
+${[hoverLine, io.lineArt ? "- **Illustrations** are line art: thin strokes that stay thin at any size (vector-effect: non-scaling-stroke) on flat fills. Highlight a part by brightening its stroke, not by adding colour." : ""].filter(Boolean).join("\n")}
+${triggeredLines.length ? `\nAnimations started by people or state:\n\n${triggeredLines.join("\n")}\n` : ""}`
+    : "";
+  return `# Motion and Interactions
 
 ${a.motion.feel}
 
 ${bullets(a.motion.rules)}
-
+${signatureSection}${interactionSection}
 ## Measurements
 
 - Durations: ${m.durationsMs.map((d) => `${d.ms}ms (${Math.round(d.share * 100)}%)`).join(", ") || "none"}
 - Easings: ${m.easings.map((x) => `\`${x.value}\``).join(", ") || "none"}
 - Animated properties: ${m.properties.join(", ") || "none"}
-${m.keyframes.length ? `\n## Keyframes in use\n\n${m.keyframes.map((k) => `\`\`\`css\n${k.css}\n\`\`\``).join("\n\n")}\n` : ""}
-Always respect \`prefers-reduced-motion: reduce\`.
+${!signatures.length && m.keyframes.length ? `\n## Keyframes in use\n\n${m.keyframes.map((k) => `\`\`\`css\n${k.css}\n\`\`\``).join("\n\n")}\n` : ""}
+${io?.reducedMotion ? "The site turns its motion off under `prefers-reduced-motion: reduce`. Do the same: every looping or decorative animation stops, and state changes happen instantly." : "Always respect `prefers-reduced-motion: reduce`."}
 `;
 }
 

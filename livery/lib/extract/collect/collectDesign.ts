@@ -44,6 +44,23 @@ export type SvgInfo = {
   shapes: number;
 };
 
+/** One animation as the page uses it: running now, or declared for a trigger. */
+export type MotionUse = {
+  name: string;
+  /** Elements running it at load, or rules declaring it. */
+  count: number;
+  durationMs: number;
+  /** Distinct start delays (a stagger shows up as several). */
+  delaysMs: number[];
+  iterations: number | "infinite";
+  easing: string;
+  /** "load" when it runs on its own; otherwise what starts it. */
+  trigger: "load" | "hover" | "focus" | "state" | "scroll";
+  /** What it moves: "svg path", "text", "list item", "image", "block". */
+  targets: string[];
+  keyframes: string;
+};
+
 export type RawDesign = {
   url: string;
   viewport: { width: number; height: number };
@@ -59,6 +76,8 @@ export type RawDesign = {
   transitions: { durations: Weighted; easings: Weighted; properties: Weighted };
   animations: Weighted;
   keyframes: Record<string, string>;
+  /** Animations in use and what triggers them, hover changes, reduced-motion support. Older captures lack it. */
+  motionUse?: { animations: MotionUse[]; hover: Weighted; hoverRules: number; reducedMotion: boolean; lineArt: { svgs: number; hairline: number } };
   mediaQueries: string[];
   darkSchemeHints: string[];
   stylesheetHrefs: string[];
@@ -316,8 +335,14 @@ export async function collectDesign(): Promise<RawDesign> {
 
   // Stylesheets: root variables, keyframes, media queries (same-origin sheets only)
   const rootVariables: Record<string, string> = {};
-  const keyframes: Record<string, string> = {};
+  const allKeyframes: Record<string, string> = {};
   const mediaQueries = new Set<string>();
+  // Animations declared in rules, keyed by name, with what triggers them.
+  const declared = new Map<string, { count: number; durationMs: number; delays: Set<number>; iterations: number | "infinite"; easing: string; trigger: MotionUse["trigger"] }>();
+  const hover: Record<string, number> = {};
+  let hoverRules = 0;
+  let reducedMotion = false;
+  const seconds = (v: string) => (v.trim().endsWith("ms") ? parseFloat(v) : parseFloat(v) * 1000) || 0;
   const darkSchemeHints = new Set<string>();
   const rootStyle = getComputedStyle(document.documentElement);
   const walk = (rules: CSSRuleList) => {
@@ -332,11 +357,45 @@ export async function collectDesign(): Promise<RawDesign> {
           }
         }
         if (/\.dark\b|\[data-theme=["']?dark|\[data-mode=["']?dark|\.theme-dark/.test(selector)) darkSchemeHints.add("class");
+        // What hovering changes, across the site's own rules.
+        if (/:hover/.test(selector)) {
+          hoverRules++;
+          const changes = new Set<string>();
+          for (const name of Array.from(rule.style)) {
+            if (name.startsWith("--")) continue;
+            changes.add(/^(translate|scale|rotate|transform)$/.test(name) ? "transform" : /^text-(decoration|underline)/.test(name) ? "text-decoration-color" : name.replace(/^(border|padding|margin|outline|background)-(?!color$).*/, "$1"));
+          }
+          changes.forEach((change) => bump(hover, change));
+        }
+        // Animations a rule starts, and what starts them.
+        const animationName = rule.style.animationName;
+        if (animationName && animationName !== "none" && animationName !== "initial") {
+          const trigger: MotionUse["trigger"] = /:hover/.test(selector) ? "hover" : /:focus/.test(selector) ? "focus" : /\[(data|aria)-[a-z-]+|:checked|:target|\.(is-|active|open|visible|in-view)/.test(selector) ? "state" : "load";
+          const names = animationName.split(",").map((n) => n.trim());
+          const durations = rule.style.animationDuration.split(",");
+          const delays = rule.style.animationDelay.split(",");
+          names.forEach((name, i) => {
+            if (!name || name === "none") return;
+            const entry = declared.get(name) ?? { count: 0, durationMs: seconds(durations[i] ?? durations[0] ?? "0s"), delays: new Set<number>(), iterations: 1 as number | "infinite", easing: (rule.style.animationTimingFunction.split(/,(?![^(]*\))/)[i] ?? "").trim() || "ease", trigger };
+            entry.count++;
+            const iteration = (rule.style.animationIterationCount.split(",")[i] ?? "").trim();
+            if (iteration === "infinite") entry.iterations = "infinite";
+            else if (Number(iteration) > 1) entry.iterations = Number(iteration);
+            if (delays[i]) entry.delays.add(Math.round(seconds(delays[i])));
+            if (trigger !== "load" && entry.trigger === "load") entry.trigger = trigger;
+            declared.set(name, entry);
+          });
+        }
+        if (/animation-timeline:\s*(view|scroll)\(/.test(rule.cssText)) {
+          const name = rule.style.animationName;
+          if (name && name !== "none") declared.set(name, { ...(declared.get(name) ?? { count: 1, durationMs: 0, delays: new Set<number>(), iterations: 1, easing: "linear" }), trigger: "scroll" });
+        }
       } else if (rule instanceof CSSKeyframesRule) {
-        if (Object.keys(keyframes).length < 40) keyframes[rule.name] = rule.cssText.slice(0, 1200);
+        allKeyframes[rule.name] = rule.cssText.replace(/\s+/g, " ").slice(0, 1200);
       } else if (rule instanceof CSSMediaRule) {
         const condition = rule.conditionText || rule.media.mediaText;
         if (/prefers-color-scheme:\s*dark/.test(condition)) darkSchemeHints.add("media");
+        if (/prefers-reduced-motion/.test(condition)) reducedMotion = true;
         if (/width/.test(condition)) mediaQueries.add(condition);
         walk(rule.cssRules);
       } else if ("cssRules" in rule && (rule as CSSGroupingRule).cssRules) {
@@ -351,6 +410,91 @@ export async function collectDesign(): Promise<RawDesign> {
       // Cross-origin sheet: values still arrive through computed styles.
     }
   }
+
+  // What actually moves: every animation running now, grouped by name, then
+  // the ones rules declare for hover, focus, state or scroll. Keyframes are
+  // kept only for these, so a library's unused ones never crowd them out.
+  const targetOf = (el: Element | null) => {
+    if (!el) return "block";
+    if (el instanceof SVGElement) return `svg ${el.tagName.toLowerCase()}`;
+    const tag = el.tagName.toLowerCase();
+    if (tag === "li" || el.parentElement?.children.length && el.parentElement.children.length > 2 && Array.from(el.parentElement.children).every((c) => c.tagName === el.tagName)) return "list item";
+    if (tag === "img" || tag === "picture" || tag === "video") return "image";
+    if (!el.children.length && (el.textContent || "").trim()) return "text";
+    return "block";
+  };
+  const running = new Map<string, MotionUse & { delaySet: Set<number>; targetSet: Set<string> }>();
+  for (const animation of document.getAnimations ? document.getAnimations() : []) {
+    const name = (animation as CSSAnimation).animationName;
+    if (!name) continue;
+    const timing = animation.effect?.getTiming();
+    const target = (animation.effect as KeyframeEffect | null)?.target ?? null;
+    // CSS animations report "linear" here; the real easing is in the element's computed style.
+    let easing = timing?.easing || "linear";
+    if (target instanceof Element) {
+      const st = getComputedStyle(target);
+      const index = st.animationName.split(",").map((n) => n.trim()).indexOf(name);
+      const easings = st.animationTimingFunction.split(/,(?![^(]*\))/).map((e) => e.trim());
+      easing = easings[index] ?? easings[0] ?? easing;
+    }
+    const entry = running.get(name) ?? { name, count: 0, durationMs: Math.round(Number(timing?.duration) || 0), delaysMs: [], iterations: timing?.iterations === Infinity ? "infinite" : Number(timing?.iterations) || 1, easing, trigger: "load", targets: [], keyframes: "", delaySet: new Set<number>(), targetSet: new Set<string>() };
+    entry.count++;
+    if (timing) entry.delaySet.add(Math.round(Number(timing.delay) || 0));
+    entry.targetSet.add(targetOf(target));
+    running.set(name, entry);
+  }
+  // Keyframes in a cross-origin sheet can't be read as CSS, but the browser
+  // still hands them over through the animation itself.
+  const fromEffect = (name: string) => {
+    for (const animation of document.getAnimations ? document.getAnimations() : []) {
+      if ((animation as CSSAnimation).animationName !== name) continue;
+      const frames = (animation.effect as KeyframeEffect | null)?.getKeyframes?.() ?? [];
+      const body = frames
+        .map((f) => {
+          const props = Object.entries(f)
+            .filter(([key, value]) => !["offset", "computedOffset", "easing", "composite"].includes(key) && value !== undefined && value !== "")
+            .map(([key, value]) => `${key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}: ${value};`);
+          const easing = f.easing && f.easing !== "linear" ? ` animation-timing-function: ${f.easing};` : "";
+          return `${Math.round(Number(f.computedOffset ?? f.offset ?? 0) * 10000) / 100}% { ${props.join(" ")}${easing} }`;
+        })
+        .join(" ");
+      return body ? `@keyframes ${name} { ${body} }`.slice(0, 1200) : "";
+    }
+    return "";
+  };
+  const motionAnimations: MotionUse[] = [];
+  for (const entry of running.values()) {
+    if (!allKeyframes[entry.name]) allKeyframes[entry.name] = fromEffect(entry.name);
+    const rule = declared.get(entry.name);
+    motionAnimations.push({ ...entry, trigger: rule && rule.trigger !== "load" ? rule.trigger : "load", delaysMs: [...entry.delaySet].sort((a, b) => a - b).slice(0, 12), targets: [...entry.targetSet].slice(0, 4), keyframes: allKeyframes[entry.name] ?? "" });
+  }
+  for (const [name, rule] of declared) {
+    // A load animation nothing is running belongs to an element that isn't on the page.
+    if (running.has(name) || rule.trigger === "load" || !allKeyframes[name] || motionAnimations.length >= 40) continue;
+    motionAnimations.push({ name, count: rule.count, durationMs: Math.round(rule.durationMs), delaysMs: [...rule.delays].sort((a, b) => a - b).slice(0, 12), iterations: rule.iterations, easing: rule.easing, trigger: rule.trigger, targets: [], keyframes: allKeyframes[name] });
+  }
+  // The keyframes the page uses, for the older motion summary.
+  const usedNames = new Set([...Object.keys(animations), ...motionAnimations.map((a) => a.name)]);
+  const keyframes: Record<string, string> = {};
+  for (const name of usedNames) if (allKeyframes[name] && Object.keys(keyframes).length < 60) keyframes[name] = allKeyframes[name];
+  for (const name of Object.keys(allKeyframes)) if (Object.keys(keyframes).length < 40 && !keyframes[name]) keyframes[name] = allKeyframes[name];
+
+  // Line-art illustrations: SVGs drawn in thin strokes that stay thin when scaled.
+  let lineArtSvgs = 0;
+  let hairline = 0;
+  document.querySelectorAll("svg").forEach((svg) => {
+    const shapes = svg.querySelectorAll("path, polygon, ellipse, circle, rect, line, polyline");
+    if (shapes.length < 8 || svg.getBoundingClientRect().width < 120) return;
+    let stroked = 0;
+    let thin = 0;
+    shapes.forEach((shape) => {
+      const st = getComputedStyle(shape);
+      if (st.stroke && st.stroke !== "none" && parseFloat(st.strokeWidth) > 0) stroked++;
+      if (st.vectorEffect === "non-scaling-stroke" || parseFloat(st.strokeWidth) <= 1) thin++;
+    });
+    if (stroked >= shapes.length * 0.6) lineArtSvgs++;
+    if (thin >= shapes.length * 0.6) hairline++;
+  });
 
   // Icons
   const svgs: SvgInfo[] = [];
@@ -452,6 +596,13 @@ export async function collectDesign(): Promise<RawDesign> {
     transitions,
     animations,
     keyframes,
+    motionUse: {
+      animations: motionAnimations.sort((a, b) => (a.trigger === "load" ? 0 : 1) - (b.trigger === "load" ? 0 : 1) || b.count - a.count).slice(0, 40),
+      hover,
+      hoverRules,
+      reducedMotion,
+      lineArt: { svgs: lineArtSvgs, hairline },
+    },
     mediaQueries: Array.from(mediaQueries).slice(0, 80),
     darkSchemeHints: Array.from(darkSchemeHints),
     stylesheetHrefs: Array.from(document.querySelectorAll("link[rel~='stylesheet']")).map((l) => (l as HTMLLinkElement).href).slice(0, 40),

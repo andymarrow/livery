@@ -332,8 +332,12 @@ export function measuredAnalysis(e: Extraction, options: { voice?: VoiceProfile 
     ...(l.gridColumns.length ? [`Grids use ${l.gridColumns.join(", ")} columns.`] : []),
     ...(t.breakpoints.length ? [`Breakpoints at ${t.breakpoints.join(", ")}px; layouts collapse to one column on phones.`] : []),
   ];
+  const signatures = t.motion.signatures ?? [];
+  const signatureNames = signatures.filter((s) => !["enter", "exit", "other", "pulse", "spin"].includes(s.kind)).map((s) => s.label.toLowerCase());
   const motion = {
-    feel: !t.motion.animated
+    feel: signatureNames.length
+      ? `${maxDuration && maxDuration <= 350 ? `Quick, quiet transitions (${durations[0]?.ms ?? maxDuration}ms)` : "Considered transitions"}, with signature motion that carries the personality: ${signatureNames.slice(0, 4).join(", ")}.`
+      : !t.motion.animated
       ? "Almost static: interface changes happen instantly."
       : maxDuration <= 160
         ? `Snappy: transitions finish within ${maxDuration}ms.`
@@ -344,7 +348,9 @@ export function measuredAnalysis(e: Extraction, options: { voice?: VoiceProfile 
       ...(durations.length ? [`Default to ${durations[0].ms}ms transitions (${pct(durations[0].share)} of measured ones).`] : []),
       ...(t.motion.easings.length ? [`Ease with ${t.motion.easings[0].value}.`] : []),
       ...(t.motion.properties.length ? [`Animate ${t.motion.properties.slice(0, 4).join(", ")}; avoid animating layout.`] : []),
-      "Respect prefers-reduced-motion.",
+      ...signatures.filter((s) => s.staggerMs).slice(0, 1).map((s) => `Stagger repeated items: ${s.label.toLowerCase()} starts each one ${s.staggerMs}ms after the last.`),
+      ...(signatures.some((s) => s.loops && s.durationMs >= 2000) ? ["Looping motion is slow and steady (several seconds per cycle), never frantic."] : []),
+      t.motion.interactions?.reducedMotion ? "Turn every loop and decorative animation off under prefers-reduced-motion, as the site does." : "Respect prefers-reduced-motion.",
     ].slice(0, 6),
   };
   const im = e.imagery;
