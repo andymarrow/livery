@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Prose } from "@/components/Prose";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = { title: "Terms" };
+export const metadata: Metadata = pageMetadata({
+  title: "Terms of Use",
+  description: "The terms for using Livery and its design kits.",
+  path: "/legal/terms",
+  kicker: "Legal",
+});
 
 export default function TermsPage() {
   return (

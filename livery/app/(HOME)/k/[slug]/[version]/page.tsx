@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { kitPath, parseVersion } from "@/lib/kit/urls";
+import { kitPath, kitUrl, parseVersion } from "@/lib/kit/urls";
+import { kitDescription, kitSchema } from "@/lib/seo/kit";
+import { JsonLd } from "@/components/JsonLd";
 import { supabaseConfigured } from "@/lib/supabase/configured";
 import { getKitVersion } from "@/services/kitRead";
 import { KitView } from "../../../_components/kit/KitView";
@@ -22,11 +24,19 @@ async function load(params: PageProps<"/k/[slug]/[version]">["params"]) {
 
 export async function generateMetadata({ params }: PageProps<"/k/[slug]/[version]">): Promise<Metadata> {
   const view = await load(params);
-  if (!view || view.visibility === "private") return { title: "Kit not found" };
+  if (!view || view.visibility === "private") return { title: "Kit not found", robots: { index: false } };
+  const title = view.kind === "taste" ? `${view.title}: A Design Taste for AI Coding Agents` : `${view.title} Design System & Tokens for AI Coding Agents`;
+  const description = kitDescription(view);
+  // Every version points search engines at the newest public one, so versions never compete.
+  const canonical = kitPath(view.slug, view.latestVersion);
+  const withdrawn = Boolean(view.withdrawnAt);
   return {
-    title: `${view.title} design kit · v${view.version}`,
-    description: view.analysis?.summary ?? `An installable design kit built from ${view.title}.`,
-    alternates: { canonical: kitPath(view.slug, view.version) },
+    title,
+    description,
+    alternates: { canonical, types: { "text/markdown": kitUrl(view.slug, view.version, "SKILL.md") } },
+    openGraph: { type: "article", url: canonical, title: `${title} · Livery`, description, publishedTime: view.publishedAt, modifiedTime: view.publishedAt },
+    twitter: { card: "summary_large_image", title: `${title} · Livery`, description },
+    ...(withdrawn ? { robots: { index: false, follow: true } } : {}),
   };
 }
 
@@ -36,5 +46,10 @@ export default async function KitPage({ params }: PageProps<"/k/[slug]/[version]
 
   // Private versions exist only for their owner (at /me/kits/…), never here.
   if (view.visibility === "private") notFound();
-  return <KitView view={view} mode="public" />;
+  return (
+    <>
+      <JsonLd data={kitSchema(view)} />
+      <KitView view={view} mode="public" />
+    </>
+  );
 }

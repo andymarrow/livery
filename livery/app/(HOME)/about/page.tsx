@@ -7,8 +7,16 @@ import { CREATOR } from "@/constants/constants";
 import { Button } from "@/components/ui/button";
 import { SceneCard, SceneSection } from "../_components/SceneCard";
 import { OwnerScene, ReasonScene, RulesScene, StyleScene } from "./_components/BeliefScenes";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbs } from "@/lib/seo/schema";
 
-export const metadata: Metadata = { title: "About", description: "Why Livery exists and how it thinks about design." };
+export const metadata: Metadata = pageMetadata({
+  title: "About Livery: Design Is a Set of Decisions",
+  description: "Why Livery exists: coding agents build fast but look the same. Livery hands them a site's design decisions, with the reasons, and asks before changing anything.",
+  path: "/about",
+  kicker: "About",
+});
 
 const BELIEFS = [
   { title: "Reasons Over Values", body: "A palette is easy to copy. Knowing when not to use it is the design, so every value in a kit carries its why.", scene: <ReasonScene /> },
@@ -20,6 +28,7 @@ const BELIEFS = [
 export default function AboutPage() {
   return (
     <>
+      <JsonLd data={[breadcrumbs([{ name: "About", path: "/about" }])]} />
       <PageIntro
         art={<AboutScene />}
         kicker="About"

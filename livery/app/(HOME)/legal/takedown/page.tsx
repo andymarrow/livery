@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Prose } from "@/components/Prose";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = { title: "Takedown policy" };
+export const metadata: Metadata = pageMetadata({
+  title: "Takedown Policy",
+  description: "How site owners can have Livery kits of their site withdrawn.",
+  path: "/legal/takedown",
+  kicker: "Legal",
+});
 
 export default function TakedownPolicyPage() {
   return (

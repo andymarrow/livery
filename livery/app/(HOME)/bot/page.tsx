@@ -6,8 +6,16 @@ import { BotScene } from "@/components/iso/scenes";
 import { BOT } from "@/constants/constants";
 import { SceneCard, SceneSection } from "../_components/SceneCard";
 import { AskedScene, KeptScene, LoginScene, NoAssetsScene, OnceScene, RulesScene, SizesScene, StopScene } from "./_components/BotScenes";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbs } from "@/lib/seo/schema";
 
-export const metadata: Metadata = { title: "LiveryBot", description: "What LiveryBot is, what it reads, and how to allow or block it." };
+export const metadata: Metadata = pageMetadata({
+  title: "LiveryBot: User Agent, robots.txt and What It Reads",
+  description: "LiveryBot visits a public page only when someone asks for its design kit. Its user agent, the robots.txt rules it follows, and how to allow or block it.",
+  path: "/bot",
+  kicker: "LiveryBot",
+});
 
 const VISIT = [
   { title: "Someone Asks", body: "LiveryBot visits a public page only when someone asks Livery for a kit of it. It never crawls on its own.", scene: <AskedScene /> },
@@ -38,6 +46,7 @@ function Snippet({ label, code }: { label: string; code: string }) {
 export default function BotPage() {
   return (
     <>
+      <JsonLd data={[breadcrumbs([{ name: "LiveryBot", path: "/bot" }])]} />
       <PageIntro art={<BotScene />} kicker="LiveryBot" title="The Polite" muted="Design Crawler" lead="LiveryBot visits a public page when someone asks for a design kit of it, measures the design, and leaves. Here's exactly what one visit looks like." />
       <SceneSection kicker="One visit" title="Asked For, Checked," muted="Measured, Gone" lead="Every visit follows the same four steps, in this order.">
         <ol className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

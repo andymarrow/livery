@@ -14,6 +14,7 @@ export const FOOTER_LINKS = {
     { href: "/tastes", label: "Tastes" },
     { href: "/how-it-works", label: "How it works" },
     { href: "/agents", label: "Install in your agent" },
+    { href: "/guides", label: "Guides" },
     { href: "/extension", label: "Browser extension" },
     { href: "/faq", label: "FAQ" },
     { href: "/about", label: "About" },

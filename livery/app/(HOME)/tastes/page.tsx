@@ -9,11 +9,16 @@ import { logger } from "@/lib/logger";
 import { supabaseConfigured } from "@/lib/supabase/configured";
 import { listKits, type KitCard as KitCardData } from "@/services/kitRead";
 import { CollectSteps } from "./_components/CollectSteps";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbs } from "@/lib/seo/schema";
 
-export const metadata: Metadata = {
-  title: "Tastes",
-  description: "One person's eye, measured across the sites they pick: the habits every site shares, as a kit your agent can apply.",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Design Tastes: One Designer's Style, Measured Across Sites",
+  description: "A taste kit measures the sites one person picked and keeps the design habits they share, so your AI coding agent can build the way that designer would.",
+  path: "/tastes",
+  kicker: "Tastes",
+});
 export const dynamic = "force-dynamic";
 
 async function tastes(): Promise<KitCardData[]> {
@@ -32,6 +37,7 @@ export default async function TastesPage() {
 
   return (
     <>
+      <JsonLd data={[breadcrumbs([{ name: "Tastes", path: "/tastes" }])]} />
       <PageIntro
         art={<TastesScene />}
         kicker="Tastes"

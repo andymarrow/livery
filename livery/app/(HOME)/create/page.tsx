@@ -2,11 +2,16 @@ import type { Metadata } from "next";
 import { PageIntro } from "@/components/PageIntro";
 import { CreateScene } from "@/components/iso/scenes";
 import { CreateClient, type CreateKind } from "./_components/CreateClient";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbs } from "@/lib/seo/schema";
 
-export const metadata: Metadata = {
-  title: "Create a kit",
-  description: "Make a design kit from one website, from several pages of one site, or from the sites one person picked: their taste.",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Create a Design Kit From Any Website",
+  description: "Paste a link to turn a website, several pages of one site, or a designer's favourite sites into a design kit your coding agent can install. Free.",
+  path: "/create",
+  kicker: "Create",
+});
 
 const KINDS: CreateKind[] = ["single", "site", "taste", "login"];
 
@@ -14,6 +19,7 @@ export default async function CreatePage({ searchParams }: PageProps<"/create">)
   const { kind } = await searchParams;
   return (
     <>
+      <JsonLd data={[breadcrumbs([{ name: "Create a kit", path: "/create" }])]} />
       <PageIntro
         art={<CreateScene />}
         kicker="Create"

@@ -7,11 +7,16 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Check, X } from "@/components/icons";
 import { SceneCard, SceneSection } from "../_components/SceneCard";
 import { CheckScene, ChooseScene, PrivateScene, TextStaysScene } from "./_components/MeasureScenes";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbs } from "@/lib/seo/schema";
 
-export const metadata: Metadata = {
-  title: "Browser extension",
-  description: "Add pages behind your login, like your app's dashboard or settings, to a private Livery kit.",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Livery Browser Extension: Design Kits From Pages Behind a Login",
+  description: "Measure your app's dashboard or settings pages in your own browser and add them to a private design kit. Text and images never leave the page.",
+  path: "/extension",
+  kicker: "Browser extension",
+});
 
 const MEASURE = [
   { title: "Choose Where It Goes", body: "Click the Livery icon on the page and pick a kit for this site, or start a new one. Nothing runs before you press Measure.", scene: <ChooseScene /> },
@@ -37,6 +42,7 @@ const NEVER = [
 export default function ExtensionPage() {
   return (
     <>
+      <JsonLd data={[breadcrumbs([{ name: "Browser extension", path: "/extension" }])]} />
       <PageIntro
         art={<ExtensionScene />}
         kicker="Browser extension"

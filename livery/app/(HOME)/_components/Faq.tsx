@@ -1,7 +1,7 @@
 import { SectionHeading } from "@/components/SectionHeading";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-const QUESTIONS = [
+export const QUESTIONS = [
   {
     q: "Does Livery copy the website?",
     a: "No. It measures the design (colours, type, spacing, radii, motion) and writes the reasoning behind it. Logos, photos, illustrations, fonts and the site's own words are never copied; they are described as style only.",

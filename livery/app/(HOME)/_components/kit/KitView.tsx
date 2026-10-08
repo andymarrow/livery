@@ -8,12 +8,14 @@ import { skillNameFor } from "@/lib/generate/flow";
 import { LEVELS, type Level } from "@/lib/generate/levels";
 import { installPrompt } from "@/lib/kit/prompt";
 import { kitHome, kitPath, kitUrl } from "@/lib/kit/urls";
-import { frameUrls, readKitFiles, type KitVersionView } from "@/services/kitRead";
+import { KitCard } from "@/components/KitCard";
+import { frameUrls, listKits, readKitFiles, type KitVersionView } from "@/services/kitRead";
 import { getStats } from "@/services/stats";
 import { DesignGlance } from "./DesignGlance";
 import { FilesPanel } from "./FilesPanel";
 import { FrameViewer } from "./FrameViewer";
 import { InstallPanel } from "./InstallPanel";
+import { KitBadge } from "./KitBadge";
 import { KitStats } from "./KitStats";
 import { PublishBar } from "./PublishBar";
 import { SaveButton } from "./SaveButton";
@@ -35,6 +37,10 @@ export async function KitView({ view, mode }: { view: KitVersionView; mode: "pub
     style_only: view.items.filter((i) => i.licence === "style_only").length,
   };
   const stats = await getStats(view.kitId).catch(() => ({ views: 0, likes: 0, downloads: 0 }));
+  // Kits that look alike (same scheme), for people browsing and for crawlers following links.
+  const similar = mode === "public" && !withdrawn
+    ? (await listKits({ filters: view.tokens?.palette ? { scheme: view.tokens.palette.scheme } : {}, limit: 9 }).catch(() => ({ cards: [] }))).cards.filter((c) => c.slug !== view.slug).slice(0, 4)
+    : [];
   const prompt = installPrompt({ siteName: view.title, slug: view.slug, version: view.version, sha256: view.contentHash, skillName, key: privateKey });
   const fileQuery = privateKey ? `?key=${privateKey}` : "";
   const shownVersions = mode === "owner" ? view.versions : view.versions.filter((v) => v.visibility === "public");
@@ -236,6 +242,25 @@ export async function KitView({ view, mode }: { view: KitVersionView; mode: "pub
             </Link>
           ))}
         </>
+      )}
+      {mode === "public" && !withdrawn && <KitBadge slug={view.slug} title={view.title} />}
+
+      {similar.length > 0 && (
+        <section aria-labelledby="similar-kits" className="mt-16 border-t border-border pt-12">
+          <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="similar-kits" className="text-2xl font-semibold tracking-tight">Similar Kits</h2>
+            <Link href={view.tokens?.palette ? `/explore?scheme=${view.tokens.palette.scheme}` : "/explore"} className="text-[13px] text-fg-muted hover:text-fg">
+              More {view.tokens?.palette?.scheme ?? ""} kits
+            </Link>
+          </div>
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {similar.map((kit) => (
+              <li key={kit.slug}>
+                <KitCard kit={kit} />
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </div>
   );

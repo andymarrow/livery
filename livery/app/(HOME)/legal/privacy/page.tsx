@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import { Prose } from "@/components/Prose";
+import { pageMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = { title: "Privacy" };
+export const metadata: Metadata = pageMetadata({
+  title: "Privacy Policy",
+  description: "What Livery collects, what it never collects, how the browser extension handles data, and how to delete your account.",
+  path: "/legal/privacy",
+  kicker: "Legal",
+});
 
 export default function PrivacyPage() {
   return (

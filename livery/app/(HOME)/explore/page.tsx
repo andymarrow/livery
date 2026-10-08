@@ -11,11 +11,16 @@ import { supabaseConfigured } from "@/lib/supabase/configured";
 import { COLOUR_FAMILIES, libraryFacets, listKits, type ColourFamily, type KitFilters, type KitShelf, type KitSort, type LibraryFacets } from "@/services/kitRead";
 import { LibraryFilters } from "./_components/LibraryFilters";
 import { SearchBox } from "./_components/SearchBox";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbs } from "@/lib/seo/schema";
 
-export const metadata: Metadata = {
-  title: "Explore the library",
-  description: "Every design kit built on Livery, ready to install into your coding agent.",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Design Kit Library: Real Website Design Systems for AI Agents",
+  description: "Browse design kits measured from real websites: palettes, typography, spacing, components and motion, ready to install in Claude Code, Cursor or Codex.",
+  path: "/explore",
+  kicker: "The library",
+});
 export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 24;
@@ -68,6 +73,7 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
 
   return (
     <div className="mx-auto w-full max-w-[80rem] px-4 pb-24 pt-14 sm:px-6 sm:pt-20">
+      <JsonLd data={[breadcrumbs([{ name: "Library", path: "/explore" }])]} />
       <div className="grid grid-cols-1 items-center gap-x-10 gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,38rem)]">
         <div>
           <p className="label-micro">The library</p>

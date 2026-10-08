@@ -4,11 +4,16 @@ import { OwnersScene } from "@/components/iso/scenes";
 import { OptInGenerator } from "./_components/OptInGenerator";
 import { SiteChecker } from "./_components/SiteChecker";
 import { TakedownForm } from "./_components/TakedownForm";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbs } from "@/lib/seo/schema";
 
-export const metadata: Metadata = {
-  title: "For site owners",
-  description: "Opt in for richer kits, check what Livery sees, or opt out and have kits withdrawn.",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "For Site Owners: Opt In, Check Your Site or Opt Out",
+  description: "Control how Livery describes your site's design: share your own design rules with a livery.json file, check what LiveryBot sees, or opt out entirely.",
+  path: "/owners",
+  kicker: "Site owners",
+});
 
 function Block({ id, icon, kicker, title, body, children, wide = false }: { id: string; icon: React.ReactNode; kicker: string; title: string; body: string; children: React.ReactNode; wide?: boolean }) {
   return (
@@ -29,6 +34,7 @@ function Block({ id, icon, kicker, title, body, children, wide = false }: { id: 
 export default function OwnersPage() {
   return (
     <div className="mx-auto w-full max-w-[80rem] px-4 pb-16 pt-14 sm:px-6 sm:pt-20">
+      <JsonLd data={[breadcrumbs([{ name: "For site owners", path: "/owners" }])]} />
       <div className="grid grid-cols-1 items-center gap-x-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,38rem)]">
         <div>
           <p className="label-micro">For site owners</p>
