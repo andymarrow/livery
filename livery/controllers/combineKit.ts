@@ -38,14 +38,15 @@ export type CombineOutcome =
  */
 export async function combineKit(
   request: CombineRequest,
-  options: { ip: string; onProgress?: Progress; /** Admin: not counted against a visitor's limit. */ skipRate?: boolean; /** Admin: publish as the next version of this combined kit. */ kitId?: string; /** The signed-in builder: owns the kit if it's new. */ ownerId?: string | null },
+  options: { ip: string; onProgress?: Progress; /** Admin: not counted against a visitor's limit. */ skipRate?: boolean; /** Admin: publish as the next version of this combined kit. */ kitId?: string; /** Admin: allow more links than a visitor may combine. */ maxLinks?: number; /** The signed-in builder: owns the kit if it's new. */ ownerId?: string | null },
 ): Promise<CombineOutcome> {
   const progress: Progress = options.onProgress ?? (() => {});
   const { kind } = request;
   if (kind !== "site" && kind !== "taste") return { status: "invalid", message: "Choose pages of one site or a person's taste." };
   const urls = request.urls.map((u) => u.trim()).filter(Boolean);
-  if (urls.length < COMBINE_LIMITS.min || urls.length > COMBINE_LIMITS.max) {
-    return { status: "invalid", message: `Paste between ${COMBINE_LIMITS.min} and ${COMBINE_LIMITS.max} links.` };
+  const max = Math.min(options.maxLinks ?? COMBINE_LIMITS.max, COMBINE_LIMITS.adminMax);
+  if (urls.length < COMBINE_LIMITS.min || urls.length > max) {
+    return { status: "invalid", message: `Paste between ${COMBINE_LIMITS.min} and ${max} links.` };
   }
 
   progress("checking", "every link, against the guardrails");

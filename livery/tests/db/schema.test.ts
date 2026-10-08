@@ -621,6 +621,21 @@ describe("admin moderation", () => {
   });
 });
 
+describe("bigger tastes", () => {
+  it("lets a kit hold up to 12 sources, and no more", async () => {
+    const pages: { url: string; versionId: string }[] = [];
+    for (let i = 0; i < 13; i++) {
+      const { rows } = await db.query<{ kit_version_id: string }>(`select * from public.start_build($1, 'big.dev', $2, 1, 1)`, [`https://big.dev/p${i}`, `big-dev-p${i}`]);
+      await publish(rows[0].kit_version_id);
+      pages.push({ url: `https://big.dev/p${i}`, versionId: rows[0].kit_version_id });
+    }
+    const sources = (n: number) => JSON.stringify(pages.slice(0, n).map((p, i) => ({ position: i + 1, source_url: p.url, domain: "big.dev", source_version_id: p.versionId })));
+    const { rows } = await db.query<{ claimed: boolean }>(`select * from public.start_combined_build('taste', $1, null, 'taste-big-121212', 'Big', 'big', $2, $3, 1, 1)`, ["e".repeat(64), sources(12), "f".repeat(64)]);
+    expect(rows[0].claimed).toBe(true);
+    await expect(db.query(`select * from public.start_combined_build('taste', $1, null, 'taste-big-131313', 'Big', 'big', $2, $3, 1, 1)`, ["a".repeat(64), sources(13), "b".repeat(64)])).rejects.toThrow(/position_check/);
+  });
+});
+
 describe("server role", () => {
   it("can run every build function the server calls (as service_role, not the test superuser)", async () => {
     const page = async (path: string) => {

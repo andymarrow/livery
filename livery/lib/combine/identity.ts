@@ -4,7 +4,8 @@ import { createHash } from "node:crypto";
 // curator and the links in order (the first link is the base), so the same
 // request always lands on the same kit and its versions.
 
-export const COMBINE_LIMITS = { min: 2, max: 5 } as const;
+/** Visitors combine 2 to 5 links; an admin can grow a taste to 12 from kits already in the library. */
+export const COMBINE_LIMITS = { min: 2, max: 5, adminMax: 12 } as const;
 export type CombinedKind = "site" | "taste";
 
 const sha256 = (value: string) => createHash("sha256").update(value).digest("hex");

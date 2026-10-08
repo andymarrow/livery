@@ -58,6 +58,7 @@ export function useTasteTray() {
     if (current.includes(url)) write(current.filter((u) => u !== url));
     else if (current.length < TASTE_MAX) write([...current, url]);
   }, []);
+  const remove = useCallback((url: string) => write(read().filter((u) => u !== url)), []);
   const clear = useCallback(() => write([]), []);
-  return { links, has, toggle, clear, full: links.length >= TASTE_MAX };
+  return { links, has, toggle, remove, clear, full: links.length >= TASTE_MAX };
 }

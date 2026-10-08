@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { X } from "@/components/icons";
+import { COMBINE_LIMITS } from "@/lib/combine/identity";
 import { useRouter } from "next/navigation";
 import { adminCombineKits } from "@/app/actions/adminCombineKits";
 import { Button } from "@/components/ui/button";
@@ -10,7 +12,8 @@ import { cn } from "@/lib/utils";
 import type { AdminKit } from "@/services/admin";
 import { Field, inputClass } from "./Controls";
 
-const MAX = 5;
+// Admins grow tastes from kits already measured, so they may go past a visitor's five.
+const MAX = COMBINE_LIMITS.adminMax;
 const hostOf = (url: string) => new URL(url).hostname.replace(/^www\./, "");
 
 // Turns chosen page kits into a taste: a new one under a name, or the next
@@ -31,12 +34,15 @@ function Body({ picked, tastes, onClose }: { picked: AdminKit[]; tastes: AdminKi
   const [curator, setCurator] = useState("");
   const [target, setTarget] = useState(tastes[0]?.id ?? "");
   const [pending, start] = useTransition();
+  // Sites taken out of the combination (an existing taste's own sites included).
+  const [removed, setRemoved] = useState<Set<string>>(new Set());
 
   const existing = tastes.find((t) => t.id === target);
-  const urls =
+  const urls = (
     mode === "existing" && existing
       ? [...new Set([...existing.sources.map((s) => s.url), ...picked.map((k) => k.sourceUrl!)])]
-      : picked.map((k) => k.sourceUrl!);
+      : picked.map((k) => k.sourceUrl!)
+  ).filter((url) => !removed.has(url));
   const tooMany = urls.length > MAX;
   const tooFew = urls.length < 2;
 
@@ -63,7 +69,7 @@ function Body({ picked, tastes, onClose }: { picked: AdminKit[]; tastes: AdminKi
   return (
     <div>
       <DialogTitle>Combine {picked.length === 1 ? picked[0].name : `${picked.length} kits`}</DialogTitle>
-      <DialogDescription className="mt-1 text-[13px] text-fg-muted">Uses the kits already measured; nothing is rendered again. A taste holds 2 to 5 sites.</DialogDescription>
+      <DialogDescription className="mt-1 text-[13px] text-fg-muted">Uses the kits already measured; nothing is rendered again. As admin you can make a taste of 2 to 12 sites (visitors are limited to 5). Remove any site with its ×.</DialogDescription>
 
       <div className="mt-5 flex gap-1 rounded-[10px] bg-surface-2 p-1">
         {options.map((o) => (
@@ -94,14 +100,27 @@ function Body({ picked, tastes, onClose }: { picked: AdminKit[]; tastes: AdminKi
           <p className="mb-1.5 text-[12.5px] font-medium text-fg-muted">Sites, in order (the first is the base)</p>
           <ol className="flex flex-wrap gap-1.5">
             {urls.map((url, i) => (
-              <li key={url} className={cn("rounded-full border px-2.5 py-1 text-[12.5px]", i >= MAX ? "border-danger text-danger" : "border-border text-fg-muted")}>
+              <li key={url} className={cn("inline-flex items-center rounded-full border py-1 pl-2.5 pr-1 text-[12.5px]", i >= MAX ? "border-danger text-danger" : "border-border text-fg-muted")}>
                 <span className="mr-1.5 font-mono text-[10.5px] text-fg-subtle">{String(i + 1).padStart(2, "0")}</span>
                 {mode === "pages" ? new URL(url).pathname : hostOf(url)}
+                <button
+                  type="button"
+                  onClick={() => setRemoved((r) => new Set(r).add(url))}
+                  aria-label={`Remove ${hostOf(url)} from this taste`}
+                  className="ml-1 flex size-5 items-center justify-center rounded-full text-fg-subtle transition-colors hover:bg-surface-2 hover:text-fg"
+                >
+                  <X className="size-3" />
+                </button>
               </li>
             ))}
           </ol>
           {tooMany && <p className="mt-2 text-[12.5px] text-danger">That&apos;s {urls.length} sites; a taste holds at most {MAX}.</p>}
           {tooFew && <p className="mt-2 text-[12.5px] text-fg-subtle">Pick at least two kits, or add this one to an existing taste.</p>}
+          {removed.size > 0 && (
+            <button type="button" onClick={() => setRemoved(new Set())} className="mt-2 text-[12.5px] text-fg-muted underline underline-offset-4 hover:text-fg">
+              Put back {removed.size} removed {removed.size === 1 ? "site" : "sites"}
+            </button>
+          )}
         </div>
       </div>
 

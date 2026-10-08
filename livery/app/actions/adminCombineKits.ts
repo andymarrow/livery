@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { combineKit } from "@/controllers/combineKit";
 import { requireAdmin } from "@/lib/adminSession";
+import { COMBINE_LIMITS } from "@/lib/combine/identity";
 import { kitPath } from "@/lib/kit/urls";
 import { logger } from "@/lib/logger";
 
@@ -15,7 +16,7 @@ export type AdminCombineResult = { ok: true; path: string; cached?: boolean } | 
 export async function adminCombineKits(input: { kind: "site" | "taste"; urls: string[]; curator?: string | null; kitId?: string }): Promise<AdminCombineResult> {
   await requireAdmin();
   try {
-    const outcome = await combineKit({ kind: input.kind, urls: input.urls, curator: input.curator ?? null }, { ip: "admin", skipRate: true, kitId: input.kitId });
+    const outcome = await combineKit({ kind: input.kind, urls: input.urls, curator: input.curator ?? null }, { ip: "admin", skipRate: true, kitId: input.kitId, maxLinks: COMBINE_LIMITS.adminMax });
     switch (outcome.status) {
       case "ready":
         revalidatePath("/", "layout");
