@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { FileCode, FileRemove, WebValidation } from "@/components/icons";
+import { OwnersScene } from "@/components/iso/scenes";
 import { OptInGenerator } from "./_components/OptInGenerator";
 import { SiteChecker } from "./_components/SiteChecker";
 import { TakedownForm } from "./_components/TakedownForm";
@@ -28,13 +29,20 @@ function Block({ id, icon, kicker, title, body, children, wide = false }: { id: 
 export default function OwnersPage() {
   return (
     <div className="mx-auto w-full max-w-[80rem] px-4 pb-16 pt-14 sm:px-6 sm:pt-20">
-      <p className="label-micro">For site owners</p>
-      <h1 className="mt-3 max-w-3xl text-3xl font-bold leading-tight tracking-tight text-balance sm:text-4xl">
-        Your Site, <span className="text-fg-subtle">Your Call</span>
-      </h1>
-      <p className="mt-5 max-w-2xl text-base leading-relaxed text-fg-muted text-pretty">
-        Without a word from you, Livery only describes your design: values and style, never your logo, images, fonts or words. One small file lets you share more, or nothing at all.
-      </p>
+      <div className="grid grid-cols-1 items-center gap-x-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,32rem)]">
+        <div>
+          <p className="label-micro">For site owners</p>
+          <h1 className="mt-3 max-w-3xl text-3xl font-bold leading-tight tracking-tight text-balance sm:text-4xl">
+            Your Site, <span className="text-fg-subtle">Your Call</span>
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-fg-muted text-pretty">
+            Without a word from you, Livery only describes your design: values and style, never your logo, images, fonts or words. One small file lets you share more, or nothing at all.
+          </p>
+        </div>
+        <div className="mt-10 hidden sm:block lg:mt-0">
+          <OwnersScene />
+        </div>
+      </div>
 
       <div className="mt-14">
         <Block wide id="opt-in" icon={<FileCode />} kicker="Opt in" title="Share More of Your Design" body="Grant levels 4 to 6: your own design rules, assets you're happy to share, and real copy in voice examples. Publish the file and new kits pick it up within a day.">

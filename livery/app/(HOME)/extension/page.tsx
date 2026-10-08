@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ExtensionSteps } from "@/components/ExtensionSteps";
 import { PageIntro } from "@/components/PageIntro";
+import { ExtensionScene } from "@/components/iso/scenes";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check, X } from "@/components/icons";
 import { SceneCard, SceneSection } from "../_components/SceneCard";
@@ -37,6 +38,7 @@ export default function ExtensionPage() {
   return (
     <>
       <PageIntro
+        art={<ExtensionScene />}
         kicker="Browser extension"
         title="Pages Behind a Login"
         muted="Measured in Your Browser"

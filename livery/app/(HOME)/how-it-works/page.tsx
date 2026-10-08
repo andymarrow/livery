@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageIntro } from "@/components/PageIntro";
+import { HowItWorksScene } from "@/components/iso/scenes";
 import { HowItWorks } from "../_components/HowItWorks";
 import { OpenAKit } from "../_components/OpenAKit";
 import { StyleNeverAssets } from "../_components/StyleNeverAssets";
@@ -14,6 +15,7 @@ export default function HowItWorksPage() {
   return (
     <>
       <PageIntro
+        art={<HowItWorksScene />}
         kicker="How it works"
         title="Measured, Written Down,"
         muted="and Applied With You"

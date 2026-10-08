@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro } from "@/components/PageIntro";
+import { AboutScene } from "@/components/iso/scenes";
 import { ArrowRight } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { SceneCard, SceneSection } from "../_components/SceneCard";
@@ -19,6 +20,7 @@ export default function AboutPage() {
   return (
     <>
       <PageIntro
+        art={<AboutScene />}
         kicker="About"
         title="Design Is a Set"
         muted="of Decisions"

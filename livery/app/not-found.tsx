@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "@/components/icons";
+import { MissingScene } from "@/components/iso/scenes";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 
@@ -10,6 +11,9 @@ export default function NotFound() {
         <Logo />
       </div>
       <div className="mx-auto flex max-w-md flex-1 flex-col items-center justify-center pb-24 text-center">
+        <div className="mb-8 w-full max-w-sm">
+          <MissingScene />
+        </div>
         <p className="label-micro">404</p>
         <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Nothing Painted Here Yet</h1>
         <p className="mt-3 text-sm leading-relaxed text-fg-muted">

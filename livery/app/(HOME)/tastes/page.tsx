@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { KitCard } from "@/components/KitCard";
 import { PageIntro } from "@/components/PageIntro";
+import { TastesScene } from "@/components/iso/scenes";
 import { ArrowRight } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { logger } from "@/lib/logger";
@@ -32,6 +33,7 @@ export default async function TastesPage() {
   return (
     <>
       <PageIntro
+        art={<TastesScene />}
         kicker="Tastes"
         title="Borrow Someone's Eye."
         muted="Not Just One Site."

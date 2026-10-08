@@ -186,6 +186,55 @@
   from { opacity: 0; transform: translateY(8px); }
 }
 
+/* Isometric page illustrations (components/iso): hairlines that never
+   thicken, flat fills, one accent, lines that draw in, a slow highlight. */
+.iso {
+  --iso-line: color-mix(in oklab, var(--fg) 34%, transparent);
+  --iso-faint: color-mix(in oklab, var(--fg) 16%, transparent);
+}
+.iso .iso-shape :is(polygon, path, ellipse) {
+  fill: var(--bg);
+  stroke: var(--iso-line);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  transition: stroke 0.4s linear;
+}
+.iso .iso-shape .iso-top { fill: var(--surface); }
+.iso .iso-shape .iso-side-r { fill: var(--surface-2); }
+.iso .iso-shape.iso-hot :is(polygon, path, ellipse) { stroke: var(--accent); }
+.iso .iso-shape.iso-soft :is(polygon, path, ellipse) { stroke: var(--iso-faint); }
+.iso .iso-shape { animation: iso-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0ms) both; }
+.iso .iso-lines path { fill: none; stroke: var(--iso-faint); stroke-width: 1; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.iso .iso-lines.iso-hot path { stroke: var(--accent); }
+.iso .iso-wire { fill: none; stroke: var(--iso-line); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.iso .iso-wire.iso-hot { stroke: var(--accent); }
+.iso .iso-wire.iso-soft { stroke: var(--iso-faint); }
+.iso .iso-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: iso-draw 1s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0ms) forwards; }
+.iso .iso-callout path { fill: none; stroke: var(--iso-faint); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.iso .iso-callout circle { fill: var(--fg-subtle); }
+.iso .iso-callout rect { fill: var(--bg); stroke: var(--iso-line); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.iso .iso-callout text { fill: var(--fg-muted); font-family: var(--font-mono), ui-monospace, monospace; font-size: 8px; letter-spacing: 0.02em; white-space: pre; }
+.iso .iso-callout.iso-hot path { stroke: color-mix(in oklab, var(--accent) 70%, transparent); }
+.iso .iso-callout.iso-hot circle { fill: var(--accent); }
+.iso .iso-callout.iso-hot text { fill: var(--fg); }
+.iso .iso-callout :is(circle, rect, text) { opacity: 0; animation: iso-fade 0.5s ease-out calc(var(--d, 0ms) + 450ms) forwards; }
+.iso .iso-pulse :is(polygon, path, ellipse) { animation: iso-pulse calc(var(--n, 4) * 1.8s) linear calc(var(--p, 0) * 1.8s + 1.4s) infinite; }
+.iso .iso-dashed { stroke-dasharray: 3 3; opacity: 0; animation: iso-fade 0.6s ease-out var(--d, 0ms) forwards, iso-march 1.6s linear var(--d, 0ms) infinite; }
+@keyframes iso-march { to { stroke-dashoffset: -12; } }
+@keyframes iso-rise { from { opacity: 0; transform: translateY(5px); } }
+@keyframes iso-draw { to { stroke-dashoffset: 0; } }
+@keyframes iso-fade { to { opacity: 1; } }
+@keyframes iso-pulse {
+  0%, 20% { stroke: var(--accent); }
+  27%, 100% { stroke: var(--iso-line); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .iso *, .iso .iso-shape { animation: none !important; }
+  .iso .iso-draw { stroke-dasharray: none; stroke-dashoffset: 0; }
+  .iso .iso-callout :is(circle, rect, text), .iso .iso-dashed { opacity: 1; }
+}
+
 /* Motion style demos on kit pages: each kind of signature motion, played
    with the site's measured duration and easing (set inline). */
 @keyframes demo-type {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro } from "@/components/PageIntro";
+import { AgentsScene } from "@/components/iso/scenes";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "@/components/icons";
 import { AgentGuide } from "./_components/AgentGuide";
@@ -14,6 +15,7 @@ export default function AgentsPage() {
   return (
     <>
       <PageIntro
+        art={<AgentsScene />}
         kicker="Agents"
         title="Install a Kit"
         muted="in Your Agent"

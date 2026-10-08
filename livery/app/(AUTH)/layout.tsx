@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Bookmark, LockKeyhole, Puzzle } from "@/components/icons";
+import { AccountScene } from "@/components/iso/scenes";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -23,6 +24,9 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
       <main className="mx-auto grid w-full max-w-5xl flex-1 grid-cols-1 items-center gap-12 px-4 pb-16 pt-6 sm:px-6 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-20">
         <div className="mx-auto w-full max-w-[26rem]">{children}</div>
         <aside className="hidden border-l border-border pl-12 lg:block">
+          <div className="mb-8 max-w-md">
+            <AccountScene />
+          </div>
           <p className="label-micro">With an account</p>
           <ul className="mt-6 space-y-7">
             {PERKS.map((perk) => (

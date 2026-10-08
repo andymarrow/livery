@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { ExploreScene } from "@/components/iso/scenes";
 import { Search as MagnifyingGlass, Inbox as Tray } from "@/components/icons";
 import { EmptyState } from "@/components/EmptyState";
 import { KitCard } from "@/components/KitCard";
@@ -67,17 +68,22 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
 
   return (
     <div className="mx-auto w-full max-w-[80rem] px-4 pb-24 pt-14 sm:px-6 sm:pt-20">
-      <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+      <div className="grid grid-cols-1 items-center gap-x-10 gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)]">
         <div>
           <p className="label-micro">The library</p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Explore Kits</h1>
           <p className="mt-3 max-w-lg text-sm leading-relaxed text-fg-muted">
             Every link anyone pastes becomes a kit here. Open one to see its palette, rules and files, then install it in one step.
           </p>
+          <div className="mt-6">
+            <Suspense>
+              <SearchBox />
+            </Suspense>
+          </div>
         </div>
-        <Suspense>
-          <SearchBox />
-        </Suspense>
+        <div className="hidden sm:block">
+          <ExploreScene />
+        </div>
       </div>
 
       <Suspense>

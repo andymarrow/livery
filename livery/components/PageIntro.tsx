@@ -8,6 +8,7 @@ export function PageIntro({
   muted,
   lead,
   children,
+  art,
   className,
 }: {
   kicker: string;
@@ -15,12 +16,15 @@ export function PageIntro({
   muted?: string;
   lead?: string;
   children?: React.ReactNode;
+  /** An illustration beside the text on wide screens (components/iso/scenes). */
+  art?: React.ReactNode;
   className?: string;
 }) {
   const ticks = Array.from({ length: 121 }, (_, i) => i);
   return (
     <section className={cn("border-b border-border px-4 pb-14 pt-14 sm:px-6 sm:pb-16 sm:pt-20", className)}>
-      <div className="mx-auto max-w-[80rem]">
+      <div className={cn("mx-auto max-w-[80rem]", art && "grid grid-cols-1 items-center gap-x-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)]")}>
+        <div className="min-w-0">
         <p className="label-micro animate-rise">{kicker}</p>
         <h1 className="animate-rise mt-4 max-w-4xl text-4xl font-bold leading-[1.04] tracking-[-0.03em] text-balance sm:text-6xl" style={{ animationDelay: "60ms" }}>
           {title}
@@ -32,7 +36,9 @@ export function PageIntro({
           </p>
         )}
         {children && <div className="animate-rise mt-8" style={{ animationDelay: "180ms" }}>{children}</div>}
-        <svg aria-hidden className="mt-12 h-4 w-full text-border-strong" preserveAspectRatio="none" viewBox="0 0 960 16">
+        </div>
+        {art && <div className="mt-10 hidden sm:block lg:mt-0 lg:row-span-2">{art}</div>}
+        <svg aria-hidden className="mt-12 h-4 w-full text-border-strong lg:col-start-1" preserveAspectRatio="none" viewBox="0 0 960 16">
           {ticks.map((i) => (
             <line
               key={i}

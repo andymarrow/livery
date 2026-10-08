@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CopyButton } from "@/components/CopyButton";
 import { PageIntro } from "@/components/PageIntro";
+import { BotScene } from "@/components/iso/scenes";
 import { BOT } from "@/constants/constants";
 import { SceneCard, SceneSection } from "../_components/SceneCard";
 import { AskedScene, KeptScene, LoginScene, NoAssetsScene, OnceScene, RulesScene, SizesScene, StopScene } from "./_components/BotScenes";
@@ -37,7 +38,7 @@ function Snippet({ label, code }: { label: string; code: string }) {
 export default function BotPage() {
   return (
     <>
-      <PageIntro kicker="LiveryBot" title="The Polite" muted="Design Crawler" lead="LiveryBot visits a public page when someone asks for a design kit of it, measures the design, and leaves. Here's exactly what one visit looks like." />
+      <PageIntro art={<BotScene />} kicker="LiveryBot" title="The Polite" muted="Design Crawler" lead="LiveryBot visits a public page when someone asks for a design kit of it, measures the design, and leaves. Here's exactly what one visit looks like." />
       <SceneSection kicker="One visit" title="Asked For, Checked," muted="Measured, Gone" lead="Every visit follows the same four steps, in this order.">
         <ol className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {VISIT.map((step, index) => (

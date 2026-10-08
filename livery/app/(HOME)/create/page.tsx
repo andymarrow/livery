@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageIntro } from "@/components/PageIntro";
+import { CreateScene } from "@/components/iso/scenes";
 import { CreateClient, type CreateKind } from "./_components/CreateClient";
 
 export const metadata: Metadata = {
@@ -14,6 +15,7 @@ export default async function CreatePage({ searchParams }: PageProps<"/create">)
   return (
     <>
       <PageIntro
+        art={<CreateScene />}
         kicker="Create"
         title="Make a Kit From"
         muted="Anything You Admire"
