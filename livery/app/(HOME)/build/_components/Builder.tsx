@@ -124,7 +124,7 @@ export function Builder({ url, host }: { url: string; host: string }) {
       </p>
 
       <div className="mt-8">
-        <BuildVisual stage={state.phase === "running" ? state.stage : null} host={host} waiting={state.phase === "waiting"} />
+        <BuildVisual stage={state.phase === "running" ? state.stage : null} detail={state.phase === "running" ? state.detail : undefined} host={host} waiting={state.phase === "waiting"} />
       </div>
 
       <ol className="mt-4 grid grid-cols-1 overflow-hidden rounded-[18px] border border-border bg-surface shadow-card sm:grid-cols-2">
