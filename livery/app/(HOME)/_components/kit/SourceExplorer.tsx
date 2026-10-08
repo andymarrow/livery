@@ -125,7 +125,7 @@ export function SourceExplorer({ sources, kind }: { sources: KitSourceView[]; ki
               <div key={current.url} className="animate-rise">
                 <SheetTitle className="mt-7 text-3xl font-bold tracking-tight">{name(current)}</SheetTitle>
                 <p className="mt-1 text-[13px] text-fg-muted">
-                  {kind === "site" ? hostOf(current.url) : pathOf(current.url)} · {current.captured ? "measured in your browser, private" : `its own kit, v${current.version}`}
+                  {kind === "site" ? hostOf(current.url) : pathOf(current.url)} · {current.captured ? "measured behind a login with the browser extension" : `its own kit, v${current.version}`}
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
                   {!current.captured && (

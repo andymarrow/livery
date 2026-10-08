@@ -86,7 +86,8 @@ export async function getKitVersion(slug: string, version: number): Promise<KitV
     kitId: kit.id,
     versionId: v.id,
     slug: kit.slug,
-    kind: kit.kind,
+    // A page kit that pages were added to (with the extension) shows as the multi-page kit it now is.
+    kind: kit.kind === "page" && sources.length > 1 ? ("site" as const) : kit.kind,
     title: kitTitle(kit, sources),
     curator: kit.curator,
     curatorSlug: kit.curator_slug,
@@ -327,9 +328,9 @@ export async function listKits({
     const path = row.kits.source_url ? new URL(row.kits.source_url).pathname : "/";
     cards.push({
       slug: row.kits.slug,
-      kind: row.kits.kind,
+      kind: row.kits.kind === "page" && sources.length > 1 ? ("site" as const) : row.kits.kind,
       title: kitTitle(row.kits, sources),
-      detail: row.kits.kind === "page" ? (path === "/" ? "Homepage" : path) : row.kits.kind === "site" ? `${sources.length} pages` : `${new Set(sources.map((s) => hostOf(s.url))).size} sites`,
+      detail: row.kits.kind === "page" && sources.length <= 1 ? (path === "/" ? "Homepage" : path) : row.kits.kind !== "taste" ? `${sources.length} pages` : `${new Set(sources.map((s) => hostOf(s.url))).size} sites`,
       sourceUrl: row.kits.source_url,
       preview: row.kits.cover_path ? coverUrl(row.kits.cover_path) : null,
       stats: { views: row.views, likes: row.likes, downloads: row.downloads },

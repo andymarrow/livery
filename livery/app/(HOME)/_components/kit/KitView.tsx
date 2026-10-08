@@ -8,7 +8,6 @@ import { skillNameFor } from "@/lib/generate/flow";
 import { LEVELS, type Level } from "@/lib/generate/levels";
 import { installPrompt } from "@/lib/kit/prompt";
 import { kitHome, kitPath, kitUrl } from "@/lib/kit/urls";
-import { cn } from "@/lib/utils";
 import { frameUrls, readKitFiles, type KitVersionView } from "@/services/kitRead";
 import { getStats } from "@/services/stats";
 import { DesignGlance } from "./DesignGlance";
@@ -19,6 +18,7 @@ import { KitStats } from "./KitStats";
 import { PublishBar } from "./PublishBar";
 import { SaveButton } from "./SaveButton";
 import { SourceExplorer } from "./SourceExplorer";
+import { VersionSwitcher } from "./VersionSwitcher";
 
 // One kit version's page. "public" is the cached page everyone sees at
 // /k/<slug>/v<n>; "owner" is the signed-in owner's view at /me/kits/…, which
@@ -38,6 +38,8 @@ export async function KitView({ view, mode }: { view: KitVersionView; mode: "pub
   const prompt = installPrompt({ siteName: view.title, slug: view.slug, version: view.version, sha256: view.contentHash, skillName, key: privateKey });
   const fileQuery = privateKey ? `?key=${privateKey}` : "";
   const shownVersions = mode === "owner" ? view.versions : view.versions.filter((v) => v.visibility === "public");
+  // The newest version this viewer can open: the owner sees private ones too.
+  const newest = mode === "owner" ? Math.max(...view.versions.map((v) => v.version), view.version) : view.latestVersion;
 
   return (
     <div className="mx-auto w-full max-w-[80rem] px-4 pb-24 pt-10 sm:px-6 sm:pt-14">
@@ -60,7 +62,10 @@ export async function KitView({ view, mode }: { view: KitVersionView; mode: "pub
       <header className="mt-6 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="accent">v{view.version}</Badge>
+            <VersionSwitcher
+              current={view.version}
+              options={shownVersions.map((v) => ({ version: v.version, href: versionHref(v.version), publishedAt: v.publishedAt, private: v.visibility === "private", latest: v.version === newest }))}
+            />
             {view.kind === "taste" && <Badge variant="neutral">Taste · {view.sources.length} sites</Badge>}
             {view.kind === "site" && <Badge variant="neutral">{view.sources.length} pages</Badge>}
             {view.ownerApproved && !withdrawn && (
@@ -99,41 +104,15 @@ export async function KitView({ view, mode }: { view: KitVersionView; mode: "pub
 
       {mode === "owner" && view.visibility === "private" && !withdrawn && <PublishBar versionId={view.versionId} title={view.title} version={view.version} />}
 
-      {(shownVersions.length > 1 || (mode === "public" && view.latestVersion > view.version)) && (
-        <div className={cn("mt-8 flex flex-wrap items-center gap-3 rounded-[18px] border px-4 py-3 text-sm shadow-card", view.latestVersion > view.version ? "border-accent/50 bg-accent-soft text-accent-soft-fg" : "border-border bg-surface")}>
+      {newest > view.version && (
+        <div className="mt-8 flex flex-wrap items-center gap-3 rounded-[18px] border border-accent/50 bg-accent-soft px-4 py-3 text-sm text-accent-soft-fg shadow-card">
           <Info className="size-4 shrink-0 text-accent-ink" />
-          {view.latestVersion > view.version ? (
-            <>
-              <span>
-                You&apos;re looking at <span className="font-semibold">v{view.version}</span>, an earlier version. The latest is v{view.latestVersion}.
-              </span>
-              <Link href={kitHome(view.slug)} className="ml-auto inline-flex h-8 items-center rounded-full bg-accent px-3.5 text-[13px] font-semibold text-on-accent transition-opacity hover:opacity-90">
-                Open the latest
-              </Link>
-            </>
-          ) : (
-            <span className="text-fg-muted">This is the latest version.</span>
-          )}
-          <span className={cn("flex flex-wrap items-center gap-1", view.latestVersion > view.version ? "w-full sm:w-auto" : "ml-auto")}>
-            <span className="mr-1 text-[12.5px] text-fg-subtle">{view.latestVersion > view.version ? "All versions" : "Earlier versions"}</span>
-            {shownVersions
-              .filter((v) => view.latestVersion > view.version || v.version !== view.version)
-              .map((v) => (
-                <Link
-                  key={v.version}
-                  href={versionHref(v.version)}
-                  aria-current={v.version === view.version ? "page" : undefined}
-                  title={`Published ${v.publishedAt.slice(0, 10)}`}
-                  className={cn(
-                    "rounded-full border px-2.5 py-0.5 font-mono text-[12px] transition-colors",
-                    v.version === view.version ? "border-fg bg-fg text-bg" : "border-border bg-surface text-fg-muted hover:border-border-strong hover:text-fg",
-                  )}
-                >
-                  v{v.version}
-                  {v.visibility === "private" ? " · private" : v.version === view.latestVersion ? " · latest" : ""}
-                </Link>
-              ))}
+          <span>
+            You&apos;re looking at <span className="font-semibold">v{view.version}</span>, an earlier version. The latest is v{newest}.
           </span>
+          <Link href={versionHref(newest)} className="ml-auto inline-flex h-8 items-center rounded-full bg-accent px-3.5 text-[13px] font-semibold text-on-accent transition-opacity hover:opacity-90">
+            Open v{newest}
+          </Link>
         </div>
       )}
 
