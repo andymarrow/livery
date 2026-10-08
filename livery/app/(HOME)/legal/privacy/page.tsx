@@ -37,10 +37,10 @@ export default function PrivacyPage() {
       <p>Data the extension collects is used only to build your kits. It is not sold, not used for advertising, not shared with third parties beyond the processors below, and not used to determine creditworthiness or for lending.</p>
 
       <h2>What we don&apos;t do</h2>
-      <p>No advertising, no tracking pixels, no selling of data. Pages that LiveryBot renders load without their analytics and ad scripts.</p>
+      <p>No advertising, no tracking pixels, no selling of data. To see which pages are visited, Livery uses Vercel Web Analytics: it counts page views without cookies and without identifying you, and reports only totals. Pages that LiveryBot renders load without their analytics and ad scripts.</p>
 
       <h2>Processors</h2>
-      <p>Livery runs on Vercel (hosting), Supabase (database, storage and authentication), Browserless (the browser that reads public sites) and Resend (account emails). Google and GitHub are used only if you choose to sign in with them. Kits are written from measurements on our own servers; no AI provider receives site data.</p>
+      <p>Livery runs on Vercel (hosting and cookieless page-view counts), Supabase (database, storage and authentication), Browserless (the browser that reads public sites) and Resend (account emails). Google and GitHub are used only if you choose to sign in with them. Kits are written from measurements on our own servers; no AI provider receives site data.</p>
     </Prose>
   );
 }
