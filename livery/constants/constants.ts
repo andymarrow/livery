@@ -38,8 +38,8 @@ export const RATE_LIMITS = {
 export const EXTRACTOR_VERSION = Number(process.env.EXTRACTOR_VERSION ?? 1);
 export const FLOW_VERSION = 1;
 
-/** The extension's Chrome Web Store page, once it's published (NEXT_PUBLIC_CHROME_EXTENSION_URL). */
-export const EXTENSION_STORE_URL = process.env.NEXT_PUBLIC_CHROME_EXTENSION_URL || null;
+/** The extension's Chrome Web Store page (live since 2026-10-09). NEXT_PUBLIC_CHROME_EXTENSION_URL overrides it. */
+export const EXTENSION_STORE_URL: string = process.env.NEXT_PUBLIC_CHROME_EXTENSION_URL || "https://chromewebstore.google.com/detail/livery/joghhbmmhinhjflcadnikbkkpgcjlhoe";
 
 /** What someone types on /me to confirm deleting their account. */
 export const DELETE_ACCOUNT_PHRASE = "delete my account";

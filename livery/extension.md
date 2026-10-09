@@ -194,7 +194,7 @@ The UI is built in Livery's style (teal accent, light/dark following the system)
 - **Kit page (owner):** "Add Pages Behind a Login", the same steps naming the kit to pick in the extension.
 - **Kit page (others):** "Using … yourself?", linking to `/extension`; adding a page to someone else's kit makes a private copy (4.3).
 - **`/extension`:** the public page: the steps, what's sent and never sent, the rules. Linked from the footer.
-- The install button reads `NEXT_PUBLIC_CHROME_EXTENSION_URL`; until it's set, it says "Coming soon".
+- The install button links to the live store listing (`EXTENSION_STORE_URL`), published 2026-10-09.
 
 ### Done when
 

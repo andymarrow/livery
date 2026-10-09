@@ -15,13 +15,11 @@ export function ExtensionSteps({ kitTitle, compact = false }: { kitTitle?: strin
   const steps = [
     {
       title: "Install the extension",
-      body: EXTENSION_STORE_URL ? "Free, for Chrome, Edge and Brave." : "Coming soon to the Chrome Web Store.",
-      action: EXTENSION_STORE_URL ? (
-        <a href={EXTENSION_STORE_URL} target="_blank" rel="noreferrer" className={button}>
+      body: "Free on the Chrome Web Store, for Chrome, Edge, Brave and Arc.",
+      action: (
+        <a href={EXTENSION_STORE_URL} target="_blank" rel="noreferrer" className={cn(button, "border-accent bg-accent text-on-accent hover:opacity-90")}>
           Add to Chrome <ArrowUpRight className="size-3.5" />
         </a>
-      ) : (
-        <span className={cn(button, "pointer-events-none opacity-60")}>Coming soon</span>
       ),
     },
     {

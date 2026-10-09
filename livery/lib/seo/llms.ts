@@ -1,5 +1,5 @@
 import "server-only";
-import { SITE } from "@/constants/constants";
+import { EXTENSION_STORE_URL, SITE } from "@/constants/constants";
 import { kitPath, kitUrl } from "@/lib/kit/urls";
 import { supabaseConfigured } from "@/lib/supabase/configured";
 import { listKits, type KitCard } from "@/services/kitRead";
@@ -15,7 +15,7 @@ const PAGES: [string, string, string][] = [
   ["How it works", "/how-it-works", "How Livery measures a site, writes the kit and how your agent applies it one area at a time."],
   ["Install in your agent", "/agents", "Install steps for Claude Code, Cursor, Codex, Windsurf and claude.ai."],
   ["Guides", "/guides", "Design systems for Claude Code, Cursor rules for design, design tokens for agents, style versus assets."],
-  ["Browser extension", "/extension", "Measure pages behind your login (dashboards, settings) into a private kit."],
+  ["Browser extension", "/extension", `Measure pages behind your login (dashboards, settings) into a private kit. Install it free from the Chrome Web Store: ${EXTENSION_STORE_URL}`],
   ["FAQ", "/faq", "What Livery reads, what it never copies, and which agents it supports."],
   ["For site owners", "/owners", "Opt in with a livery.json file, check what LiveryBot sees, or opt out."],
   ["LiveryBot", "/bot", "The crawler's user agent and the robots.txt rules it follows."],

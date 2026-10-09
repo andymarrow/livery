@@ -4,12 +4,13 @@ import { ExtensionSteps } from "@/components/ExtensionSteps";
 import { PageIntro } from "@/components/PageIntro";
 import { ExtensionScene } from "@/components/iso/scenes";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Check, X } from "@/components/icons";
+import { ArrowRight, ArrowUpRight, Check, X } from "@/components/icons";
 import { SceneCard, SceneSection } from "../_components/SceneCard";
 import { CheckScene, ChooseScene, PrivateScene, TextStaysScene } from "./_components/MeasureScenes";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { JsonLd } from "@/components/JsonLd";
-import { breadcrumbs } from "@/lib/seo/schema";
+import { breadcrumbs, extensionApp } from "@/lib/seo/schema";
+import { EXTENSION_STORE_URL } from "@/constants/constants";
 
 export const metadata: Metadata = pageMetadata({
   title: "Livery Browser Extension: Design Kits From Pages Behind a Login",
@@ -42,7 +43,7 @@ const NEVER = [
 export default function ExtensionPage() {
   return (
     <>
-      <JsonLd data={[breadcrumbs([{ name: "Browser extension", path: "/extension" }])]} />
+      <JsonLd data={[breadcrumbs([{ name: "Browser extension", path: "/extension" }]), extensionApp]} />
       <PageIntro
         art={<ExtensionScene />}
         kicker="Browser extension"
@@ -50,11 +51,18 @@ export default function ExtensionPage() {
         muted="Measured in Your Browser"
         lead="Livery's own browser only sees public pages. The extension measures the ones you're signed into, like your app's dashboard or settings, and adds them to a kit that stays private until you publish it."
       >
-        <Button asChild variant="secondary">
-          <Link href="/legal/privacy#extension">
-            Privacy details <ArrowRight />
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild>
+            <a href={EXTENSION_STORE_URL} target="_blank" rel="noreferrer">
+              Add to Chrome, free <ArrowUpRight />
+            </a>
+          </Button>
+          <Button asChild variant="secondary">
+            <Link href="/legal/privacy#extension">
+              Privacy details <ArrowRight />
+            </Link>
+          </Button>
+        </div>
       </PageIntro>
 
       <SceneSection kicker="Get started" title="Three Steps," muted="Once">

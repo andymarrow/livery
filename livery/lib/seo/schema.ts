@@ -1,4 +1,4 @@
-import { CREATOR, SITE } from "@/constants/constants";
+import { CREATOR, EXTENSION_STORE_URL, SITE } from "@/constants/constants";
 
 // schema.org objects shared across pages. Ids tie them together, so the
 // organisation, the website and the app read as one entity.
@@ -14,7 +14,7 @@ export const organization = {
   url: SITE.url,
   logo: { "@type": "ImageObject", url: `${SITE.url}/icon.svg` },
   description: SITE.definition,
-  sameAs: [CREATOR.x],
+  sameAs: [CREATOR.x, EXTENSION_STORE_URL],
   founder: { "@type": "Person", name: CREATOR.handle.replace(/^@/, ""), url: CREATOR.x },
 };
 
@@ -73,3 +73,18 @@ export function faqPage(questions: { q: string; a: string }[]) {
     mainEntity: questions.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
   };
 }
+
+/** The browser extension, as an app with its store listing. */
+export const extensionApp = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Livery browser extension",
+  applicationCategory: "BrowserApplication",
+  operatingSystem: "Chrome, Edge, Brave, Arc",
+  url: `${SITE.url}/extension`,
+  installUrl: EXTENSION_STORE_URL,
+  downloadUrl: EXTENSION_STORE_URL,
+  description: "Measure the design of pages behind your login, like your app's dashboard or settings, into a private Livery design kit. Text and images never leave the page.",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  publisher: { "@id": `${SITE.url}/#organization` },
+};

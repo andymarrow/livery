@@ -105,7 +105,7 @@ npm run extension:build && npm run extension:store
 
 ### After it's published
 
-Set `NEXT_PUBLIC_CHROME_EXTENSION_URL` to the store page in Vercel and redeploy. The install buttons on `/extension`, Create and kit pages then link to it (until then they say "Coming soon").
+Live since 2026-10-09: https://chromewebstore.google.com/detail/livery/joghhbmmhinhjflcadnikbkkpgcjlhoe (ID `joghhbmmhinhjflcadnikbkkpgcjlhoe`). The site links to it by default (`EXTENSION_STORE_URL` in `constants/constants.ts`); `NEXT_PUBLIC_CHROME_EXTENSION_URL` overrides it. For each update: bump the version, `npm run extension:zip`, upload the zip as a new version of the same item.
 
 ## Extension ID
 
