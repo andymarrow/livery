@@ -91,7 +91,7 @@ function storedExtraction(extraction: Extraction) {
 export type BuildOutcome =
   | { status: "ready"; kit: ReadyKit; cached: boolean }
   | { status: "building"; slug: string }
-  | { status: "rate_limited"; resetAt: Date }
+  | { status: "rate_limited"; resetAt: Date; plan?: string; upgrade?: boolean }
   | { status: "failed"; failure: ReadFailure; slug?: string };
 
 /**
@@ -115,8 +115,8 @@ export async function resolveKit(
   if (cached && cached.grantHash === currentGrantHash && !options.force) return { status: "ready", kit: cached, cached: true };
 
   if (!options.skipRate) {
-    const rate = await checkBuildRate(options.ip);
-    if (!rate.allowed) return { status: "rate_limited", resetAt: rate.resetAt };
+    const rate = await checkBuildRate(options.ip, options.ownerId);
+    if (!rate.allowed) return { status: "rate_limited", resetAt: rate.resetAt, plan: rate.plan, upgrade: rate.upgrade };
   }
 
   const lock = await startBuild(target, EXTRACTOR_VERSION, FLOW_VERSION, options.ownerId ?? null);

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Livery",
   "short_name": "Livery",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Measure the design of a page you're signed into and add it to your Livery kit. Private until you publish.",
   "homepage_url": "https://www.livery.site",
   "minimum_chrome_version": "116",

@@ -155,6 +155,7 @@ export const User = make(LucideUser, "User");
 export const X = make(LucideX, "X");
 export const BookOpen = make(LucideBookOpenText, "BookOpen");
 export const CardBlocked = make(LucideCreditCard, "CardBlocked");
+export const CreditCard = make(LucideCreditCard, "CreditCard");
 export const CodeFolder = make(LucideFolderCode, "CodeFolder");
 export const FileCode = make(LucideFileCode, "FileCode");
 export const FileRemove = make(LucideFileX, "FileRemove");

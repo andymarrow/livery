@@ -1,4 +1,7 @@
 import "server-only";
+import { createHash } from "node:crypto";
+import { getBillingSettings } from "@/lib/billing/settings";
+import { planOf } from "@/lib/billing/subscription";
 import { refreshKitPages } from "@/lib/kit/revalidate";
 import { EXTRACTOR_VERSION, FLOW_VERSION } from "@/constants/constants";
 import { COMBINE_LIMITS, cleanCurator, combinedName, combinedSlug, sourcesHash, sourcesKey, type CombinedKind } from "@/lib/combine/identity";
@@ -21,9 +24,9 @@ import { screenTarget } from "./readSite";
 export type CombineRequest = { kind: CombinedKind; urls: string[]; curator?: string | null };
 
 export type CombineOutcome =
-  | { status: "ready"; kit: ReadyKit; cached: boolean }
+  | { status: "ready"; kit: ReadyKit; cached: boolean; private?: boolean }
   | { status: "building"; slug: string }
-  | { status: "rate_limited"; resetAt: Date }
+  | { status: "rate_limited"; resetAt: Date; plan?: string; upgrade?: boolean }
   | { status: "invalid"; message: string }
   /** These links have no published page kit yet: build them first. */
   | { status: "needs_sources"; urls: string[] }
@@ -38,15 +41,25 @@ export type CombineOutcome =
  */
 export async function combineKit(
   request: CombineRequest,
-  options: { ip: string; onProgress?: Progress; /** Admin: not counted against a visitor's limit. */ skipRate?: boolean; /** Admin: publish as the next version of this combined kit. */ kitId?: string; /** Admin: allow more links than a visitor may combine. */ maxLinks?: number; /** The signed-in builder: owns the kit if it's new. */ ownerId?: string | null },
+  options: { ip: string; onProgress?: Progress; /** Admin: not counted against a visitor's limit. */ skipRate?: boolean; /** Admin: publish as the next version of this combined kit. */ kitId?: string; /** Admin: allow more links than a visitor may combine. */ maxLinks?: number; /** The signed-in builder: owns the kit if it's new. */ ownerId?: string | null; /** Pro: keep the kit private to its owner. */ private?: boolean },
 ): Promise<CombineOutcome> {
   const progress: Progress = options.onProgress ?? (() => {});
   const { kind } = request;
   if (kind !== "site" && kind !== "taste") return { status: "invalid", message: "Choose pages of one site or a person's taste." };
   const urls = request.urls.map((u) => u.trim()).filter(Boolean);
-  const max = Math.min(options.maxLinks ?? COMBINE_LIMITS.max, COMBINE_LIMITS.adminMax);
-  if (urls.length < COMBINE_LIMITS.min || urls.length > max) {
-    return { status: "invalid", message: `Paste between ${COMBINE_LIMITS.min} and ${max} links.` };
+  const [plan, settings] = await Promise.all([options.skipRate ? ("pro" as const) : planOf(options.ownerId), getBillingSettings()]);
+  const LIMITS = settings.limits;
+  const max = Math.min(options.maxLinks ?? LIMITS[plan].tasteSites, COMBINE_LIMITS.adminMax);
+  if (urls.length < COMBINE_LIMITS.min) return { status: "invalid", message: `Paste at least ${COMBINE_LIMITS.min} links.` };
+  if (urls.length > max) {
+    return {
+      status: "invalid",
+      message: plan === "pro" || !settings.enabled ? `A kit combines up to ${max} links.` : `Up to ${max} links on the free plan. Livery Pro combines up to ${LIMITS.pro.tasteSites}.`,
+    };
+  }
+  const makePrivate = Boolean(options.private);
+  if (makePrivate && (!options.ownerId || !LIMITS[plan].privateCombined)) {
+    return { status: "invalid", message: !options.ownerId ? "Sign in to keep a kit private." : settings.enabled ? "Private tastes and multi-page kits come with Livery Pro." : "Private tastes and multi-page kits aren't available yet." };
   }
 
   progress("checking", "every link, against the guardrails");
@@ -73,17 +86,19 @@ export async function combineKit(
   const named = kind === "taste" ? cleanCurator(request.curator) : null;
   // An admin editing a taste keeps its kind and domain rules; the name can change.
   const hosts = domains;
-  const key = sourcesKey(kind, named?.curatorSlug ?? null, targets.map((t) => t.sourceUrl));
+  const publicKey = sourcesKey(kind, named?.curatorSlug ?? null, targets.map((t) => t.sourceUrl));
+  // A private kit is the owner's own: its own key (and so its own slug), never the public kit of the same links.
+  const key = makePrivate ? createHash("sha256").update(`private:${options.ownerId}:${publicKey}`).digest("hex") : publicKey;
   const hash = sourcesHash(sources.map((s) => s.kit.versionId));
   const existing = options.kitId ? await getCombinedKit(options.kitId) : null;
   const slug = existing?.slug ?? combinedSlug(kind, key, { domain: domains[0], curatorSlug: named?.curatorSlug, hosts });
 
   const cached = await findReadyCombined(key, EXTRACTOR_VERSION, hash);
-  if (cached && (!existing || cached.kitId === existing.id)) return { status: "ready", kit: cached, cached: true };
+  if (cached && (!existing || cached.kitId === existing.id)) return { status: "ready", kit: cached, cached: true, private: makePrivate };
 
   if (!options.skipRate) {
-    const rate = await checkBuildRate(options.ip);
-    if (!rate.allowed) return { status: "rate_limited", resetAt: rate.resetAt };
+    const rate = await checkBuildRate(options.ip, options.ownerId);
+    if (!rate.allowed) return { status: "rate_limited", resetAt: rate.resetAt, plan: rate.plan, upgrade: rate.upgrade };
   }
 
   const sourceRows = sources.map((s, i) => ({ position: i + 1, source_url: s.target.sourceUrl, domain: s.target.domain, source_version_id: s.kit.versionId }));
@@ -91,6 +106,7 @@ export async function combineKit(
     ? await startCombinedVersion({ kitId: existing.id, sourcesKey: key, sources: sourceRows, sourcesHash: hash, extractorVersion: EXTRACTOR_VERSION, flowVersion: FLOW_VERSION })
     : await startCombinedBuild({
         ownerId: options.ownerId ?? null,
+        visibility: makePrivate ? "private" : "public",
     kind,
     sourcesKey: key,
     domain: kind === "site" ? domains[0] : null,
@@ -175,7 +191,7 @@ export async function combineKit(
     refreshKitPages();
     const ready = await findReadyCombined(key, EXTRACTOR_VERSION, hash);
     if (!ready) throw new Error("published kit not found");
-    return { status: "ready", kit: ready, cached: false };
+    return { status: "ready", kit: ready, cached: false, private: makePrivate };
   } catch (error) {
     logger.error("kit.combine_failed", { slug, error: error instanceof Error ? error.message : String(error) });
     await failBuild(lock.kit_version_id, error instanceof Error ? error.message : String(error)).catch(() => {});

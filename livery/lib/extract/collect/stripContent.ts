@@ -4,7 +4,7 @@
 // when the image can't be read), and text becomes soft bars in its own colour.
 // Icons, borders, radii, spacing and backgrounds stay exactly as they were.
 
-export async function stripContent(): Promise<number> {
+export async function stripContent(mosaics: (string | null)[] = []): Promise<number> {
   // Detach the page from its app first. Frameworks (React, Vue, Svelte) keep
   // references to the nodes they rendered; rewriting those nodes makes the
   // app crash or re-render on its next update, which can blank the whole page
@@ -63,8 +63,9 @@ export async function stripContent(): Promise<number> {
     const s = getComputedStyle(el);
     const div = document.createElement("div");
     div.setAttribute("data-livery-block", "");
-    div.style.cssText = `display:${s.display === "inline" ? "inline-block" : s.display};width:${r.width}px;height:${r.height}px;background:${color};border-radius:${s.borderRadius};margin:${s.margin};flex:${s.flex};grid-area:${s.gridArea};position:${s.position === "static" ? "relative" : s.position};inset:${s.inset};`;
+    div.style.cssText = `display:${s.display === "inline" ? "inline-block" : s.display};width:${r.width}px;height:${r.height}px;background:${color};border-radius:${s.borderRadius};margin:${s.margin};flex:${s.flex};grid-area:${s.gridArea};position:${s.position === "static" ? "relative" : s.position};inset:${s.inset};z-index:${s.zIndex};`;
     el.replaceWith(div);
+    return div;
   };
 
   let replaced = 0;
@@ -76,7 +77,19 @@ export async function stripContent(): Promise<number> {
     if (media instanceof HTMLVideoElement) media.removeAttribute("poster");
     replaced++;
   });
-  document.querySelectorAll("canvas, iframe, object, embed").forEach((el) => {
+  // A canvas becomes the coarse mosaic of its scene when one was taken
+  // (lib/extract/scene.ts), so 3D sites keep their colour and composition.
+  document.querySelectorAll("canvas").forEach((el, i) => {
+    const mosaic = mosaics[i];
+    const div = block(el, neutral);
+    if (!mosaic) return void replaced++;
+    // Set on its own: the data URL's ";base64," would end a cssText declaration.
+    div.style.setProperty("background-image", `url("${mosaic}")`);
+    div.style.setProperty("background-size", "100% 100%");
+    div.style.setProperty("image-rendering", "pixelated");
+    replaced++;
+  });
+  document.querySelectorAll("iframe, object, embed").forEach((el) => {
     block(el, neutral);
     replaced++;
   });
@@ -107,6 +120,7 @@ export async function stripContent(): Promise<number> {
       img.src = src;
     });
   for (const el of Array.from(document.querySelectorAll("*"))) {
+    if (el.hasAttribute("data-livery-block")) continue; // scene mosaics stay
     const s = getComputedStyle(el);
     const match = s.backgroundImage && s.backgroundImage.match(/url\(["']?([^"')]+)["']?\)/);
     if (!match) continue;

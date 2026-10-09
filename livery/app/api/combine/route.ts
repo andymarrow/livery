@@ -20,11 +20,12 @@ export type CombineEvent =
 function toEvent(outcome: CombineOutcome): CombineEvent {
   switch (outcome.status) {
     case "ready":
-      return { type: "ready", path: kitPath(outcome.kit.slug, outcome.kit.version), cached: outcome.cached };
+      // A private kit lives on its owner's page, not in the library.
+      return { type: "ready", path: outcome.private ? `/me/kits/${outcome.kit.slug}/v${outcome.kit.version}` : kitPath(outcome.kit.slug, outcome.kit.version), cached: outcome.cached };
     case "building":
       return { type: "building" };
     case "rate_limited":
-      return { type: "rate_limited", resetAt: outcome.resetAt.toISOString() };
+      return { type: "rate_limited", resetAt: outcome.resetAt.toISOString(), plan: outcome.plan, upgrade: outcome.upgrade };
     case "invalid":
       return { type: "invalid", message: outcome.message };
     case "needs_sources":
@@ -37,18 +38,18 @@ function toEvent(outcome: CombineOutcome): CombineEvent {
 /** Combines already-built page kits into one site or taste kit, streaming its stages as NDJSON. */
 export async function POST(request: NextRequest) {
   if (!supabaseConfigured()) return Response.json({ error: "not configured" }, { status: 503 });
-  const body = (await request.json().catch(() => null)) as { kind?: unknown; urls?: unknown; curator?: unknown } | null;
+  const body = (await request.json().catch(() => null)) as { kind?: unknown; urls?: unknown; curator?: unknown; private?: unknown } | null;
   const urls = Array.isArray(body?.urls) ? body.urls : null;
   if (
     !body ||
     (body.kind !== "site" && body.kind !== "taste") ||
     !urls ||
     urls.length < COMBINE_LIMITS.min ||
-    urls.length > COMBINE_LIMITS.max ||
+    urls.length > COMBINE_LIMITS.adminMax ||
     !urls.every((u): u is string => typeof u === "string" && u.length <= 2048) ||
     (body.curator != null && (typeof body.curator !== "string" || body.curator.length > 200))
   ) {
-    return Response.json({ error: `kind and ${COMBINE_LIMITS.min}-${COMBINE_LIMITS.max} urls are required` }, { status: 400 });
+    return Response.json({ error: `kind and ${COMBINE_LIMITS.min}-${COMBINE_LIMITS.adminMax} urls are required` }, { status: 400 });
   }
   const input = { kind: body.kind as "site" | "taste", urls, curator: (body.curator as string | undefined) ?? null };
   const ip = clientIp(request.headers);
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
         }
       };
       try {
-        const outcome = await combineKit(input, { ip, ownerId, onProgress: (stage, detail) => send({ type: "stage", stage, detail }) });
+        const outcome = await combineKit(input, { ip, ownerId, private: body.private === true, onProgress: (stage, detail) => send({ type: "stage", stage, detail }) });
         send(toEvent(outcome));
       } catch (error) {
         logger.error("combine.stream_error", { kind: input.kind, error: error instanceof Error ? error.message : String(error) });

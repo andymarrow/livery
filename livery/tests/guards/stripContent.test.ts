@@ -20,7 +20,7 @@ describe.skipIf(!chromeAvailable)("content removal on a logo-heavy page", () => 
     browser = await chromium.launch({ channel: "chrome" });
     page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     await page.setContent(html, { waitUntil: "load" });
-    await page.evaluate(stripContent);
+    await page.evaluate(stripContent, []);
   });
   afterAll(async () => browser?.close());
 

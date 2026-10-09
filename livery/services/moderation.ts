@@ -6,6 +6,18 @@ import { getAdminClient } from "@/lib/supabase/admin";
 // Users, activity and the audit log for the admin area. Service role only;
 // pages and actions check the admin session first.
 
+export type ProAccount = { userId: string; email: string | null; source: "polar" | "admin"; status: string | null; interval: string | null; currentPeriodEnd: string | null; cancelAtPeriodEnd: boolean };
+
+/** Everyone with Pro: paying through Polar or given it by the admin. */
+export async function adminProAccounts(): Promise<ProAccount[] | null> {
+  const db = getAdminClient();
+  const { data, error } = await db.from("subscriptions").select("user_id, source, status, interval, current_period_end, cancel_at_period_end").eq("plan", "pro").order("updated_at", { ascending: false });
+  if (error) return missingMigration(error) ? null : [];
+  const users = await allAuthUsers();
+  const email = new Map(users.map((u) => [u.id, u.email ?? null]));
+  return (data ?? []).map((r) => ({ userId: r.user_id, email: email.get(r.user_id) ?? null, source: r.source, status: r.status, interval: r.interval, currentPeriodEnd: r.current_period_end, cancelAtPeriodEnd: r.cancel_at_period_end }));
+}
+
 export type AdminUser = {
   id: string;
   email: string | null;
@@ -19,6 +31,7 @@ export type AdminUser = {
   kits: { total: number; public: number; private: number };
   captures: number;
   connections: number;
+  pro: boolean;
 };
 
 async function allAuthUsers() {
@@ -35,13 +48,15 @@ async function allAuthUsers() {
 
 export async function adminUsers(): Promise<AdminUser[]> {
   const db = getAdminClient();
-  const [users, profiles, kits, captures, tokens] = await Promise.all([
+  const [users, profiles, kits, captures, tokens, pros] = await Promise.all([
     allAuthUsers(),
     db.from("profiles").select("id, display_name, avatar_url"),
     db.from("kits").select("owner_id, kit_versions(visibility, status)").not("owner_id", "is", null),
     db.from("page_captures").select("owner_id").not("owner_id", "is", null),
     db.from("extension_tokens").select("user_id, revoked_at, expires_at"),
+    db.from("subscriptions").select("user_id").eq("plan", "pro"),
   ]);
+  const proIds = new Set((pros.data ?? []).map((p) => p.user_id));
   const profile = new Map((profiles.data ?? []).map((p) => [p.id, p]));
   const now = Date.now();
   return users
@@ -62,6 +77,7 @@ export async function adminUsers(): Promise<AdminUser[]> {
         kits: { total: owned.length, public: owned.filter(isPublic).length, private: owned.filter((k) => !isPublic(k)).length },
         captures: (captures.data ?? []).filter((c) => c.owner_id === u.id).length,
         connections: (tokens.data ?? []).filter((t) => t.user_id === u.id && !t.revoked_at && new Date(t.expires_at).getTime() > now).length,
+        pro: proIds.has(u.id),
       };
     })
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));

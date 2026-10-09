@@ -15,6 +15,8 @@ export type Scene = {
   coverage: number;
   aboveFold: boolean;
   canvases: number;
+  /** The scene's main colours, most used first (from a shot of the largest canvas). */
+  colors: string[];
   /** How it's done here and how to do it in a new project. */
   notes: string[];
 };
@@ -70,8 +72,10 @@ export function sceneOf(raws: RawDesign[], stack: StackEntry[]): Scene | null {
   } else {
     notes.push("Its engine isn't identifiable from the page: it may be a 2D canvas, raw WebGL, or a library loaded as a module.");
   }
+  const colors = canvases.find((c) => c.colors?.length)?.colors ?? [];
+  if (colors.length) notes.push(`The scene's main colours, most used first: ${colors.join(", ")}. Light, materials and background should land on these, so the page around it can share the same palette.`);
   notes.push(`Keep it light: cap devicePixelRatio at 2, render only while the canvas is on screen, show a still frame under prefers-reduced-motion, and a static image when ${renderer === "WebGPU" ? "WebGPU or WebGL" : "WebGL"} isn't available.`);
-  return { engine: engine?.name ?? null, version: engine?.version ?? null, renderer, coverage: Math.round(largest * 100) / 100, aboveFold, canvases: Math.max(0, ...canvases.map((c) => c.count)), notes };
+  return { engine: engine?.name ?? null, version: engine?.version ?? null, renderer, coverage: Math.round(largest * 100) / 100, aboveFold, canvases: Math.max(0, ...canvases.map((c) => c.count)), colors, notes };
 }
 
 const FEATURE_NAMES: Record<string, string> = {

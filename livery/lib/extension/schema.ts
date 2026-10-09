@@ -48,7 +48,7 @@ export const RawDesignSchema = z.object({
   signals: z
     .object({
       stack: z.array(z.object({ name: z.string().max(60), category: z.enum(["framework", "builder", "css", "ui", "motion", "scroll", "3d", "fonts"]), evidence: z.string().max(120), version: z.string().max(40).optional(), strong: z.boolean() })).max(30),
-      canvases: z.object({ count: z.number().int().min(0).max(10000), largestShare: z.number().min(0).max(1), engines: z.array(z.string().max(40)).max(5), aboveFold: z.boolean() }),
+      canvases: z.object({ count: z.number().int().min(0).max(10000), largestShare: z.number().min(0).max(1), engines: z.array(z.string().max(40)).max(5), aboveFold: z.boolean(), colors: z.array(z.string().regex(/^#[0-9a-f]{6}$/)).max(5).optional() }),
       details: z.object({
         backdropBlur: z.number().int().min(0), blendModes: z.number().int().min(0), gradientText: z.number().int().min(0), outlinedText: z.number().int().min(0), sticky: z.number().int().min(0),
         preserve3d: z.number().int().min(0), clipShapes: z.number().int().min(0), masks: z.number().int().min(0), filters: weighted, fontFeatures: weighted, variableAxes: z.number().int().min(0),

@@ -12,9 +12,9 @@ const MAX_HEIGHT: Record<Viewport["name"], number> = { desktop: 6000, tablet: 40
  * Removes the owner's content (images, logos, text) and captures a full-page
  * WebP, stitched from on-screen captures. Destructive: run it last on a page.
  */
-export async function captureFrame(page: Page, viewport: Viewport): Promise<Frame> {
+export async function captureFrame(page: Page, viewport: Viewport, mosaics: (string | null)[] = []): Promise<Frame> {
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.evaluate(stripContent);
+  await page.evaluate(stripContent, mosaics);
   // The frozen copy may carry the site's smooth scrolling; jumps must be instant.
   await page.evaluate(() => document.documentElement.style.setProperty("scroll-behavior", "auto", "important"));
   await page.evaluate(() => window.scrollTo(0, 0));

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { DropdownMenu } from "radix-ui";
 import { displayNameOf, useAuth } from "@/app/_context/AuthContext";
 import { signOut } from "@/app/actions/signOut";
-import { Bookmark, LogOut, User } from "@/components/icons";
+import { Bookmark, LogOut, User, Star } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 export function Avatar({ name, url, className }: { name: string; url: string | null | undefined; className?: string }) {
@@ -51,6 +51,11 @@ export function AccountMenu() {
           <DropdownMenu.Item asChild className={item}>
             <Link href="/me#saved">
               <Bookmark className="size-4" /> Saved
+            </Link>
+          </DropdownMenu.Item>
+          <DropdownMenu.Item asChild className={item}>
+            <Link href="/me#plan">
+              <Star className="size-4" /> Plan and billing
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Separator className="my-1 h-px bg-border" />

@@ -6,6 +6,8 @@ import { json, requireExtensionUser, unauthorized } from "@/lib/extension/http";
 import { CaptureRequestSchema } from "@/lib/extension/schema";
 import { errorText, logger } from "@/lib/logger";
 import { getAdminClient } from "@/lib/supabase/admin";
+import { getBillingSettings } from "@/lib/billing/settings";
+import { planOf } from "@/lib/billing/subscription";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -19,8 +21,12 @@ export async function POST(request: NextRequest) {
   if (!user) return unauthorized();
   if (Number(request.headers.get("content-length") ?? 0) > 4_500_000) return json({ error: "This capture is too large. Try a shorter page." }, 413);
 
-  const { data: rate } = await getAdminClient().rpc("bump_rate", { p_key: `capture:${user.userId}`, p_window_seconds: 3600, p_max: 40 });
-  if (rate && !rate[0]?.allowed) return json({ error: "You've added a lot of pages this hour. Try again later." }, 429);
+  const [plan, settings] = await Promise.all([planOf(user.userId), getBillingSettings()]);
+  const max = settings.limits[plan].capturesPerHour;
+  const { data: rate } = await getAdminClient().rpc("bump_rate", { p_key: `capture:${user.userId}`, p_window_seconds: 3600, p_max: max });
+  if (rate && !rate[0]?.allowed) {
+    return json({ error: plan === "pro" || !settings.enabled ? `You've added ${max} pages this hour. Try again in a little while.` : `You've added ${max} pages this hour, the free limit. Try again in a little while, or Livery Pro raises it to ${settings.limits.pro.capturesPerHour} (livery.site/pricing).`, upgrade: settings.enabled && plan !== "pro" }, 429);
+  }
 
   const parsed = CaptureRequestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return json({ error: "This capture couldn't be read. Update the extension and try again.", detail: parsed.error.issues[0]?.path.join(".") }, 400);

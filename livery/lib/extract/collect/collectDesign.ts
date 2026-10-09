@@ -67,7 +67,8 @@ export type StackHit = { name: string; category: "framework" | "builder" | "css"
 /** What makes a page itself beyond tokens: its stack, canvases, and the small craft details. */
 export type SiteSignals = {
   stack: StackHit[];
-  canvases: { count: number; largestShare: number; engines: string[]; aboveFold: boolean };
+  /** `colors` is filled in on the server from a shot of the largest scene (lib/extract/scene.ts). */
+  canvases: { count: number; largestShare: number; engines: string[]; aboveFold: boolean; colors?: string[] };
   details: {
     backdropBlur: number;
     blendModes: number;

@@ -12,6 +12,9 @@ import { ownedKits } from "@/services/myKits";
 import { createClient, currentUser } from "@/utils/supabase/server";
 import { Avatar } from "../_components/AccountMenu";
 import { DeleteAccount } from "./_components/DeleteAccount";
+import { PlanCard } from "./_components/PlanCard";
+import { getSubscription, syncSubscription } from "@/lib/billing/subscription";
+import { getBillingSettings } from "@/lib/billing/settings";
 
 export const metadata: Metadata = { title: "My kits", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -21,7 +24,17 @@ const PROVIDER: Record<string, string> = { google: "Google", github: "GitHub", e
 export default async function MePage({ searchParams }: PageProps<"/me">) {
   const user = await currentUser();
   if (!user) redirect("/sign-in?next=/me");
-  const { password } = await searchParams;
+  const { password, upgraded, billing } = await searchParams;
+  // Back from checkout: ask Polar now, so Pro shows even before its webhook lands.
+  const subscription = upgraded ? await syncSubscription(user.id).catch(() => getSubscription(user.id)) : await getSubscription(user.id);
+  const settings = await getBillingSettings();
+  const planNotice = upgraded
+    ? subscription.plan === "pro"
+      ? "Welcome to Livery Pro. Your new limits are on."
+      : "Thanks! Your payment is being confirmed; Pro switches on in a moment. Refresh if it hasn't."
+    : billing === "error"
+      ? "Couldn't open billing. Please try again."
+      : null;
   const supabase = await createClient();
   const [{ data: profile }, { data: saved }] = await Promise.all([
     supabase.from("profiles").select("display_name, avatar_url").eq("id", user.id).maybeSingle(),
@@ -69,6 +82,8 @@ export default async function MePage({ searchParams }: PageProps<"/me">) {
           </form>
         </div>
       </header>
+
+      <PlanCard subscription={subscription} notice={planNotice} limits={settings.limits} payments={settings.enabled} />
 
       <section className="mt-12">
         <h2 className="text-xl font-semibold tracking-tight">Your Kits</h2>

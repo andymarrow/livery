@@ -70,7 +70,10 @@ function StepIcon({ status }: { status: Step["status"] }) {
   );
 }
 
-export function CreateClient({ initialKind }: { initialKind: Kind }) {
+export function CreateClient({ initialKind, plan = "visitor", tasteMax = MAX, payments = false, privateAllowed = false, proSites = 12 }: { initialKind: Kind; plan?: "visitor" | "free" | "pro"; tasteMax?: number; payments?: boolean; privateAllowed?: boolean; proSites?: number }) {
+  const [keepPrivate, setKeepPrivate] = useState(false);
+  // Pro is only mentioned when payments are switched on.
+  const upsell = payments && plan !== "pro";
   const router = useRouter();
   const [kind, setKind] = useState<Kind>(initialKind);
   const [curator, setCurator] = useState("");
@@ -125,7 +128,7 @@ export function CreateClient({ initialKind }: { initialKind: Kind }) {
   }, [links, kind]);
   const filled = checked.filter((c) => c.ok);
   const min = kind === "single" ? 1 : MIN;
-  const max = kind === "single" ? 1 : MAX;
+  const max = kind === "single" ? 1 : tasteMax;
   const ready = filled.length >= min && checked.every((c, i) => c.ok || !links[i].trim());
   const hosts = [...new Set(filled.map((c) => c.host))];
   // One website that already has a kit: say so and offer it instead of building again.
@@ -173,7 +176,7 @@ export function CreateClient({ initialKind }: { initialKind: Kind }) {
             const host = toShortcut(url).ok ? (toShortcut(url) as { host: string }).host : url;
             set({ status: "failed", detail: failureCopy(event.reason as ReadFailureReason, host).body });
           } else if (event.type === "rate_limited") {
-            setProblem(`You've reached the hourly build limit. Links already in the library still work; try again after ${new Date(event.resetAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.`);
+            setProblem(`You've reached the hourly build limit. Links already in the library still work; try again after ${new Date(event.resetAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.${upsell ? " Livery Pro raises the limit." : ""}`);
             set({ status: "failed", detail: "Build limit reached" });
           } else set({ status: "failed", detail: event.message });
         },
@@ -221,7 +224,7 @@ export function CreateClient({ initialKind }: { initialKind: Kind }) {
       const response = await fetch("/api/combine", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ kind, urls, curator: kind === "taste" ? curator.trim() || null : null }),
+        body: JSON.stringify({ kind, urls, curator: kind === "taste" ? curator.trim() || null : null, private: keepPrivate && privateAllowed }),
       });
       if (response.status === 400) throw new Error((await response.json()).error);
       await readEvents<CombineEvent>(
@@ -232,7 +235,7 @@ export function CreateClient({ initialKind }: { initialKind: Kind }) {
             setCombine({ status: "done", detail: "Opening your kit" });
             if (kind === "taste") tray.clear();
             router.push(event.path);
-          } else if (event.type === "rate_limited") setCombine({ status: "failed", detail: "Build limit reached. Try again within the hour." });
+          } else if (event.type === "rate_limited") setCombine({ status: "failed", detail: `Build limit reached. Try again within the hour${upsell ? ", or upgrade to Livery Pro for more" : ""}.` });
           else if (event.type === "invalid") setCombine({ status: "failed", detail: event.message });
           else if (event.type === "needs_sources") setCombine({ status: "failed", detail: "Some links changed while building. Run it again." });
           else if (event.type === "failed") setCombine({ status: "failed", detail: `${event.url}: ${event.detail ?? event.reason}` });
@@ -364,7 +367,7 @@ export function CreateClient({ initialKind }: { initialKind: Kind }) {
             {fromTray && kind === "taste" && <span className="ml-2 normal-case tracking-normal text-accent-ink">from your collection</span>}
           </p>
           <p className="text-[12.5px] text-fg-subtle tabular">
-            {kind === "single" ? "One link" : `${filled.length} of ${MIN}–${MAX}`}
+            {kind === "single" ? "One link" : `${filled.length} of ${MIN}–${tasteMax}`}
           </p>
         </div>
         <ol className="mt-3 space-y-2.5">
@@ -428,6 +431,35 @@ export function CreateClient({ initialKind }: { initialKind: Kind }) {
           >
             <Plus className="size-3.5" strokeWidth={2.25} /> Add a link
           </button>
+        )}
+        {kind !== "single" && links.length >= max && upsell && (
+          <p className="ml-8 mt-3 text-[12.5px] text-fg-subtle">
+            That&apos;s {max}, the free limit.{" "}
+            <Link href="/pricing" className="font-medium text-accent-ink underline decoration-accent/40 underline-offset-4 hover:decoration-accent">
+              Livery Pro
+            </Link>{" "}
+            combines up to {proSites}.
+          </p>
+        )}
+        {kind !== "single" && (privateAllowed || upsell) && (
+          <label className={cn("ml-8 mt-5 flex w-fit items-center gap-3 text-[13px]", privateAllowed ? "cursor-pointer" : "cursor-default")}>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={keepPrivate && privateAllowed}
+              disabled={!privateAllowed}
+              onClick={() => setKeepPrivate((v) => !v)}
+              className={cn("relative h-5 w-9 shrink-0 rounded-full transition-colors duration-200 disabled:opacity-50", keepPrivate && privateAllowed ? "bg-accent" : "bg-surface-3")}
+            >
+              <span className={cn("absolute top-0.5 size-4 rounded-full bg-white shadow-card transition-[left] duration-200 ease-out-soft", keepPrivate && privateAllowed ? "left-[18px]" : "left-0.5")} />
+            </button>
+            <span className={privateAllowed ? "text-fg" : "text-fg-muted"}>Keep it private</span>
+            {!privateAllowed && (
+              <Link href="/pricing" className="rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-soft-fg">
+                Pro
+              </Link>
+            )}
+          </label>
         )}
       </div>
 

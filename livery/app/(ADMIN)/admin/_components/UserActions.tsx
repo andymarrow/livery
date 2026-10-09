@@ -7,12 +7,13 @@ import { adminDeleteUser } from "@/app/actions/adminDeleteUser";
 import { adminRevokeUserConnections } from "@/app/actions/adminRevokeUserConnections";
 import { adminSetUserBanned } from "@/app/actions/adminSetUserBanned";
 import { adminSetUserKitsHidden } from "@/app/actions/adminSetUserKitsHidden";
-import { Ban, Ellipsis, Eye, EyeOff, Puzzle, Trash2 as Trash, User } from "@/components/icons";
+import { adminSetUserPro } from "@/app/actions/adminSetUserPro";
+import { Ban, Ellipsis, Eye, EyeOff, Puzzle, Star, Trash2 as Trash, User } from "@/components/icons";
 import { useToast } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
 import { DangerDialog } from "./DangerDialog";
 
-type Target = { id: string; email: string | null; banned: boolean; kits: { total: number }; connections: number };
+type Target = { id: string; email: string | null; banned: boolean; kits: { total: number }; connections: number; pro?: boolean };
 
 // Everything an admin can do to an account, from the users table or a user's page.
 export function UserActions({ user, showProfileLink = true, afterDelete }: { user: Target; showProfileLink?: boolean; afterDelete?: () => void }) {
@@ -68,6 +69,16 @@ export function UserActions({ user, showProfileLink = true, afterDelete }: { use
                 <Puzzle className="size-4 text-fg-subtle" /> Disconnect their extension
               </DropdownMenu.Item>
             )}
+            <DropdownMenu.Item
+              className={item}
+              onSelect={async () => {
+                const result = await adminSetUserPro(user.id, !user.pro);
+                if (result.ok) done(user.pro ? `${name} is back on Free` : `${name} has Pro`);
+                else toast({ title: "Couldn't change the plan", description: result.error, tone: "danger" });
+              }}
+            >
+              <Star className="size-4 text-fg-subtle" /> {user.pro ? "Remove Pro" : "Give Pro"}
+            </DropdownMenu.Item>
             <DropdownMenu.Separator className="my-1 h-px bg-border" />
             {user.banned ? (
               <DropdownMenu.Item

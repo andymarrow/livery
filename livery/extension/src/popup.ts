@@ -4,6 +4,7 @@
 import { LIVERY_URL, TEST_BUILD } from "./config";
 import { pageGlobals } from "./globals";
 import type { MeasureApi } from "./measure";
+import { sceneShots, type CanvasBox } from "./scene";
 import { stitch, toBase64, type Shot } from "./stitch";
 
 type Target = { slug: string; title: string; kind: string; owned: boolean; visibility: "public" | "private"; version: number };
@@ -62,26 +63,43 @@ async function start() {
   const [tab] = testTab ? [await chrome.tabs.get(testTab)] : await chrome.tabs.query({ active: true, currentWindow: true });
   if (!(await token())) return disconnected();
 
-  const me = await api<{ name: string | null; email: string | null }>("/api/extension/me");
+  const me = await api<Me>("/api/extension/me");
   if (me.status === 401) return disconnected();
   if (!me.ok) return showError("Couldn't reach Livery. Check your connection.");
   account.hidden = false;
-  account.textContent = me.data.name ?? me.data.email ?? "Connected";
+  account.textContent = `${me.data.name ?? me.data.email ?? "Connected"}${me.data.plan === "pro" ? " · Pro" : ""}`;
+  plan = me.data;
 
   const blocked = blockedReason(tab?.url);
-  if (blocked || !tab?.id || !tab.url) return render(`<h1>Not this page</h1><p>${esc(blocked ?? "This tab can't be measured.")}</p>${footer()}`);
+  if (blocked || !tab?.id || !tab.url) {
+    render(`<h1>Not this page</h1><p>${esc(blocked ?? "This tab can't be measured.")}</p>${footer()}`);
+    return bindFooter();
+  }
 
   const res = await api<{ site: string | null; targets: Target[] }>(`/api/extension/targets?url=${encodeURIComponent(tab.url)}`);
   if (!res.ok) return showError(res.data.error ?? "Couldn't load your kits.");
-  if (!res.data.site) return render(`<h1>Not a public site</h1><p>Livery measures pages on public websites (not localhost or IP addresses).</p>${footer()}`);
+  if (!res.data.site) {
+    render(`<h1>Not a public site</h1><p>Livery measures pages on public websites (not localhost or IP addresses).</p>${footer()}`);
+    return bindFooter();
+  }
   ready(tab as chrome.tabs.Tab & { id: number; url: string }, res.data.site, res.data.targets);
 }
 
+// Older servers don't send the plan fields; then nothing about Pro is shown.
+type Me = { name: string | null; email: string | null; plan?: "free" | "pro"; payments?: boolean; capturesPerHour?: number; proCapturesPerHour?: number };
+let plan: Me | null = null;
+
+const pricing = () => chrome.tabs.create({ url: `${LIVERY_URL}/pricing` });
+
 function footer() {
-  return `<div class="row"><button class="link" id="disconnect">Disconnect this browser</button></div>`;
+  const upsell = plan?.payments && plan.plan !== "pro" && plan.capturesPerHour
+    ? `<p class="note">Free plan: ${plan.capturesPerHour} pages an hour. <button class="link" id="pro">Livery Pro</button> raises it to ${plan.proCapturesPerHour}.</p>`
+    : "";
+  return `${upsell}<div class="row"><button class="link" id="disconnect">Disconnect this browser</button></div>`;
 }
 
 function bindFooter() {
+  document.getElementById("pro")?.addEventListener("click", pricing);
   document.getElementById("disconnect")?.addEventListener("click", async () => {
     await api("/api/extension/me", { method: "DELETE" });
     await chrome.storage.local.remove(["token", "name"]);
@@ -147,8 +165,20 @@ async function measure(tab: chrome.tabs.Tab & { id: number; url: string }, targe
     const measured = await run(tab.id, () => (window as unknown as { __livery: MeasureApi }).__livery.measure()) as Measured;
     await addPageGlobals(tab.id, measured);
 
+    // A 3D scene on screen is kept as a coarse mosaic: a frozen WebGL canvas is blank.
+    const boxes = await run(tab.id, () => (window as unknown as { __livery: MeasureApi }).__livery.canvases()) as CanvasBox[];
+    let mosaics: (string | null)[] = [];
+    if (boxes.length) {
+      progress("Reading the 3D scene…", 0.18);
+      const scene = await sceneShots(await chrome.tabs.captureVisibleTab(tab.windowId, { format: "png" }), boxes, measured.viewport.width).catch(() => null);
+      if (scene) {
+        mosaics = scene.mosaics;
+        if (measured.raw.signals && scene.colors.length) measured.raw.signals.canvases.colors = scene.colors;
+      }
+    }
+
     progress("Removing text and images for the picture…", 0.25);
-    const page = await run(tab.id, () => (window as unknown as { __livery: MeasureApi }).__livery.prepare()) as { height: number; width: number; screen: number };
+    const page = await run(tab.id, (m: (string | null)[]) => (window as unknown as { __livery: MeasureApi }).__livery.prepare(m), [mosaics]) as { height: number; width: number; screen: number };
     const shots: Shot[] = [];
     try {
       for (let wanted = 0; wanted < page.height; wanted += page.screen) {
@@ -186,7 +216,7 @@ function review(tab: chrome.tabs.Tab & { id: number; url: string }, target: { ki
     <div class="swatches">${topColours(measured).map((c) => `<i style="background:${esc(c)}"></i>`).join("")}</div>
     <div class="facts">
       <span>${Object.keys(r.textStyles).length} type styles</span><span>${r.components.length} components</span>
-      <span>${Object.keys(r.spacing).length} spacing values</span><span>${Object.keys(r.radii).length} corner radii</span>
+      <span>${Object.keys(r.spacing).length} spacing values</span><span>${Object.keys(r.radii).length} corner radii</span>${r.signals?.canvases.colors?.length ? `<span>3D scene, as a coarse mosaic</span>` : ""}
     </div>
     <div class="row"><button class="secondary" id="cancel">Cancel</button><button class="primary" id="send">Send to Livery</button></div>`);
   document.getElementById("cancel")!.addEventListener("click", start);
@@ -195,10 +225,16 @@ function review(tab: chrome.tabs.Tab & { id: number; url: string }, target: { ki
 
 async function send(tab: chrome.tabs.Tab & { id: number; url: string }, target: { kind: "kit"; slug: string } | { kind: "new" }, measured: Measured, frame: Blob) {
   render(`<h1>Adding it to your kit</h1><p>Building a new private version…</p><div class="progress"><i style="width:60%"></i></div>`);
-  const res = await api<{ path?: string; url?: string; mode?: string; version?: number }>("/api/extension/captures", {
+  const res = await api<{ path?: string; url?: string; mode?: string; version?: number; upgrade?: boolean }>("/api/extension/captures", {
     method: "POST",
     body: JSON.stringify({ url: tab.url, viewport: measured.viewport, raw: measured.raw, voice: measured.voice, frame: await toBase64(frame), target }),
   });
+  if (res.status === 429 && res.data.upgrade) {
+    render(`<h1>That's a lot of pages</h1><p>${esc(res.data.error ?? "You've reached this hour's limit.")}</p><div class="row"><button class="primary" id="pro">See Livery Pro</button></div><div class="row"><button class="secondary" id="again">Back</button></div>`);
+    document.getElementById("pro")!.addEventListener("click", pricing);
+    document.getElementById("again")!.addEventListener("click", start);
+    return;
+  }
   if (!res.ok || !res.data.url) return showError(res.data.error ?? "Livery couldn't add this page.");
   const copy = res.data.mode === "copy" ? "We made you a private copy with this page added." : res.data.mode === "new" ? "A new private kit, starting with this page." : `v${res.data.version} of your kit now includes this page.`;
   render(`<div class="icon">✓</div><h1>Added. Private until you publish.</h1><p>${esc(copy)}</p><div class="row"><button class="primary" id="open">Open the kit</button></div><div class="row"><button class="secondary" id="another">Add another page</button></div>`);

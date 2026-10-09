@@ -29,12 +29,26 @@ const api = {
     return { raw, voice, url: location.href, viewport: { width: window.innerWidth, height: window.innerHeight } };
   },
 
-  async prepare() {
+  /** Large canvases on the current screen (CSS pixels, largest first), shot before the page is frozen. */
+  canvases() {
+    return Array.from(document.querySelectorAll("canvas"))
+      .map((canvas, index) => {
+        const r = canvas.getBoundingClientRect();
+        const x = Math.max(0, r.left);
+        const y = Math.max(0, r.top);
+        return { index, x, y, width: Math.min(window.innerWidth, r.right) - x, height: Math.min(window.innerHeight, r.bottom) - y };
+      })
+      .filter((b) => b.width >= 120 && b.height >= 80)
+      .sort((a, b) => b.width * b.height - a.width * a.height)
+      .slice(0, 4);
+  },
+
+  async prepare(mosaics: (string | null)[] = []) {
     const root = document.documentElement;
     state.saved = { x: window.scrollX, y: window.scrollY, scrollBehavior: root.style.getPropertyValue("scroll-behavior") };
     root.style.setProperty("scroll-behavior", "auto", "important");
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    await stripContent();
+    await stripContent(mosaics);
     unrollInPage();
     pinFixed();
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });

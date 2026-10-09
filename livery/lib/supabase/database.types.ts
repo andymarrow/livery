@@ -106,6 +106,8 @@ export type Database = {
       profiles: Table<{ id: string; display_name: string | null; avatar_url: string | null; created_at: string; updated_at: string }>;
       saved_kits: Table<{ user_id: string; kit_id: string; created_at: string }, { user_id: string; kit_id: string; created_at?: string }>;
       kit_events: Table<{ kit_id: string; kind: "view" | "like" | "download"; visitor: string; network: string; created_at: string }>;
+      app_settings: Table<{ key: string; value: Json; updated_at: string }, { key: string; value: Json; updated_at?: string }>;
+      subscriptions: Table<{ user_id: string; plan: "free" | "pro"; source: "polar" | "admin"; status: string | null; interval: string | null; polar_customer_id: string | null; polar_subscription_id: string | null; current_period_end: string | null; cancel_at_period_end: boolean; updated_at: string }, { user_id: string; plan?: "free" | "pro"; source?: "polar" | "admin"; status?: string | null; interval?: string | null; polar_customer_id?: string | null; polar_subscription_id?: string | null; current_period_end?: string | null; cancel_at_period_end?: boolean; updated_at?: string }>;
       admin_audit: Table<{ id: number; at: string; action: string; target: string | null; detail: Json }, { action: string; target?: string | null; detail?: Json }>;
       kit_stats: Table<{ kit_id: string; views: number; likes: number; downloads: number; updated_at: string }>;
       read_failures: Table<{

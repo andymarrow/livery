@@ -4,6 +4,7 @@ import { GUIDES } from "@/lib/seo/guides";
 import { kitPath } from "@/lib/kit/urls";
 import { supabaseConfigured } from "@/lib/supabase/configured";
 import { listKits } from "@/services/kitRead";
+import { getBillingSettings } from "@/lib/billing/settings";
 
 export const revalidate = 3600;
 
@@ -18,6 +19,7 @@ const PAGES: [string, number, MetadataRoute.Sitemap[number]["changeFrequency"]][
   ["/agents", 0.8, "monthly"],
   ["/guides", 0.8, "weekly"],
   ["/extension", 0.7, "monthly"],
+  ["/pricing", 0.7, "monthly"],
   ["/faq", 0.7, "monthly"],
   ["/owners", 0.6, "monthly"],
   ["/bot", 0.5, "monthly"],
@@ -28,8 +30,9 @@ const PAGES: [string, number, MetadataRoute.Sitemap[number]["changeFrequency"]][
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const payments = (await getBillingSettings().catch(() => ({ enabled: false }))).enabled;
   const pages: MetadataRoute.Sitemap = [
-    ...PAGES.map(([path, priority, changeFrequency]) => ({ url: `${SITE.url}${path}`, priority, changeFrequency })),
+    ...PAGES.filter(([path]) => payments || path !== "/pricing").map(([path, priority, changeFrequency]) => ({ url: `${SITE.url}${path}`, priority, changeFrequency })),
     ...GUIDES.map((g) => ({ url: `${SITE.url}/guides/${g.slug}`, lastModified: g.updated, priority: 0.7, changeFrequency: "monthly" as const })),
   ];
   if (!supabaseConfigured()) return pages;

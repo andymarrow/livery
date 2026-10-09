@@ -6,11 +6,18 @@ import type { Browser } from "playwright-core";
 // the DevTools protocol, which needs the WebSocket root with the same token.
 const REST_PATHS = /\/(screenshot|content|pdf|scrape|function|download|performance|unblock|export)\/?$/i;
 
+// Headless Chrome on a server has no GPU, and Chrome no longer falls back to
+// its software renderer (SwiftShader) for WebGL on its own: 3D sites then fail
+// to create a context and render blank. These flags turn the fallback back on.
+export const WEBGL_ARGS = ["--enable-unsafe-swiftshader", "--use-angle=swiftshader", "--ignore-gpu-blocklist"];
+
 export function cdpEndpoint(raw: string) {
   const url = new URL(raw.trim());
   if (url.protocol === "https:") url.protocol = "wss:";
   else if (url.protocol === "http:") url.protocol = "ws:";
   if (REST_PATHS.test(url.pathname)) url.pathname = "/";
+  // Browserless takes launch options as JSON in the query; keep any set by hand.
+  if (!url.searchParams.has("launch")) url.searchParams.set("launch", JSON.stringify({ args: WEBGL_ARGS }));
   return url.toString();
 }
 
@@ -27,5 +34,5 @@ export async function getBrowser(): Promise<Browser> {
   const endpoint = process.env.BROWSER_WS_ENDPOINT;
   if (endpoint) return chromium.connectOverCDP(cdpEndpoint(endpoint), { timeout: 20_000 });
   if (process.env.NODE_ENV === "production") throw new Error("BROWSER_WS_ENDPOINT is not set");
-  return chromium.launch({ channel: "chrome", headless: true });
+  return chromium.launch({ channel: "chrome", headless: true, args: WEBGL_ARGS });
 }

@@ -15,7 +15,7 @@ export type BuildEvent =
   | { type: "stage"; stage: BuildStage; detail?: string }
   | { type: "ready"; path: string; cached: boolean }
   | { type: "building" }
-  | { type: "rate_limited"; resetAt: string }
+  | { type: "rate_limited"; resetAt: string; plan?: string; upgrade?: boolean }
   | { type: "failed"; reason: string; detail?: string }
   | { type: "error"; message: string };
 
@@ -26,7 +26,7 @@ function toEvent(outcome: BuildOutcome): BuildEvent {
     case "building":
       return { type: "building" };
     case "rate_limited":
-      return { type: "rate_limited", resetAt: outcome.resetAt.toISOString() };
+      return { type: "rate_limited", resetAt: outcome.resetAt.toISOString(), plan: outcome.plan, upgrade: outcome.upgrade };
     case "failed":
       return { type: "failed", reason: outcome.failure.reason, detail: outcome.failure.detail };
   }

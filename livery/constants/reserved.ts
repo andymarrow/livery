@@ -2,7 +2,7 @@
 // shortcut must never treat these as a website to read.
 export const RESERVED_SEGMENTS = new Set([
   "k", "admin", "auth", "me", "extension", "sign-in", "sign-up", "forgot-password", "update-password", "build", "combine", "create", "tastes", "explore", "how-it-works", "agents", "faq", "owners", "bot", "about", "legal", "design", "api", "auth", "_next",
-  "og", "guides", "llms.txt", "llms-full.txt", "favicon.ico", "icon.svg", "apple-icon.png", "robots.txt", "sitemap.xml", "manifest.webmanifest", "opengraph-image",
+  "og", "guides", "pricing", "llms.txt", "llms-full.txt", "favicon.ico", "icon.svg", "apple-icon.png", "robots.txt", "sitemap.xml", "manifest.webmanifest", "opengraph-image",
 ]);
 
 // "favicon.png", "app.js": file requests, not websites.

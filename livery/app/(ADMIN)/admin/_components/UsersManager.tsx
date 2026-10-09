@@ -94,10 +94,11 @@ export function UsersManager({ users }: { users: AdminUser[] }) {
                 <td className="px-3 text-right font-mono text-[12px]">{u.captures || <span className="text-fg-subtle">0</span>}</td>
                 <td className="px-3">
                   <span className="flex flex-wrap gap-1">
+                    {u.pro && <span className="rounded-md bg-accent px-1.5 py-0.5 text-[11px] font-semibold text-on-accent">Pro</span>}
                     {u.banned && <span className="rounded-md bg-danger-soft px-1.5 py-0.5 text-[11px] font-medium text-danger">Banned</span>}
                     {!u.confirmed && <span className="rounded-md bg-surface-2 px-1.5 py-0.5 text-[11px] font-medium text-fg-muted">Unconfirmed</span>}
                     {u.connections > 0 && <span className="rounded-md bg-accent-soft px-1.5 py-0.5 text-[11px] font-medium text-accent-soft-fg">Extension</span>}
-                    {!u.banned && u.confirmed && !u.connections && <span className="text-[12px] text-fg-subtle">Active</span>}
+                    {!u.banned && u.confirmed && !u.connections && !u.pro && <span className="text-[12px] text-fg-subtle">Active</span>}
                   </span>
                 </td>
                 <td className="px-4 text-right">

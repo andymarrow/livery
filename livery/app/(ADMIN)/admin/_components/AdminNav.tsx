@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Ban, BookOpen, Boxes, CircleUser, Flag, Inbox, LayoutDashboard, Layers, ServerCrash, StoreVerified } from "@/components/icons";
+import { Ban, BookOpen, Boxes, CircleUser, CreditCard, Flag, Inbox, LayoutDashboard, Layers, ServerCrash, StoreVerified } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 const GROUPS = [
   { label: null, items: [{ href: "/admin", label: "Overview", icon: LayoutDashboard }, { href: "/admin/activity", label: "Activity", icon: Inbox }] },
   { label: "Library", items: [{ href: "/admin/kits", label: "Kits", icon: Boxes }, { href: "/admin/tastes", label: "Tastes", icon: Layers }] },
-  { label: "People", items: [{ href: "/admin/users", label: "Users", icon: CircleUser }, { href: "/admin/owners", label: "Site owners", icon: StoreVerified }] },
+  { label: "People", items: [{ href: "/admin/users", label: "Users", icon: CircleUser }, { href: "/admin/owners", label: "Site owners", icon: StoreVerified }, { href: "/admin/billing", label: "Billing", icon: CreditCard }] },
   {
     label: "Safety",
     items: [

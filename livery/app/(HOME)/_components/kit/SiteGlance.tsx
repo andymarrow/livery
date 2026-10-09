@@ -31,6 +31,13 @@ export function SiteGlance({ site }: { site: SiteProfile | undefined }) {
               {site.scene.renderer ? ` · ${site.scene.renderer}` : ""}
             </p>
             <p className="mt-1 text-[12.5px] leading-relaxed text-fg-muted">{site.scene.notes.slice(0, 2).join(" ")}</p>
+            {site.scene.colors?.length ? (
+              <div className="mt-2.5 flex items-center gap-1.5" aria-label="The scene's main colours">
+                {site.scene.colors.map((c) => (
+                  <span key={c} title={c} className="size-4 rounded-[5px] border border-border" style={{ background: c }} />
+                ))}
+              </div>
+            ) : null}
           </div>
         )}
       </div>

@@ -11,6 +11,7 @@ import { identifyFonts, type FontInfo } from "./process/fonts";
 import { identifyIcons, type IconReport } from "./process/icons";
 import { buildTokens, type Tokens } from "./process/tokens";
 import type { RenderedPage, Viewport } from "./render";
+import { snapshotCanvases } from "./scene";
 
 export type KitItem = {
   kind: KitItemKind;
@@ -132,7 +133,11 @@ export function createExtractor(sourceUrl: string, options: { assets?: AssetKind
       const backdrop = parseColor(raw.pageBackground);
       alternate = await collectOtherScheme(page, raw, backdrop ? luminance(backdrop) < 0.2 : false);
     }
-    frames.push(await captureFrame(page, viewport));
+    // 3D and canvas scenes: wait for them to paint, keep their colours, and
+    // show them in the frames as mosaics instead of blank blocks.
+    const scene = await snapshotCanvases(page).catch(() => ({ mosaics: [], colors: [] }));
+    if (raw.signals && scene.colors.length) raw.signals.canvases.colors = scene.colors;
+    frames.push(await captureFrame(page, viewport, scene.mosaics));
   }
 
   function finish(finalUrl: string): Extraction {

@@ -25,7 +25,7 @@ type State =
   | { phase: "running"; stage: BuildStage | null; detail?: string }
   | { phase: "waiting" }
   | { phase: "failed"; reason: ReadFailureReason }
-  | { phase: "rate_limited"; resetAt: string }
+  | { phase: "rate_limited"; resetAt: string; plan?: string; upgrade?: boolean }
   | { phase: "error"; message: string };
 
 function Elapsed({ since }: { since: number }) {
@@ -75,7 +75,7 @@ export function Builder({ url, host }: { url: string; host: string }) {
       else if (event.type === "ready") router.replace(event.path);
       else if (event.type === "building") waitForOther();
       else if (event.type === "failed") setState({ phase: "failed", reason: event.reason as ReadFailureReason });
-      else if (event.type === "rate_limited") setState({ phase: "rate_limited", resetAt: event.resetAt });
+      else if (event.type === "rate_limited") setState({ phase: "rate_limited", resetAt: event.resetAt, plan: event.plan, upgrade: event.upgrade });
       else setState({ phase: "error", message: event.message });
     };
 
@@ -103,9 +103,10 @@ export function Builder({ url, host }: { url: string; host: string }) {
     return (
       <Outcome
         icon={<HourglassMedium className="size-6" />}
-        title="Daily Build Limit Reached"
-        body="New builds are limited per visitor, because each one renders a site in a real browser at three screen sizes. Kits already in the library are always free."
+        title="That's a Lot of Building"
+        body={`Each new kit renders a site in a real browser at three screen sizes, so new builds have an hourly limit. Everything already in the library is free to open and install, as many times as you like.${state.plan === "visitor" ? " Signing in raises your limit, for free." : state.upgrade ? " Livery Pro raises it further." : ""}`}
         next={`You can build again after ${new Date(state.resetAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.`}
+        action={state.plan === "visitor" ? { href: `/sign-in?next=${encodeURIComponent(`/build?url=${encodeURIComponent(url)}`)}`, label: "Sign in, free" } : state.upgrade ? { href: "/pricing", label: "See Livery Pro" } : undefined}
       />
     );
   }
@@ -162,7 +163,7 @@ export function Builder({ url, host }: { url: string; host: string }) {
   );
 }
 
-function Outcome({ icon, title, body, next, code, owners, retry }: { icon: React.ReactNode; title: string; body: string; next: string; code?: string; owners?: boolean; retry?: boolean }) {
+function Outcome({ icon, title, body, next, code, owners, retry, action }: { icon: React.ReactNode; title: string; body: string; next: string; code?: string; owners?: boolean; retry?: boolean; action?: { href: string; label: string } }) {
   return (
     <div className="mx-auto w-full max-w-lg text-center">
       <span className="mx-auto flex size-12 items-center justify-center rounded-[18px] border border-border bg-surface text-fg-muted shadow-card">{icon}</span>
@@ -171,6 +172,11 @@ function Outcome({ icon, title, body, next, code, owners, retry }: { icon: React
       <p className="mt-2 text-sm leading-relaxed text-fg">{next}</p>
       <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
         {retry && <Button onClick={() => window.location.reload()}>Try again</Button>}
+        {action && (
+          <Button asChild>
+            <Link href={action.href}>{action.label}</Link>
+          </Button>
+        )}
         <Button asChild variant="secondary">
           <Link href="/#get-a-kit">
             <ArrowLeft strokeWidth={2.25} /> Try Another Site

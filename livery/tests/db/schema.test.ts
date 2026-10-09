@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { PGlite } from "@electric-sql/pglite";
 import { beforeEach, describe, expect, it } from "vitest";
 import { asRole, createDatabase } from "./setup";
@@ -649,5 +651,40 @@ describe("server role", () => {
       db.query<{ claimed: boolean }>(`select * from public.start_combined_build('site', $1, 'example.com', 'example-com-pages-aaaaaa', null, null, $2, $3, 1, 1, interval '10 minutes', null, 'private')`, ["a".repeat(64), payload, "b".repeat(64)]),
     );
     expect(rows[0].claimed).toBe(true);
+  });
+});
+
+describe("plans", () => {
+  const user = async () => (await db.query<{ id: string }>(`insert into auth.users (email) values ('p@example.com') returning id`)).rows[0].id;
+
+  it("can be run again over an earlier draft without failing", async () => {
+    const sql = readFileSync(join(__dirname, "../../supabase/migrations/20261009100000_plans.sql"), "utf8");
+    await db.exec(sql);
+    await db.exec(sql);
+  });
+
+  it("starts with payments off", async () => {
+    const { rows } = await db.query<{ value: { enabled: boolean } }>(`select value from public.app_settings where key = 'billing'`);
+    expect(rows[0].value.enabled).toBe(false);
+  });
+
+  it("shows people only their own plan, and lets nobody but the server write one", async () => {
+    const [a, b] = [await user(), await user()];
+    await db.query(`insert into public.subscriptions (user_id, plan, source) values ($1, 'pro', 'admin'), ($2, 'free', 'polar')`, [a, b]);
+    const seen = await asRole(db, "authenticated", () => db.query<{ user_id: string }>(`select user_id from public.subscriptions`), a);
+    expect(seen.rows.map((r) => r.user_id)).toEqual([a]);
+    await asRole(db, "authenticated", async () => {
+      await expect(db.query(`update public.subscriptions set plan = 'pro' where user_id = $1`, [b])).rejects.toThrow(/permission denied/);
+      await expect(db.query(`select * from public.app_settings`)).rejects.toThrow(/permission denied/);
+    }, b);
+    await asRole(db, "anon", async () => {
+      await expect(db.query(`select * from public.subscriptions`)).rejects.toThrow(/permission denied/);
+    });
+  });
+
+  it("rejects unknown plans and sources", async () => {
+    const id = await user();
+    await expect(db.query(`insert into public.subscriptions (user_id, plan, source) values ($1, 'gold', 'polar')`, [id])).rejects.toThrow(/check/);
+    await expect(db.query(`insert into public.subscriptions (user_id, plan, source) values ($1, 'pro', 'stripe')`, [id])).rejects.toThrow(/check/);
   });
 });
