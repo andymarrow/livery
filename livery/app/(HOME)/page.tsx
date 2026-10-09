@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import { SITE } from "@/constants/constants";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { NextSteps } from "./_components/NextSteps";
+import { PricingTeaser } from "./_components/PricingTeaser";
 import { WhatIsLivery } from "./_components/WhatIsLivery";
 
 export const metadata: Metadata = {
@@ -44,6 +45,7 @@ export default async function HomePage() {
       <LibraryWall kits={kits} />
       <LibraryTeaser kits={kits.slice(0, 6)} />
       <WhatIsLivery />
+      <PricingTeaser />
       <NextSteps />
     </>
   );

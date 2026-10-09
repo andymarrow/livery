@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 // who's looking: sign in, upgrade, or manage an existing plan.
 type Feature = { label: string; free: string | boolean; pro: string | boolean };
 
-export function PricingPlans({ plan, prices, features, payments, initialInterval = "month" }: { plan: "visitor" | "free" | "pro"; prices: Prices; features: Feature[]; payments: boolean; initialInterval?: BillingInterval }) {
+export function PricingPlans({ plan, prices, features, payments, proSummary, initialInterval = "month" }: { plan: "visitor" | "free" | "pro"; prices: Prices; features: Feature[]; payments: boolean; proSummary: string; initialInterval?: BillingInterval }) {
   const [interval, setInterval] = useState<BillingInterval>(initialInterval);
   const price = interval === "year" ? prices.year : prices.month;
   const cell = (value: string | boolean) =>
@@ -65,7 +65,7 @@ export function PricingPlans({ plan, prices, features, payments, initialInterval
             <span className="text-sm text-fg-muted">{interval === "year" ? "a year" : "a month"}</span>
             {interval === "year" && <span className="ml-1 text-[13px] text-fg-subtle">({money(Math.round((prices.year / 12) * 100) / 100)} a month)</span>}
           </p>
-          <p className="mt-3 text-sm leading-relaxed text-fg-muted">Five times the builds, tastes of up to 12 sites, private tastes and multi-page kits, and more room in the extension. Cancel any time.</p>
+          <p className="mt-3 text-sm leading-relaxed text-fg-muted">{proSummary} Cancel any time.</p>
           <div className="mt-auto pt-6">
             {/* eslint-disable @next/next/no-html-link-for-pages -- billing routes redirect to Polar: a full page load, not client navigation */}
             {!payments ? (

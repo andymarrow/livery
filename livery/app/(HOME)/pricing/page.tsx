@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
 import { PageIntro } from "@/components/PageIntro";
 import { SITE } from "@/constants/constants";
-import { featuresFor, money } from "@/lib/billing/plans";
+import { featuresFor, money, type Limits } from "@/lib/billing/plans";
 import { getBillingSettings } from "@/lib/billing/settings";
 import { planOf } from "@/lib/billing/subscription";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -10,8 +10,7 @@ import { breadcrumbs, faqPage } from "@/lib/seo/schema";
 import { currentUser } from "@/utils/supabase/server";
 import { PricingPlans } from "./_components/PricingPlans";
 
-// Prices and limits come from the admin's billing settings. While payments
-// are off the page stays reachable but out of search results.
+// Prices and limits come from the admin's billing settings.
 export async function generateMetadata(): Promise<Metadata> {
   const billing = await getBillingSettings();
   return pageMetadata({
@@ -19,7 +18,6 @@ export async function generateMetadata(): Promise<Metadata> {
     description: `Livery is free: every design kit in the library, new kits from any site and the browser extension. Livery Pro is ${money(billing.prices.month)} a month for heavy builders.`,
     path: "/pricing",
     kicker: "Pricing",
-    noindex: !billing.enabled,
   });
 }
 
@@ -32,6 +30,11 @@ const questions = (free: number, pro: number) => [
   { q: "What happens to my private kits if I cancel?", a: "They stay yours and stay private. Without Pro you can't make new private tastes or multi-page kits, and the free limits apply again." },
   { q: "Who handles payment?", a: "Polar (polar.sh), as merchant of record. It runs checkout, sends invoices and handles sales tax and VAT. Livery never sees your card." },
 ];
+
+const proSummary = (l: Limits) => {
+  const times = l.free.buildsPerHour > 0 ? Math.round(l.pro.buildsPerHour / l.free.buildsPerHour) : 0;
+  return `${times >= 2 ? `${times} times the builds` : `${l.pro.buildsPerHour} builds an hour`}, tastes of up to ${l.pro.tasteSites} sites, private tastes and multi-page kits, and more room in the extension.`;
+};
 
 export default async function PricingPage({ searchParams }: PageProps<"/pricing">) {
   const params = await searchParams;
@@ -62,7 +65,7 @@ export default async function PricingPage({ searchParams }: PageProps<"/pricing"
         <div className="mx-auto max-w-4xl">
           {notice && <p role="status" className="mb-8 rounded-[14px] border border-border bg-surface px-4 py-3 text-center text-sm text-fg-muted">{notice}</p>}
           {!billing.enabled && <p role="status" className="mb-8 rounded-[14px] border border-accent/40 bg-accent-soft px-4 py-3 text-center text-sm text-accent-soft-fg">Livery is completely free right now. Pro is coming soon; until then, everyone gets the free limits below.</p>}
-          <PricingPlans plan={plan} prices={billing.prices} features={featuresFor(billing.limits)} payments={billing.enabled} initialInterval={params.interval === "year" ? "year" : "month"} />
+          <PricingPlans plan={plan} prices={billing.prices} features={featuresFor(billing.limits)} payments={billing.enabled} proSummary={proSummary(billing.limits)} initialInterval={params.interval === "year" ? "year" : "month"} />
           <div className="mt-16">
             <h2 className="text-2xl font-semibold tracking-tight">Questions</h2>
             <dl className="mt-6 grid grid-cols-1 gap-x-10 gap-y-7 sm:grid-cols-2">

@@ -4,7 +4,7 @@ export const NAV_LINKS = [
   { href: "/how-it-works", label: "How it works" },
   { href: "/agents", label: "Agents" },
   { href: "/owners", label: "Site owners" },
-  { href: "/faq", label: "FAQ" },
+  { href: "/pricing", label: "Pricing" },
 ] as const;
 
 export const FOOTER_LINKS = {

@@ -5,11 +5,8 @@ import { ThemeSwitch } from "@/components/ThemeToggle";
 import { CREATOR, SITE } from "@/constants/constants";
 import { FOOTER_LINKS } from "@/constants/options";
 import { Coffee } from "@/components/icons";
-import { getBillingSettings } from "@/lib/billing/settings";
 
 export async function SiteFooter() {
-  // Pricing is listed only once payments are switched on.
-  const payments = (await getBillingSettings().catch(() => ({ enabled: false }))).enabled;
   return (
     <footer className="mt-auto border-t border-border">
       <div className="mx-auto max-w-[80rem] px-4 pb-8 pt-14 sm:px-6">
@@ -38,7 +35,7 @@ export async function SiteFooter() {
             <div key={group}>
               <h2 className="label-micro">{group}</h2>
               <ul className="mt-4 space-y-2.5">
-                {links.filter((link) => payments || link.href !== "/pricing").map((link) => (
+                {links.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
