@@ -2,12 +2,17 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
 import { PageIntro } from "@/components/PageIntro";
 import { SITE } from "@/constants/constants";
-import { featuresFor, money, type Limits } from "@/lib/billing/plans";
+import { money } from "@/lib/billing/plans";
 import { getBillingSettings } from "@/lib/billing/settings";
 import { planOf } from "@/lib/billing/subscription";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { breadcrumbs, faqPage } from "@/lib/seo/schema";
 import { currentUser } from "@/utils/supabase/server";
+import { PricingScene } from "@/components/iso/scenes";
+import { FinalCta } from "../_components/FinalCta";
+import { CompareTable } from "./_components/CompareTable";
+import { LimitRulers } from "./_components/LimitRulers";
+import { PricingFaq } from "./_components/PricingFaq";
 import { PricingPlans } from "./_components/PricingPlans";
 
 // Prices and limits come from the admin's billing settings.
@@ -30,11 +35,6 @@ const questions = (free: number, pro: number) => [
   { q: "What happens to my private kits if I cancel?", a: "They stay yours and stay private. Without Pro you can't make new private tastes or multi-page kits, and the free limits apply again." },
   { q: "Who handles payment?", a: "Polar (polar.sh), as merchant of record. It runs checkout, sends invoices and handles sales tax and VAT. Livery never sees your card." },
 ];
-
-const proSummary = (l: Limits) => {
-  const times = l.free.buildsPerHour > 0 ? Math.round(l.pro.buildsPerHour / l.free.buildsPerHour) : 0;
-  return `${times >= 2 ? `${times} times the builds` : `${l.pro.buildsPerHour} builds an hour`}, tastes of up to ${l.pro.tasteSites} sites, private tastes and multi-page kits, and more room in the extension.`;
-};
 
 export default async function PricingPage({ searchParams }: PageProps<"/pricing">) {
   const params = await searchParams;
@@ -60,25 +60,23 @@ export default async function PricingPage({ searchParams }: PageProps<"/pricing"
           }] : []),
         ]}
       />
-      <PageIntro kicker="Pricing" title="Free for Almost Everything." muted="Pro When You Need More." lead="Every kit in the library, new kits from any website and the browser extension are free. Pay only if you build a lot, want bigger or private tastes, or measure many pages behind your login." />
-      <section className="px-4 py-16 sm:px-6 sm:py-20">
-        <div className="mx-auto max-w-4xl">
-          {notice && <p role="status" className="mb-8 rounded-[14px] border border-border bg-surface px-4 py-3 text-center text-sm text-fg-muted">{notice}</p>}
-          {!billing.enabled && <p role="status" className="mb-8 rounded-[14px] border border-accent/40 bg-accent-soft px-4 py-3 text-center text-sm text-accent-soft-fg">Livery is completely free right now. Pro is coming soon; until then, everyone gets the free limits below.</p>}
-          <PricingPlans plan={plan} prices={billing.prices} features={featuresFor(billing.limits)} payments={billing.enabled} proSummary={proSummary(billing.limits)} initialInterval={params.interval === "year" ? "year" : "month"} />
-          <div className="mt-16">
-            <h2 className="text-2xl font-semibold tracking-tight">Questions</h2>
-            <dl className="mt-6 grid grid-cols-1 gap-x-10 gap-y-7 sm:grid-cols-2">
-              {QUESTIONS.map(({ q, a }) => (
-                <div key={q}>
-                  <dt className="text-[15px] font-semibold tracking-tight">{q}</dt>
-                  <dd className="mt-1.5 text-sm leading-relaxed text-fg-muted">{a}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
+      <PageIntro
+        art={<PricingScene />}
+        kicker="Pricing"
+        title="Free for Almost Everything."
+        muted="Pro When You Need More."
+        lead="Every kit in the library, new kits from any website and the browser extension are free. Pay only if you build a lot, want bigger or private tastes, or measure many pages behind your login."
+      />
+      <section className="px-4 py-14 sm:px-6 sm:py-20">
+        <div className="mx-auto max-w-5xl space-y-16 sm:space-y-20">
+          {notice && <p role="status" className="rounded-[14px] border border-border bg-surface px-4 py-3 text-center text-sm text-fg-muted">{notice}</p>}
+          <PricingPlans plan={plan} prices={billing.prices} limits={billing.limits} payments={billing.enabled} initialInterval={params.interval === "year" ? "year" : "month"} />
+          <LimitRulers limits={billing.limits} />
+          <CompareTable limits={billing.limits} />
+          <PricingFaq questions={QUESTIONS} />
         </div>
       </section>
+      <FinalCta />
     </>
   );
 }

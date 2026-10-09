@@ -29,17 +29,3 @@ export const DEFAULT_SETTINGS: BillingSettings = { enabled: false, limits: DEFAU
 /** The most sites any kit can combine (the database allows 12 sources). */
 export const MAX_SITES = 12;
 
-/** The comparison on /pricing, in the words people will read. */
-export function featuresFor(limits: Limits): { label: string; free: string | boolean; pro: string | boolean }[] {
-  const { free, pro } = limits;
-  return [
-    { label: "Browse, install and download every public kit", free: "Unlimited", pro: "Unlimited" },
-    { label: "New kits from any website", free: `${free.buildsPerHour} an hour`, pro: `${pro.buildsPerHour} an hour` },
-    { label: "Pages of one site and tastes", free: `Up to ${free.tasteSites} sites`, pro: `Up to ${pro.tasteSites} sites` },
-    { label: "Private tastes and multi-page kits", free: free.privateCombined, pro: pro.privateCombined },
-    { label: "Browser extension: pages behind your login", free: `${free.capturesPerHour} pages an hour`, pro: `${pro.capturesPerHour} pages an hour` },
-    { label: "Private kits from the extension", free: true, pro: true },
-    { label: "Save kits, publish when ready", free: true, pro: true },
-    { label: "Support an independent tool", free: false, pro: true },
-  ];
-}

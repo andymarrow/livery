@@ -481,3 +481,11 @@ main {
   40% { transform: scale(1.32); }
   100% { transform: scale(1); }
 }
+
+/* Pricing: limit bars grow from zero to their value (app/(HOME)/pricing). */
+.pr-grow { transform-origin: left; animation: pr-grow 0.9s var(--ease-out-soft) var(--d, 0ms) both; }
+@keyframes pr-grow { from { transform: scaleX(0); } }
+.pr-swap { animation: rise 0.3s var(--ease-out-soft) both; }
+@media (prefers-reduced-motion: reduce) {
+  .pr-grow, .pr-swap { animation: none !important; }
+}

@@ -421,3 +421,31 @@ export function MissingScene() {
     </IsoScene>
   );
 }
+
+/** Pricing: a short stack of kits and a tall one, measured against one ruler. */
+export function PricingScene() {
+  const plate: [number, number] = [164, 100];
+  const ticks = Array.from({ length: 15 }, (_, i) => i);
+  return (
+    <IsoScene plate={plate} top={74} label="Two stacks of kits measured against a ruler: a short free stack and a tall Pro stack" pulses={4}>
+      <Plate w={164} d={100} />
+      <Cylinder x={44} y={64} z={3} r={22} h={3} delay={120} />
+      {[0, 1, 2].map((i) => (
+        <Box key={i} x={30} y={50} w={28} d={28} h={5} z={6 + i * 7} delay={260 + i * 140} pulse={i === 2 ? 0 : undefined} />
+      ))}
+      <Box x={84} y={44} w={6} d={3} h={70} z={3} delay={200} />
+      <Plane at={[84, 47, 73]} face="left" style={at(500)}>
+        {ticks.map((i) => <line key={i} x1={0} y1={i * 5} x2={i % 5 === 0 ? 5 : 2.5} y2={i * 5} className={i === 11 ? "p-hot" : "p-faint"} />)}
+      </Plane>
+      <Cylinder x={126} y={40} z={3} r={22} h={3} delay={160} />
+      {Array.from({ length: 8 }, (_, i) => (
+        <Box key={i} x={112} y={26} w={28} d={28} h={5} z={6 + i * 7} delay={420 + i * 120} tone={i === 7 ? "hot" : "plain"} pulse={i === 3 ? 1 : i === 5 ? 2 : i === 7 ? 3 : undefined} />
+      ))}
+      <Plane at={[112, 26, 60]} style={at(1500)}>
+        <text x={6} y={12} className="p-text-hot">PRO</text>
+      </Plane>
+      <Callout at={[30, 64, 18]} plate={plate} side="left" label="free · $0" delay={1000} />
+      <Callout at={[140, 40, 50]} plate={plate} label="when you need more" tone="hot" delay={1700} />
+    </IsoScene>
+  );
+}
