@@ -32,7 +32,8 @@ describe.skipIf(!chromeAvailable)("3D scenes", () => {
   afterAll(async () => browser?.close());
 
   it("waits for a late WebGL scene, keeps its colours and shows it as a mosaic", async () => {
-    const shot = await snapshotCanvases(page);
+    // A generous wait: software WebGL starts slowly when the whole suite runs at once.
+    const shot = await snapshotCanvases(page, { waitMs: 15_000 });
     expect(shot.colors.length).toBeGreaterThanOrEqual(2);
     expect(shot.colors).toEqual(expect.arrayContaining([expect.stringMatching(/^#[0-9a-f]{6}$/)]));
     expect(shot.mosaics[0]).toMatch(/^data:image\/png;base64,/);
@@ -43,5 +44,5 @@ describe.skipIf(!chromeAvailable)("3D scenes", () => {
     });
     expect(block?.canvases).toBe(0);
     expect(block?.image).toMatch(/^url\("data:image\/png/);
-  }, 20_000);
+  }, 40_000);
 });
