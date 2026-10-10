@@ -328,6 +328,16 @@ describe("kit stats", () => {
     (await db.query<{ record_kit_event: boolean }>(`select public.record_kit_event($1, $2, $3, $4)`, [kitId, kind, visitor, network])).rows[0].record_kit_event;
   const stats = async (kitId: string) => (await db.query<{ views: number; likes: number; downloads: number }>(`select views, likes, downloads from public.kit_stats where kit_id = $1`, [kitId])).rows[0];
 
+  it("lets a kit people have viewed, liked and downloaded be deleted", async () => {
+    const id = await kit();
+    await record(id, "view", h("a"), h("1"));
+    await record(id, "like", h("a"), h("1"));
+    await record(id, "download", h("b"), h("2"));
+    await asRole(db, "service_role", () => db.query(`select * from public.admin_delete_kit($1)`, [id]));
+    const left = await db.query(`select 1 from public.kits where id = $1 union all select 1 from public.kit_stats where kit_id = $1 union all select 1 from public.kit_events where kit_id = $1`, [id]);
+    expect(left.rows).toEqual([]);
+  });
+
   it("counts each person once, however often they click", async () => {
     const id = await kit();
     expect(await record(id, "view", h("a"), h("1"))).toBe(true);
